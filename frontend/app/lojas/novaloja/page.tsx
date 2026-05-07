@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { postLoja } from "@/services/uni";
 
-// Ícones Premium mantidos com cores dinâmicas
 const Icons = {
   ChevronLeft: () => (
     <svg
@@ -71,12 +72,48 @@ const Icons = {
 };
 
 export default function NovaLoja() {
+  const router = useRouter();
+
+  const [tipo, setTipo] = useState<"Loja" | "Fabrica">("Loja");
+  const [nomeLoja, setNomeLoja] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!nomeLoja.trim()) {
+      alert("Informe o nome da unidade");
+      return;
+    }
+    if (!cidade.trim()) {
+      alert("Informe a cidade");
+      return;
+    }
+    if (!endereco.trim()) {
+      alert("Informe o endereço");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await postLoja(nomeLoja.trim(), tipo, cidade.trim(), endereco.trim());
+      alert("Unidade salva com sucesso!");
+      router.push("/lojas");
+    } catch (error: any) {
+      alert("Erro ao salvar unidade. Tente novamente.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300 relative overflow-hidden">
-        {/* Glow de fundo */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="max-w-3xl mx-auto relative z-10">
@@ -101,20 +138,28 @@ export default function NovaLoja() {
             </p>
           </div>
 
-          {/* Card do Formulário */}
+          {/* Card */}
           <div className="bg-theme-card border border-theme-border rounded-[40px] p-10 shadow-2xl">
-            {/* Toggle de Tipo (Fábrica/Loja) */}
+            {/* Toggle Fábrica / Loja */}
             <div className="flex bg-theme-header p-1.5 rounded-2xl border border-theme-border w-fit mb-10">
-              <button className="px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider text-theme-text-sub/50 hover:text-theme-text-title transition-all">
-                Fábrica
-              </button>
-              <button className="px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider bg-blue-600 text-white shadow-lg shadow-blue-900/20 transition-all active:scale-95">
-                Loja
-              </button>
+              {(["Fabrica", "Loja"] as const).map((opcao) => (
+                <button
+                  key={opcao}
+                  type="button"
+                  onClick={() => setTipo(opcao)}
+                  className={`px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 ${
+                    tipo === opcao
+                      ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20"
+                      : "text-theme-text-sub/50 hover:text-theme-text-title"
+                  }`}
+                >
+                  {opcao === "Fabrica" ? "Fábrica" : "Loja"}
+                </button>
+              ))}
             </div>
 
-            <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-              {/* Nome da Unidade */}
+            <form className="space-y-8" onSubmit={handleSubmit}>
+              {/* Nome */}
               <div className="space-y-2">
                 <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
                   Identificação da Unidade
@@ -125,13 +170,15 @@ export default function NovaLoja() {
                   </div>
                   <input
                     type="text"
+                    value={nomeLoja}
+                    onChange={(e) => setNomeLoja(e.target.value)}
                     placeholder="EX: UNIDADE CENTRAL PATOS"
                     className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm tracking-tight"
                   />
                 </div>
               </div>
 
-              {/* Localização Grid */}
+              {/* Cidade + Endereço */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
@@ -143,6 +190,8 @@ export default function NovaLoja() {
                     </div>
                     <input
                       type="text"
+                      value={cidade}
+                      onChange={(e) => setCidade(e.target.value)}
                       placeholder="CIDADE"
                       className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm"
                     />
@@ -154,53 +203,15 @@ export default function NovaLoja() {
                   </label>
                   <input
                     type="text"
+                    value={endereco}
+                    onChange={(e) => setEndereco(e.target.value)}
                     placeholder="RUA, NÚMERO, BAIRRO"
                     className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 px-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm"
                   />
                 </div>
               </div>
 
-              {/* Responsável */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
-                  Gestor Responsável
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
-                    <Icons.User />
-                  </div>
-                  <select
-                    defaultValue=""
-                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold appearance-none cursor-pointer uppercase text-sm"
-                  >
-                    <option value="" disabled className="bg-theme-card">
-                      SELECIONE O GESTOR
-                    </option>
-                    <option value="1" className="bg-theme-card">
-                      JOÃO SILVA
-                    </option>
-                    <option value="2" className="bg-theme-card">
-                      OSMAR FILHO
-                    </option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none text-theme-text-sub/30">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m6 9 6 6 6-6" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* Botões de Ação */}
+              {/* Botões */}
               <div className="grid grid-cols-2 gap-6 pt-6">
                 <Link
                   href="/lojas"
@@ -210,9 +221,14 @@ export default function NovaLoja() {
                 </Link>
                 <button
                   type="submit"
-                  className="py-4 rounded-2xl bg-blue-600 text-white font-black text-[12px] uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-900/20 transition-all active:scale-95 border-none"
+                  disabled={loading}
+                  className={`py-4 rounded-2xl bg-blue-600 text-white font-black text-[12px] uppercase tracking-widest shadow-xl shadow-blue-900/20 transition-all active:scale-95 border-none ${
+                    loading
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-blue-700"
+                  }`}
                 >
-                  Salvar Unidade
+                  {loading ? "Salvando..." : "Salvar Unidade"}
                 </button>
               </div>
             </form>

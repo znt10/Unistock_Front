@@ -1,36 +1,76 @@
 import { apiFetch, apiV1 } from './api';
+import { useAuthStore } from '@/stores/authStore';
+// 🔹 LOGIN
 
-export const login = async (email: string, password: string) => {
-  return apiFetch('/login/', {
-    method: 'POST',
-    body: JSON.stringify({
-      email: email,
-      password,
-    }),
-  });
-};
-export const getCurrentUser = async () => {
-  return apiV1('/user/me/', {
+
+export const getMe = async () => {
+  const response = await apiV1('/user/me/', {
     method: 'GET',
   });
-}
+  return response.json();
+};
 
-
-export const logout = async () => {
-  return apiFetch('/logout/', {
+export const login = async (email: string, password: string) => {
+  const response = await apiFetch('/login/', {
     method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.error || "Erro ao fazer login");
+
+  const userInfo = await getMe();
+  useAuthStore.getState().setUser({
+    id: userInfo.id,
+    email: userInfo.email,
+    first_name: userInfo.first_name,
+    group: userInfo.group,
+    loja_id: userInfo.loja?.id ?? null,
+    loja_nome: userInfo.loja?.nome ?? null,
   });
 };
- 
-export const register = async (
 
+
+// 🔹 LOGOUT
+export const logout = async () => {
+  try {
+    // Pega o token do cookie
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('access_token='))
+      ?.split('=')[1];
+
+    const response = await apiFetch('/logout/', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${token}`,  
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response) {
+      useAuthStore.getState().clearUser();
+      window.location.href = '/';
+    }
+
+    return response;
+  } catch (error) {
+    console.error("Erro ao fazer logout:", error);
+    throw error;
+  }
+};
+
+
+// 🔹 REGISTER
+export const register = async (
   first_name: string,
   email: string,
   password: string,
   tipo_usuario: string,
   id_loja?: number | string
 ) => {
-    return apiV1('/user/registrar/', {
+  return await apiV1('/user/registrar/', {
     method: 'POST',
     body: JSON.stringify({
       first_name,
@@ -42,17 +82,3 @@ export const register = async (
   });
 };
 
-
-export const getRelatorio = async () => {
-  // Usamos o fetch nativo para evitar as travas do seu apiFetch customizado
-  const response = await fetch("http://127.0.0.1:8000/gerar_pdf/", {
-    method: 'GET',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Erro no servidor: ${response.status}`);
-  }
-
-  // Aqui está o pulo do gato: pegamos como blob (binário)
-  return await response.blob(); 
-};

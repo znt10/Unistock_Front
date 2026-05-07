@@ -6,15 +6,19 @@ from django.db import transaction
 
 
 class ItemPedidoSerializer(serializers.ModelSerializer):
+    produto = serializers.PrimaryKeyRelatedField(queryset=Produto.objects.all())
+    produto_nome = serializers.ReadOnlyField(source='produto.nome_produto')  # ← adiciona
+
     class Meta:
         model = ItemPedido
-        fields = ['produto', 'quantidade']
-
+        fields = ['produto', 'produto_nome', 'quantidade'] 
 
 
 
 class PedidoSerializer(serializers.ModelSerializer):
-    itens = ItemPedidoSerializer(many=True, required=False)
+    # MUDANÇA 1: required=True (padrão) garante que a chave 'itens' deve ser enviada
+    itens = ItemPedidoSerializer(many=True) 
+    status = serializers.CharField(read_only=True)
     data = serializers.SerializerMethodField()
     hora = serializers.SerializerMethodField()
     responsavel = serializers.ReadOnlyField(source='responsavel.username')
@@ -24,26 +28,27 @@ class PedidoSerializer(serializers.ModelSerializer):
         fields = ['id', 'responsavel', 'loja', 'status', 'data', 'hora', 'itens', 'descricao']
 
     def get_data(self, obj):
-        return obj.data_pedido.strftime('%Y-%m-%d')
+        return obj.data_pedido.strftime('%Y-%m-%d') if obj.data_pedido else None
 
     def get_hora(self, obj):
-        return obj.data_pedido.strftime('%H:%M:%S')
+        return obj.data_pedido.strftime('%H:%M:%S') if obj.data_pedido else None
 
     def validate(self, data):
         itens = data.get('itens', [])
 
+        # MUDANÇA 2: Retornar erro em formato de dicionário para o campo 'itens'
         if not itens:
-            raise serializers.ValidationError("O pedido precisa ter pelo menos um item.")
+            raise serializers.ValidationError({"itens": "O pedido precisa ter pelo menos um item."})
 
         for item in itens:
-            if item['quantidade'] <= 0:
-                raise serializers.ValidationError("Quantidade deve ser maior que zero.")
+            if item.get('quantidade', 0) <= 0:
+                raise serializers.ValidationError({"itens": "A quantidade de cada item deve ser maior que zero."})
 
         return data
 
     @transaction.atomic
     def create(self, validated_data):
-        itens_data = validated_data.pop('itens', [])
+        itens_data = validated_data.pop('itens')
         user = self.context['request'].user
 
         pedido = Pedido.objects.create(
@@ -52,11 +57,11 @@ class PedidoSerializer(serializers.ModelSerializer):
         )
 
         for item in itens_data:
+            
             ItemPedido.objects.create(
                 pedido=pedido,
-                produto=item['produto'],
-                quantidade=item['quantidade'],
-                responsavel=user
+                responsavel=user,
+                **item 
             )
 
         return pedido
@@ -127,7 +132,12 @@ class LojaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Loja
-        fields = ['id', 'nome_loja', 'endereco', 'responsavel', 'responsavel_nome']
+        fields = ['id', 'nome_loja', 'tipo', 'cidade','endereco', 'responsavel', 'responsavel_nome','ativo']
+    def get_fields(self):
+        fields = super().get_fields()
+        fields['responsavel'].required = False  
+        fields['responsavel'].allow_null = True  
+        return fields
 
 class EstoqueSerializer(serializers.ModelSerializer):
     class Meta:

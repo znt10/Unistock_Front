@@ -10,7 +10,6 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen bg-theme-base text-theme-text-title font-sans antialiased transition-colors duration-300">
       <Sidebar />
-
       <main className="flex-1 p-4 md:p-10 lg:ml-64 transition-all duration-300">
         {/* Header Superior */}
         <div className="flex justify-between items-start mb-10 mt-12 lg:mt-0">

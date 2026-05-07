@@ -3,8 +3,8 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { useLojas } from "@/hooks/useLoja";
 
-// Ícones com traços espessos para o padrão UniStock
 const Icons = {
   Plus: () => (
     <svg
@@ -67,54 +67,16 @@ const Icons = {
 };
 
 export default function LojasGerencia() {
-  const lojas = [
-    {
-      nome: "LOJA NORTE",
-      cidade: "PATOS",
-      responsavel: "JOÃO FILHO",
-      telefone: "(83) 99999-9999",
-      status: "Ativa",
-    },
-    {
-      nome: "LOJA CENTRO",
-      cidade: "PATOS",
-      responsavel: "JOSÉ NETO",
-      telefone: "(83) 98888-8888",
-      status: "Ativa",
-    },
-    {
-      nome: "LOJA LIMÃO",
-      cidade: "PATOS",
-      responsavel: "OSMAR FILHO",
-      telefone: "(83) 97777-7777",
-      status: "Ativa",
-    },
-    {
-      nome: "LOJA LAPA",
-      cidade: "PATOS",
-      responsavel: "NETO",
-      telefone: "(83) 96666-6666",
-      status: "Ativa",
-    },
-    {
-      nome: "LOJA SUL",
-      cidade: "PATOS",
-      responsavel: "MARCOS",
-      telefone: "(83) 96666-6666",
-      status: "Inativa",
-    },
-  ];
+  const { data: lojas = [], isLoading } = useLojas();
 
   return (
     <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300 relative">
-        {/* Glow de fundo sutil */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="relative z-10">
-          {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
             <div>
               <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
@@ -127,14 +89,13 @@ export default function LojasGerencia() {
 
             <Link
               href="/lojas/novaloja"
-              className="flex items-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-900/20 active:scale-95 border-none"
+              className="flex items-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-900/20 active:scale-95"
             >
               <Icons.Plus /> Criar Nova Unidade
             </Link>
           </div>
 
-          {/* Tabela Card */}
-          <div className="bg-theme-card border border-theme-border rounded-[32px] overflow-hidden shadow-2xl transition-all">
+          <div className="bg-theme-card border border-theme-border rounded-[32px] overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -146,10 +107,10 @@ export default function LojasGerencia() {
                       Cidade
                     </th>
                     <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
-                      Gestor
+                      Endereço
                     </th>
                     <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
-                      Contato
+                      Responsável
                     </th>
                     <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
                       Status
@@ -160,67 +121,79 @@ export default function LojasGerencia() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-theme-border">
-                  {lojas.map((loja, index) => (
-                    <tr
-                      key={index}
-                      className="group hover:bg-theme-hover transition-all cursor-default"
-                    >
-                      <td className="p-7">
-                        <Link
-                          href="/lojas/detalhes"
-                          className="text-[17px] font-black text-theme-text-title group-hover:text-blue-500 transition-colors tracking-tight uppercase"
-                        >
-                          {loja.nome}
-                        </Link>
-                      </td>
-                      <td className="p-7 text-theme-text-sub/80 font-bold text-sm tracking-wide">
-                        {loja.cidade}
-                      </td>
-                      <td className="p-7 text-theme-text-sub/80 font-bold text-sm">
-                        {loja.responsavel}
-                      </td>
-                      <td className="p-7 text-theme-text-sub/40 font-mono text-sm tracking-tighter">
-                        {loja.telefone}
-                      </td>
-                      <td className="p-7">
-                        <span
-                          className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
-                            loja.status === "Ativa"
-                              ? "bg-green-500/5 text-green-500 border-green-500/20"
-                              : "bg-red-500/5 text-red-500 border-red-500/20"
-                          }`}
-                        >
-                          {loja.status}
-                        </span>
-                      </td>
-                      <td className="p-7">
-                        <div className="flex justify-center">
-                          <Link
-                            href="/lojas/detalhes"
-                            className="p-3 bg-theme-header border border-theme-border rounded-xl text-theme-text-sub/40 hover:text-blue-500 hover:border-blue-500/40 hover:bg-theme-hover transition-all active:scale-90"
-                          >
-                            <Icons.Edit />
-                          </Link>
-                        </div>
+                  {isLoading ? (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="p-10 text-center text-theme-text-sub/40 text-sm"
+                      >
+                        Carregando...
                       </td>
                     </tr>
-                  ))}
+                  ) : lojas.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="p-10 text-center text-theme-text-sub/40 text-sm"
+                      >
+                        Nenhuma loja cadastrada.
+                      </td>
+                    </tr>
+                  ) : (
+                    lojas.map((loja) => (
+                      <tr
+                        key={loja.id}
+                        className="group hover:bg-theme-hover transition-all cursor-default"
+                      >
+                        <td className="p-7">
+                          <span className="text-[17px] font-black text-theme-text-title group-hover:text-blue-500 transition-colors tracking-tight uppercase">
+                            {loja.nome_loja}
+                          </span>
+                        </td>
+                        <td className="p-7 text-theme-text-sub/80 font-bold text-sm uppercase">
+                          {loja.cidade}
+                        </td>
+                        <td className="p-7 text-theme-text-sub/80 font-bold text-sm">
+                          {loja.endereco}
+                        </td>
+                        <td className="p-7 text-theme-text-sub/80 font-bold text-sm">
+                          {loja.responsavel_nome}
+                        </td>
+                        <td className="p-7">
+                          <span
+                            className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
+                              loja.ativo
+                                ? "bg-green-500/5 text-green-500 border-green-500/20"
+                                : "bg-red-500/5 text-red-500 border-red-500/20"
+                            }`}
+                          >
+                            {loja.ativo ? "Ativa" : "Inativa"}
+                          </span>
+                        </td>
+                        <td className="p-7">
+                          <div className="flex justify-center">
+                            <Link
+                              href={`/lojas/${loja.id}`}
+                              className="p-3 bg-theme-header border border-theme-border rounded-xl text-theme-text-sub/40 hover:text-blue-500 hover:border-blue-500/40 hover:bg-theme-hover transition-all active:scale-90"
+                            >
+                              <Icons.Edit />
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
-            {/* Paginação */}
             <div className="p-8 border-t border-theme-border flex justify-center items-center gap-4 bg-theme-header/30">
               <button className="w-11 h-11 flex items-center justify-center bg-theme-header border border-theme-border rounded-xl text-theme-text-sub/40 hover:text-theme-text-title hover:bg-theme-hover transition-all active:scale-90">
                 <Icons.ChevronLeft />
               </button>
-
-              <div className="flex gap-2">
-                <span className="w-11 h-11 flex items-center justify-center bg-blue-600 text-white font-black rounded-xl text-sm shadow-lg shadow-blue-900/40 border border-blue-500">
-                  1
-                </span>
-              </div>
-
+              <span className="w-11 h-11 flex items-center justify-center bg-blue-600 text-white font-black rounded-xl text-sm shadow-lg shadow-blue-900/40 border border-blue-500">
+                1
+              </span>
               <button className="w-11 h-11 flex items-center justify-center bg-theme-header border border-theme-border rounded-xl text-theme-text-sub/40 hover:text-theme-text-title hover:bg-theme-hover transition-all active:scale-90">
                 <Icons.ChevronRight />
               </button>
