@@ -20,7 +20,8 @@ from reportlab.lib.pagesizes import A4
 from django.utils import timezone
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 
 def relatorio_pdf(request):
@@ -136,6 +137,45 @@ def relatorio_pdf(request):
     doc.build(elementos, onLaterPages=add_page_number, onFirstPage=add_page_number)
     return response
 
+
+
+
+class CookieTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        # 1. Pega o refresh token que está salvo no cookie
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if not refresh_token:
+            return Response(
+                {"detail": "Refresh token não encontrado no cookie."}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # 2. Injeta o token no 'data' da requisição para enganar o SimpleJWT,
+        # fazendo ele achar que o token veio no body como ele espera.
+        request.data['refresh'] = refresh_token
+
+        try:
+            # 3. Chama a view original do SimpleJWT para fazer a mágica de renovação
+            response = super().post(request, *args, **kwargs)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        # 4. Se deu tudo certo, pegamos o novo access_token e atualizamos o cookie
+        if response.status_code == 200:
+            access_token = response.data.get('access')
+
+            response.set_cookie(
+                key='access_token',
+                value=access_token,
+                httponly=True,  # Impede acesso via JavaScript (XSS)
+                secure=False,   # Mude para True em produção (HTTPS)
+                samesite='Lax'  # Ou 'None' se front e back estiverem em domínios diferentes (exige secure=True)
+            )
+            
+            
+        return response
+    
 
 
 class LoginView(APIView):
