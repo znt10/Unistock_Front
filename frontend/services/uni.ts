@@ -42,11 +42,29 @@ export const postPedido = async (pedidoData: PedidoData) => {
   return res.json();
 };
 
-export const getPedidos = async () => {
-  const res = await apiV1('/pedidos/', {
-    method: 'GET',
-  });
-return res.json();
+export const getPedidos = async (filters?: {
+  status?: string;
+  data?: string;
+}) => {
+
+  const params = new URLSearchParams();
+
+  if (filters?.status) {
+    params.append("status", filters.status);
+  }
+
+  if (filters?.data) {
+    params.append("data", filters.data);
+  } 
+  const query = params.toString();
+  const res = await apiV1(
+    `/pedidos/${query ? `?${query}` : ""}`,
+    {
+      method: "GET",
+    }
+  );
+
+  return res.json();
 };
 
 
@@ -95,4 +113,21 @@ export const patchLoja = async (id: number, data: Partial<{ responsavel: number;
         body: JSON.stringify(data),
     });
     return res.json();
+};
+
+// No seu arquivo de API (ex: services/api.ts)
+
+export const getLojaById = async (id: string) => {
+  const res = await apiV1(`/lojas/${id}/`, {
+    method: 'GET',
+  });
+  if (!res.ok) throw new Error("Erro ao buscar detalhes da loja");
+  return res.json();
+};
+
+export const deleteLoja = async (id: string) => {
+  const res = await apiV1(`/lojas/${id}/`, {
+    method: 'DELETE',
+  });
+  return res.ok;
 };

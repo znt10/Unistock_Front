@@ -173,7 +173,7 @@ export default function LojasGerencia() {
                         <td className="p-7">
                           <div className="flex justify-center">
                             <Link
-                              href={`/lojas/${loja.id}`}
+                              href={`/lojas/detalhes/${loja.id}`}
                               className="p-3 bg-theme-header border border-theme-border rounded-xl text-theme-text-sub/40 hover:text-blue-500 hover:border-blue-500/40 hover:bg-theme-hover transition-all active:scale-90"
                             >
                               <Icons.Edit />

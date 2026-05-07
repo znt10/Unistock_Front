@@ -37,10 +37,25 @@ class Produto(BaseModel):
     
 
 class Pedido(BaseModel):
+
     
+    class Status(models.TextChoices):
+        PENDENTE = "PENDENTE", "Pendente"
+        ENTREGUE = "ENTREGUE", "Entregue"
+        CANCELADO = "CANCELADO", "Cancelado"
+
     responsavel = models.ForeignKey(User, on_delete=models.CASCADE)
-    loja = models.ForeignKey(Loja, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50)
+
+    loja = models.ForeignKey(
+        Loja,
+        on_delete=models.CASCADE
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDENTE
+    )
     descricao = models.TextField(blank=True, null=True)
     data_pedido = models.DateTimeField(auto_now_add=True)
 

@@ -5,6 +5,9 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import datetime, time
+from django.utils.timezone import make_aware
+
 
 from django.contrib.auth.models import User
 
@@ -77,6 +80,35 @@ class PedidoViewSet( viewsets.ModelViewSet):
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated,IsGerenteOrAdministradorOrResponsavel]
 
+    def get_queryset(self):
+            queryset = Pedido.objects.all().order_by('-data_pedido')
+
+            status = self.request.query_params.get('status')
+            data = self.request.query_params.get('data')
+
+            if status:
+                queryset = queryset.filter(status=status)
+
+            if data:
+                data_inicio = make_aware(
+                    datetime.combine(
+                        datetime.strptime(data, "%Y-%m-%d").date(),
+                        time.min
+                    )
+                )
+
+                data_fim = make_aware(
+                    datetime.combine(
+                        datetime.strptime(data, "%Y-%m-%d").date(),
+                        time.max
+                    )
+                )
+
+                queryset = queryset.filter(
+                    data_pedido__range=(data_inicio, data_fim)
+                )
+
+            return queryset
 
 # 🔹 USUÁRIO
 class UsuarioViewSet(UserOuAdminMixin, viewsets.ModelViewSet):

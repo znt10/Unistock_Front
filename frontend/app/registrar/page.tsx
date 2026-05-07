@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { register, getLoja } from "@/services/auth";
+import { register } from "@/services/auth";
+import { getLoja } from "@/services/uni";
 
 // Importando os ícones de olho
 import { CubeIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";

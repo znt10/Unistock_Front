@@ -237,7 +237,7 @@ const MENU_CONFIG: Record<
     { href: "/dashboard", label: "Painel Geral", icon: "Painel" },
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
-    { href: "/Painel_unidade", label: "Painel_unidade", icon: "List" },
+    { href: "/Painel_unidade", label: "Painel unidade", icon: "List" },
     { href: "/registrar", label: "Usuários", icon: "UserCircle" },
   ],
   Responsavel: [
