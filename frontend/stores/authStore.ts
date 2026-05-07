@@ -1,21 +1,43 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+interface User {
+  id: number;
+  email: string;
+  first_name: string;
+  group: string;
+  loja_id: number | null;
+  loja_nome: string | null;
+}
 
 interface AuthState {
-  user: any;
-  theme: 'Claro' | 'Dark Blue'; // Tipagem para evitar erros
-  setUser: (user: any) => void;
-  setTheme: (theme: 'Claro' | 'Dark Blue') => void;
+  user: User | null;
+  hydrated: boolean;
+  setUser: (user: User) => void;
+  clearUser: () => void;
+  setHydrated: (value: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      theme: 'Dark Blue', // Valor inicial
+      hydrated: false,
+
       setUser: (user) => set({ user }),
-      setTheme: (theme) => set({ theme }),
+      clearUser: () => set({ user: null }),
+
+      setHydrated: (value) => set({ hydrated: value }),
     }),
-    { name: 'auth-storage' } // Chave no LocalStorage
+    {
+      name: "auth-storage",
+      partialize: (state) => ({
+        user: state.user,
+      }),
+
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+      },
+    }
   )
 );

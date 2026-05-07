@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import { useTheme } from "@/hooks/useTheme"; // 👇 1. Importamos o hook global
+import { useTheme } from "next-themes";
 
 const Icons = {
   Palette: () => (
@@ -101,16 +101,14 @@ const Icons = {
 };
 
 export default function PersonalizacaoPerfil() {
-  const { theme: temaAtual, setTheme: setTemaAtual, isDark } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  // 3. As variáveis de cor continuam idênticas!
-  const bgPrincipal = isDark ? "bg-[#0a0f1c]" : "bg-[#f8fafc]";
-  const bgCard = isDark ? "bg-[#121826]" : "bg-white";
-  const bgIcone = isDark ? "bg-[#0f1629]" : "bg-blue-50";
-  const corBorda = isDark ? "border-[#1f2a44]" : "border-gray-200";
-  const corHover = isDark ? "hover:bg-[#1a2238]" : "hover:bg-gray-50";
-  const corTextoTitulo = isDark ? "text-white" : "text-gray-900";
-  const corTextoSub = isDark ? "text-gray-400" : "text-gray-500";
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null; //
 
   const opcoesPersonalizacao = [
     {
@@ -136,9 +134,7 @@ export default function PersonalizacaoPerfil() {
   ];
 
   return (
-    <div
-      className={`flex min-h-screen ${bgPrincipal} font-sans antialiased transition-colors duration-300`}
-    >
+    <div className="flex min-h-screen bg-theme-base font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300">
@@ -147,86 +143,83 @@ export default function PersonalizacaoPerfil() {
             <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
               Interface do Sistema
             </span>
-            <h1
-              className={`text-3xl font-bold tracking-tight ${corTextoTitulo}`}
-            >
+            <h1 className="text-3xl font-bold tracking-tight text-theme-text-title">
               Personalização do Perfil
             </h1>
           </div>
+
           <Link
             href="/configuracoes"
-            className={`group ${bgCard} border ${corBorda} px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest ${corTextoSub} ${corHover} transition-all flex items-center gap-2 shadow-sm`}
+            className="group bg-theme-card border border-theme-border px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest text-theme-text-sub hover:bg-theme-hover transition-all flex items-center gap-2 shadow-sm"
           >
             <Icons.ChevronLeft /> Voltar
           </Link>
         </div>
 
+        {/* Tema */}
         <div className="max-w-4xl mb-12">
           <div className="flex items-center gap-4 mb-6">
-            <span
-              className={`text-[10px] font-black uppercase tracking-[3px] ${corTextoSub}`}
-            >
+            <span className="text-[10px] font-black uppercase tracking-[3px] text-theme-text-sub">
               Aparência Atual
             </span>
-            <div className={`h-[1px] flex-1 border-t ${corBorda}`}></div>
+            <div className="h-[1px] flex-1 border-t border-theme-border"></div>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 max-w-lg gap-4">
-            {/* Opções de Tema com Click */}
-            {(["Claro", "Dark Blue"] as const).map((tema) => (
+            {(["light", "dark"] as const).map((t) => (
               <button
-                key={tema}
-                onClick={() => setTemaAtual(tema)} // 👇 Isso agora salva no Zustand e no LocalStorage!
-                className={`p-6 rounded-2xl border-2 transition-all cursor-pointer shadow-sm text-left flex flex-col items-center ${
-                  temaAtual === tema
-                    ? `${bgCard} border-blue-500 scale-[1.02] ring-4 ring-blue-500/10`
-                    : `${bgCard} ${corBorda} hover:border-blue-500/50`
+                key={t}
+                onClick={() => setTheme(t)}
+                className={`p-6 rounded-2xl border-2 transition-all cursor-pointer shadow-sm flex flex-col items-center ${
+                  resolvedTheme === t
+                    ? "bg-theme-card border-blue-500 scale-[1.02] ring-4 ring-blue-500/10"
+                    : "bg-theme-card border-theme-border hover:border-blue-500/50"
                 }`}
               >
                 <div
                   className={`w-full h-20 rounded-lg mb-4 border ${
-                    tema === "Claro"
+                    t === "light"
                       ? "bg-white border-gray-200"
                       : "bg-[#0a0f1c] border-[#1f2a44]"
                   }`}
-                ></div>
+                />
                 <span
-                  className={`text-sm font-black uppercase tracking-wider ${temaAtual === tema ? "text-blue-500" : corTextoTitulo}`}
+                  className={`text-sm font-black uppercase tracking-wider ${
+                    resolvedTheme === t
+                      ? "text-blue-500"
+                      : "text-theme-text-title"
+                  }`}
                 >
-                  {tema}
+                  {t === "dark" ? "Dark Blue" : "Claro"}
                 </span>
               </button>
             ))}
           </div>
         </div>
 
+        {/* Opções */}
         <div className="max-w-4xl space-y-4">
           {opcoesPersonalizacao.map((item, index) => (
             <button
               key={index}
-              className={`w-full ${bgCard} border ${corBorda} rounded-[24px] p-6 flex items-center justify-between hover:border-blue-500/40 ${corHover} transition-all group shadow-sm active:scale-[0.99]`}
+              className="w-full bg-theme-card border border-theme-border rounded-[24px] p-6 flex items-center justify-between hover:border-blue-500/40 hover:bg-theme-hover transition-all group shadow-sm active:scale-[0.99]"
             >
               <div className="flex items-center gap-4 md:gap-7">
-                <div
-                  className={`${bgIcone} p-4 rounded-[20px] text-blue-500 border ${corBorda} group-hover:border-blue-500/30 transition-all`}
-                >
+                <div className="bg-theme-header p-4 rounded-[20px] text-blue-500 border border-theme-border group-hover:border-blue-500/30 transition-all">
                   {item.icon}
                 </div>
+
                 <div className="text-left">
-                  <h3
-                    className={`text-[17px] md:text-[19px] font-black tracking-tight group-hover:text-blue-500 ${corTextoTitulo}`}
-                  >
+                  <h3 className="text-[17px] md:text-[19px] font-black tracking-tight text-theme-text-title group-hover:text-blue-500">
                     {item.titulo}
                   </h3>
-                  <p
-                    className={`text-xs md:text-sm font-medium mt-1 ${corTextoSub}`}
-                  >
+                  <p className="text-xs md:text-sm font-medium mt-1 text-theme-text-sub">
                     {item.subtitulo}
                   </p>
                 </div>
               </div>
-              <div
-                className={`${bgIcone} p-2 rounded-full border ${corBorda} text-blue-500/50 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:translate-x-1 transition-all`}
-              >
+
+              <div className="bg-theme-header p-2 rounded-full border border-theme-border text-blue-500/50 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:translate-x-1 transition-all">
                 <Icons.ChevronRight />
               </div>
             </button>

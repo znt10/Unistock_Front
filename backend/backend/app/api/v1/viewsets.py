@@ -25,26 +25,20 @@ from rest_framework.decorators import action
 def is_gerente_ou_admin(user):
     return user.is_superuser or user.groups.filter(name='Gerente').exists()
 
-
+    
 # 🔹 LOJA
 class LojaViewSet(viewsets.ModelViewSet):
-    queryset = Loja.objects.all()
+    queryset = Loja.objects.all().order_by('id') 
     serializer_class = LojaSerializer
     
     def get_permissions(self):
         if self.action == 'list':
             return [AllowAny()]
-        return [IsAuthenticated(), IsGerenteOrAdministrador()]
+        return [IsAuthenticated()]
 
-    def get_queryset(self):
-        user = self.request.user
-        # Se for um Responsável já logado, ele só vê a própria loja (opcional)
-        if user.is_authenticated and user.groups.filter(name='Responsavel').exists():
-            return Loja.objects.filter(responsavel=user) # Ajuste conforme seu model
-        return Loja.objects.all()
 
 # 🔹 ESTOQUE
-class EstoqueViewSet(viewsets.ModelViewSet):
+class EstoqueViewSet(viewsets.ModelViewSet,ResponsavelOuAdminMixin):
     queryset = Estoque.objects.all()
     serializer_class = EstoqueSerializer
     permission_classes = [IsAuthenticated,IsGerenteOrAdministrador]
@@ -78,8 +72,8 @@ class ItemPedidoViewSet(ResponsavelOuAdminMixin,viewsets.ModelViewSet):
 
 
 # 🔹 PEDIDO 
-class PedidoViewSet(ResponsavelOuAdminMixin, viewsets.ModelViewSet):
-    queryset = Pedido.objects.all()
+class PedidoViewSet( viewsets.ModelViewSet):
+    queryset = Pedido.objects.all().order_by('-data_pedido')
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated,IsGerenteOrAdministradorOrResponsavel]
 

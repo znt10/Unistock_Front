@@ -15,7 +15,10 @@ class BaseModel(models.Model):
 
 class Loja(BaseModel):
     nome_loja = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=50, null=True, blank=True)
+    cidade = models.CharField(max_length=100)
     endereco = models.CharField(max_length=255)
+    ativo = models.BooleanField(default=True)
     responsavel = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

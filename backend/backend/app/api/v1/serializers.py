@@ -7,10 +7,11 @@ from django.db import transaction
 
 class ItemPedidoSerializer(serializers.ModelSerializer):
     produto = serializers.PrimaryKeyRelatedField(queryset=Produto.objects.all())
+    produto_nome = serializers.ReadOnlyField(source='produto.nome_produto')  # ← adiciona
 
     class Meta:
         model = ItemPedido
-        fields = ['produto', 'quantidade']
+        fields = ['produto', 'produto_nome', 'quantidade'] 
 
 
 
@@ -131,7 +132,12 @@ class LojaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Loja
-        fields = ['id', 'nome_loja', 'endereco', 'responsavel', 'responsavel_nome']
+        fields = ['id', 'nome_loja', 'tipo', 'cidade','endereco', 'responsavel', 'responsavel_nome','ativo']
+    def get_fields(self):
+        fields = super().get_fields()
+        fields['responsavel'].required = False  
+        fields['responsavel'].allow_null = True  
+        return fields
 
 class EstoqueSerializer(serializers.ModelSerializer):
     class Meta:

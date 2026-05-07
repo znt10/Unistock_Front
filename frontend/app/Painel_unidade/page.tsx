@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import { getRelatorio } from "@/services/auth";
+import { getRelatorio } from "@/services/uni";
+import { useLojas } from "@/hooks/useLoja";
 
 const Icons = {
   Building: () => (
@@ -66,6 +67,7 @@ const Icons = {
 };
 
 export default function GerenciaPedidos() {
+  const { data: lojas = [], isLoading, isError } = useLojas();
   const [isExporting, setIsExporting] = useState(false);
 
   // Função para buscar o PDF e abrir em nova aba
@@ -76,11 +78,11 @@ export default function GerenciaPedidos() {
       const pdfUrl = URL.createObjectURL(blob);
       window.open(pdfUrl, "_blank");
 
-      // Limpeza opcional após 1 minuto para não ocupar memória
       setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
-    } catch (error) {
-      console.error("Erro ao gerar relatório:", error);
-      alert("Houve um erro ao gerar o PDF de hoje.");
+    } catch (error: any) {
+      console.error("Erro detalhado:", error);
+
+      alert(error?.message || "Erro ao gerar PDF");
     } finally {
       setIsExporting(false);
     }
@@ -187,67 +189,48 @@ export default function GerenciaPedidos() {
         </div>
 
         {/* Grid de Unidades */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {unidades.map((unidade) => (
-            <div
-              key={unidade.id}
-              className="bg-theme-card border border-theme-border rounded-[32px] p-8 hover:border-blue-500/30 transition-all group relative overflow-hidden shadow-2xl"
-            >
-              <div className="flex justify-between items-start mb-8 relative z-10">
-                <div className="flex items-center gap-5">
-                  <div className="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/10 group-hover:scale-110 transition-transform">
-                    <Icons.Building />
+        {isLoading ? (
+          <p>Carregando...</p>
+        ) : isError ? (
+          <p>Erro ao carregar lojas.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {Array.isArray(lojas) &&
+              lojas.map((loja: any) => (
+                <div
+                  key={loja.id}
+                  className="bg-theme-card border border-theme-border rounded-[32px] p-8 hover:border-blue-500/30 transition-all group relative overflow-hidden shadow-2xl"
+                >
+                  <div className="flex justify-between items-start mb-8 relative z-10">
+                    <div className="flex items-center gap-5">
+                      <div className="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/10 group-hover:scale-110 transition-transform">
+                        <Icons.Building />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-black text-theme-text-title">
+                          {loja.nome_loja}
+                        </h2>
+                        <span className="text-green-500 text-[10px] font-bold flex items-center gap-1.5 uppercase tracking-wider mt-0.5">
+                          <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>{" "}
+                          Sistema Online
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-black text-theme-text-title">
-                      {unidade.nome}
-                    </h2>
-                    <span className="text-green-500 text-[10px] font-bold flex items-center gap-1.5 uppercase tracking-wider mt-0.5">
-                      <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>{" "}
-                      Sistema Online
-                    </span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Status Boxes */}
-              <div className="grid grid-cols-2 gap-4 mb-8 relative z-10">
-                <div className="bg-theme-base p-5 rounded-2xl border border-theme-border/50">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Icons.Files />
-                    <span className="text-[10px] font-black text-theme-text-sub uppercase tracking-widest">
-                      Solicitações
-                    </span>
-                  </div>
-                  <p className="text-2xl font-black text-blue-500">
-                    {unidade.pedidosAbertos} itens
-                  </p>
-                </div>
-                <div className="bg-theme-base p-5 rounded-2xl border border-theme-border/50">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Icons.Clock />
-                    <span className="text-[10px] font-black text-theme-text-sub uppercase tracking-widest">
-                      Atividade
-                    </span>
-                  </div>
-                  <p className="text-2xl font-black text-theme-text-title">
-                    {unidade.ultimaAtividade}
-                  </p>
-                </div>
-              </div>
+                  {/* Botão de Ação */}
+                  <Link href="/meuspedidos">
+                    <button className="w-full bg-theme-text-title hover:opacity-90 text-theme-base font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-[2px] shadow-lg relative z-10 active:scale-[0.98]">
+                      Ver Pedidos da Loja
+                    </button>
+                  </Link>
 
-              {/* Botão de Ação */}
-              <Link href="/meuspedidos">
-                <button className="w-full bg-theme-text-title hover:opacity-90 text-theme-base font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-[2px] shadow-lg relative z-10 active:scale-[0.98]">
-                  Ver Pedidos da Loja
-                </button>
-              </Link>
-
-              {/* Detalhe de fundo decorativo */}
-              <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-blue-600/5 rounded-full blur-3xl group-hover:bg-blue-600/10 transition-colors"></div>
-            </div>
-          ))}
-        </div>
+                  {/* Detalhe de fundo decorativo */}
+                  <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-blue-600/5 rounded-full blur-3xl group-hover:bg-blue-600/10 transition-colors"></div>
+                </div>
+              ))}
+          </div>
+        )}
       </main>
     </div>
   );

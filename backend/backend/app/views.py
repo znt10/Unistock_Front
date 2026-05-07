@@ -1,9 +1,12 @@
+import django
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from django.contrib.auth import authenticate
+from django.conf import settings
+from django.contrib.auth.models import Group
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import  IsAuthenticated
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from .models import Pedido
@@ -151,26 +154,43 @@ class LoginView(APIView):
 
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
-
+        group = user.groups.first()
+        role = group.name
         
         
-        response = Response({'message': 'Login realizado com sucesso'})
+        response = Response({
+            'message': 'Login realizado com sucesso',
 
+            "role": role,
+            })
+        
+        cookie_args = {
+                    'httponly': True,
+                    'secure': not settings.DEBUG, 
+                    'samesite': 'Lax',
+                    'path': '/',
+                }
 
         response.set_cookie(
             key='access_token',
             value=str(access),
-            httponly=True,
-            secure=True,
-            samesite='Lax'
+            **cookie_args
         )
-
+       
         response.set_cookie(
             key='refresh_token',
             value=str(refresh),
+            **cookie_args
+        )
+
+    
+        response.set_cookie(
+            key='role',
+            value=role,
             httponly=True,
-            secure=True,
-            samesite='Lax'
+            secure=not settings.DEBUG,
+            samesite='Lax',
+            path='/',
         )
 
         return response
@@ -178,22 +198,13 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-    # O IsAuthenticated pode falhar se o CSRF não for enviado junto com o cookie
-    # Para rotas de Logout, é comum simplificar a permissão ou isentar o CSRF
-    permission_classes = [IsAuthenticated]
 
     @method_decorator(csrf_exempt)
     def post(self, request):
         response = Response({"message": "Logout realizado com sucesso"})
         
-        # Deletar os cookies garantindo o path correto
-        # Se você usa HTTPS em produção, adicione secure=True
-        cookie_params = {
-            'path': '/',
-            'samesite': 'Lax', # Ou 'None' se estiver em domínios diferentes
-        }
-        
-        response.delete_cookie('access_token', **cookie_params)
-        response.delete_cookie('refresh_token', **cookie_params)
+        response.delete_cookie('access_token', path='/', samesite='Lax')
+        response.delete_cookie('refresh_token', path='/', samesite='Lax')
+        response.delete_cookie('role', path='/', samesite='Lax')
         
         return response

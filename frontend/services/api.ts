@@ -1,47 +1,33 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-function getAccessToken(): string {
-  if (typeof document === 'undefined') return '';
+// Helper para pegar cookie pelo nome
+const getCookie = (name: string): string | null => {
+  if (typeof document === 'undefined') return null; // SSR safety
+  return (
+    document.cookie
+      .split('; ')
+      .find((row) => row.startsWith(`${name}=`))
+      ?.split('=')[1] ?? null
+  );
+};
 
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; access_token=`);
+export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
+  const { headers, ...rest } = options;
 
-  if (parts.length === 2) {
-    return parts.pop()?.split(';').shift() || '';
-  }
-
-  return '';
-}
-
-export const apiFetch = async (
-  endpoint: string,
-  options: RequestInit = {}
-) => {
-  const { headers: optionHeaders, ...restOptions } = options;
-
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    credentials: 'include', // 🔥 ESSENCIAL
-    ...restOptions,
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...rest,
+    credentials: "include", // só isso
     headers: {
-      'Content-Type': 'application/json',
-      ...optionHeaders,
-      'X-CSRFToken': getAccessToken(),
+      "Content-Type": "application/json",
+      ...headers,
     },
   });
 
-  let data = {};
-
-  try {
-    data = await res.json();
-  } catch {
-    data = {};
+  if (!response.ok) {
+    throw new Error(await response.text());
   }
 
-  if (!res.ok) {
-    throw new Error((data as any)?.detail || 'Erro na requisição');
-  }
-
-  return data;
+  return response;
 };
 
 export const apiV1 = (endpoint: string, options?: RequestInit) => {

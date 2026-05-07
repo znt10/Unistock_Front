@@ -2,22 +2,19 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login, getCurrentUser } from "@/services/auth";
+import { getMe, login } from "@/services/auth";
 import { useAuthStore } from "@/stores/authStore";
-// Importando os ícones corretos
+
 import { CubeIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Estado para controlar a visibilidade da senha
   const [showPassword, setShowPassword] = useState(false);
-
-  const setUser = useAuthStore((state) => state.setUser);
 
   const loginFields = [
     {
@@ -42,10 +39,6 @@ export default function LoginPage() {
     try {
       await login(email, password);
 
-      const currentUser = await getCurrentUser();
-
-      setUser(currentUser);
-
       router.push("/dashboard");
     } catch (err: any) {
       console.error(err);
@@ -56,17 +49,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-white font-sans text-slate-900">
+    <div className="flex min-h-screen w-full bg-theme-base text-theme-text-title font-sans">
       {/* LADO ESQUERDO */}
-      <div className="hidden w-1/2 flex-col items-center justify-center bg-[#020617] lg:flex">
+      <div className="hidden w-1/2 flex-col items-center justify-center bg-theme-header lg:flex">
         <div className="flex items-center gap-4">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#1d4ed8]">
-            {/* Substituído pelo CubeIcon */}
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-600">
             <CubeIcon className="h-12 w-12 text-white" />
           </div>
-          <h1 className="text-6xl font-bold text-white tracking-tight">
-            UniStock
-          </h1>
+          <h1 className="text-6xl font-bold tracking-tight">UniStock</h1>
         </div>
       </div>
 
@@ -75,14 +65,15 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <header className="mb-10 flex flex-col items-center text-center">
             <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1d4ed8]">
-                {/* Substituído pelo CubeIcon */}
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
                 <CubeIcon className="h-6 w-6 text-white" />
               </div>
               <span className="text-2xl font-bold">UniStock</span>
             </div>
+
             <h2 className="text-2xl font-bold">Entre na sua conta</h2>
-            <p className="mt-2 text-sm text-slate-600">
+
+            <p className="mt-2 text-sm text-theme-text-sub">
               Insira suas credenciais para acessar o sistema
             </p>
           </header>
@@ -91,13 +82,17 @@ export default function LoginPage() {
             <div className="space-y-5">
               {loginFields.map((field) => (
                 <div key={field.id} className="space-y-1.5">
-                  <label htmlFor={field.id} className="text-sm font-semibold">
+                  <label
+                    htmlFor={field.id}
+                    className="text-sm font-semibold text-theme-text-title"
+                  >
                     {field.label}
                   </label>
+
                   <div className="relative">
                     <input
                       id={field.id}
-                      // Lógica para alternar entre 'password' e 'text'
+                      data-testid={field.id}
                       type={
                         field.id === "password" && showPassword
                           ? "text"
@@ -110,15 +105,14 @@ export default function LoginPage() {
                           ? setEmail(e.target.value)
                           : setPassword(e.target.value)
                       }
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      className="w-full rounded-lg border border-theme-border bg-theme-card text-theme-text-title px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-theme-text-sub"
                     />
 
-                    {/* Botão do Olho dentro do campo de senha */}
                     {field.id === "password" && (
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-text-sub hover:text-theme-text-title transition"
                       >
                         {showPassword ? (
                           <EyeSlashIcon className="h-5 w-5" />
@@ -132,17 +126,18 @@ export default function LoginPage() {
               ))}
             </div>
 
-            {/* Opções Extras */}
+            {/* Extras */}
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 rounded border-theme-border text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-sm text-slate-500 group-hover:text-slate-700 transition">
+                <span className="text-sm text-theme-text-sub group-hover:text-theme-text-title transition">
                   Lembrar de mim
                 </span>
               </label>
+
               <a
                 href="#"
                 className="text-sm font-medium text-blue-600 hover:underline"
@@ -160,11 +155,11 @@ export default function LoginPage() {
             <div className="mt-12">
               <button
                 type="submit"
+                data-testid="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#4466f2] py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98] disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98] disabled:opacity-60"
               >
                 {loading ? "Entrando..." : "Continuar"}
-                {/* Ícone de seta simples */}
                 <svg
                   className="h-5 w-5"
                   fill="none"
