@@ -3,8 +3,11 @@ import { getPedidos } from "@/services/uni";
 
 export interface Pedido {
   id: number;
-  produto: number;
-  quantidade: number;
+  itens?: {
+    produto: number;
+    produto_nome?: string;
+    quantidade: number;
+  }[];
   descricao: string;
   data: string;
   hora: string;
@@ -17,6 +20,7 @@ export interface Pedido {
 interface PedidoFilters {
   status?: string;
   data?: string;
+  loja?: string;
 }
 
 export function usePedidos(filters?: PedidoFilters) {
@@ -25,6 +29,7 @@ export function usePedidos(filters?: PedidoFilters) {
       "pedidos",
       filters?.status,
       filters?.data,
+      filters?.loja,
     ],
 
     queryFn: async () => {

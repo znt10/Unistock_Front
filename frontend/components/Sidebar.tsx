@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { logout } from "@/services/auth";
+import { getMe, logout } from "@/services/auth";
 import { useAuthStore } from "@/stores/authStore";
 
 const Icons = {
@@ -253,6 +253,27 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const hydrated = useAuthStore((state) => state.hydrated);
+  const setUser = useAuthStore((state) => state.setUser);
+
+  useEffect(() => {
+    if (!hydrated || user) return;
+
+    getMe()
+      .then((userInfo) => {
+        setUser({
+          id: userInfo.id,
+          email: userInfo.email,
+          first_name: userInfo.first_name,
+          group: userInfo.group,
+          loja_id: userInfo.loja?.id ?? null,
+          loja_nome: userInfo.loja?.nome ?? null,
+        });
+      })
+      .catch(() => {
+        router.push("/login");
+      });
+  }, [hydrated, router, setUser, user]);
 
   // Pega o grupo do usuário e renderiza o menu correto
   const role = user?.group ?? "";
@@ -317,7 +338,7 @@ export default function Sidebar() {
             </div>
             {!isCollapsed && (
               <span className="text-[17px] font-semibold text-white whitespace-nowrap">
-                User
+                {user?.first_name || "Usuario"}
               </span>
             )}
           </div>
@@ -360,6 +381,11 @@ export default function Sidebar() {
                 </li>
               );
             })}
+            {menuItems.length === 0 && !isCollapsed && (
+              <li className="px-4 py-3 text-[13px] font-medium text-slate-500">
+                {hydrated ? "Carregando menu..." : "Carregando..."}
+              </li>
+            )}
           </ul>
         </nav>
 

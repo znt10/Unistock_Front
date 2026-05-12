@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { usePedidos } from "@/hooks/usePedidos";
+import { useQuery } from "@tanstack/react-query";
+import { getLoja } from "@/services/uni";
+import { selectIsGerente, useAuthStore } from "@/stores/authStore";
+import { useSearchParams } from "next/navigation";
 
 const Icons = {
   Filter: () => (
@@ -36,11 +40,38 @@ const Icons = {
   ),
 };
 
-export default function MeusPedidosPage() {
+function MeusPedidosContent() {
+  const searchParams = useSearchParams();
+  const lojaParam = searchParams.get("loja") ?? "";
+  const isGerente = useAuthStore(selectIsGerente);
+  const hydrated = useAuthStore((state) => state.hydrated);
+
   const [status, setStatus] = useState("");
   const [data, setData] = useState("");
+  const [loja, setLoja] = useState(lojaParam);
 
-  const { data: pedidosData = [], isLoading } = usePedidos({ status, data });
+  const { data: pedidosData = [], isLoading } = usePedidos({
+    status,
+    data,
+    loja: loja || undefined,
+  });
+
+  const { data: lojas = [] } = useQuery({
+    queryKey: ["lojas"],
+    queryFn: getLoja,
+    enabled: isGerente,
+  });
+
+  if (!hydrated) {
+    return (
+      <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
+        <Sidebar />
+        <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all">
+          Carregando...
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
@@ -58,7 +89,9 @@ export default function MeusPedidosPage() {
               Meus Pedidos
             </h1>
             <p className="text-theme-text-sub/60 font-medium mt-3">
-              Acompanhe o status das suas solicitações de estoque em tempo real.
+              {isGerente && loja
+                ? "Pedidos filtrados pela loja selecionada."
+                : "Acompanhe o status das suas solicitacoes de estoque em tempo real."}
             </p>
           </header>
 
@@ -107,7 +140,7 @@ export default function MeusPedidosPage() {
                         </td>
                       </tr>
                     ) : (
-                      pedidosData.map((item: any) => (
+                      pedidosData.map((item) => (
                         <tr
                           key={item.id}
                           className="group hover:bg-theme-hover transition-all cursor-default"
@@ -140,16 +173,16 @@ export default function MeusPedidosPage() {
                             <div className="flex justify-center">
                               <span
                                 className={`
-                                flex items-center gap-2 px-4 py-2 rounded-xl border text-[10px]
-                                font-black uppercase tracking-widest
-                                ${
-                                  item.status === "ENTREGUE"
-                                    ? "bg-green-500/5 text-green-500 border-green-500/20"
-                                    : item.status === "CANCELADO"
-                                      ? "bg-red-500/5 text-red-500 border-red-500/20"
-                                      : "bg-orange-500/5 text-orange-500 border-orange-500/20"
-                                }
-                              `}
+                                  flex items-center gap-2 px-4 py-2 rounded-xl border text-[10px]
+                                  font-black uppercase tracking-widest
+                                  ${
+                                    item.status === "ENTREGUE"
+                                      ? "bg-green-500/5 text-green-500 border-green-500/20"
+                                      : item.status === "CANCELADO"
+                                        ? "bg-red-500/5 text-red-500 border-red-500/20"
+                                        : "bg-orange-500/5 text-orange-500 border-orange-500/20"
+                                  }
+                                `}
                               >
                                 <Icons.Clock />
                                 {item.status || "Pendente"}
@@ -176,6 +209,28 @@ export default function MeusPedidosPage() {
               </div>
 
               <div className="space-y-6">
+                {/* Loja — só para gerente/admin */}
+                {isGerente && (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-theme-text-sub/30 uppercase tracking-[2px] ml-1">
+                      Loja
+                    </label>
+                    <select
+                      value={loja}
+                      onChange={(e) => setLoja(e.target.value)}
+                      className="w-full bg-theme-header border border-theme-border text-theme-text-title rounded-2xl py-4 px-5 text-xs font-bold outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all appearance-none cursor-pointer uppercase"
+                    >
+                      <option value="">Todas as Lojas</option>
+                      {(lojas.results ?? lojas).map((l) => (
+                        <option key={l.id} value={String(l.id)}>
+                          {l.nome_loja}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Situação */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-theme-text-sub/30 uppercase tracking-[2px] ml-1">
                     Situação
@@ -192,6 +247,7 @@ export default function MeusPedidosPage() {
                   </select>
                 </div>
 
+                {/* Período */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-theme-text-sub/30 uppercase tracking-[2px] ml-1">
                     Período
@@ -208,6 +264,7 @@ export default function MeusPedidosPage() {
                   onClick={() => {
                     setStatus("");
                     setData("");
+                    setLoja("");
                   }}
                   className="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl text-white text-[12px] font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 active:scale-95 mt-4"
                 >
@@ -219,5 +276,13 @@ export default function MeusPedidosPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function MeusPedidosPage() {
+  return (
+    <Suspense fallback={null}>
+      <MeusPedidosContent />
+    </Suspense>
   );
 }

@@ -2,12 +2,11 @@ import { apiFetch, apiV1, } from "./api";
 
 
 // 🔹 LOJAS
-export const getLoja = async () => {
-  const res = await apiV1('/lojas/', {
-    method: 'GET',
-  });
-
-  return res.json();
+// services/uni.ts
+export const getLoja= async () => {
+  const res = await apiV1("/lojas/", { method: "GET" });
+  const data = await res.json();
+  return data.results as { id: number; nome: string }[];
 };
 
 // 🔹 PRODUTOS
@@ -45,6 +44,7 @@ export const postPedido = async (pedidoData: PedidoData) => {
 export const getPedidos = async (filters?: {
   status?: string;
   data?: string;
+  loja?: string;
 }) => {
 
   const params = new URLSearchParams();
@@ -56,6 +56,11 @@ export const getPedidos = async (filters?: {
   if (filters?.data) {
     params.append("data", filters.data);
   } 
+
+  if (filters?.loja) {
+    params.append("loja", filters.loja);
+  }
+
   const query = params.toString();
   const res = await apiV1(
     `/pedidos/${query ? `?${query}` : ""}`,
@@ -65,6 +70,55 @@ export const getPedidos = async (filters?: {
   );
 
   return res.json();
+};
+
+export type DashboardFilters = {
+  periodo?: "today" | "week" | "month" | "all";
+  status?: string;
+  search?: string;
+};
+
+export type DashboardPedido = {
+  id: number;
+  loja: string;
+  responsavel: string;
+  quantidade_total: number;
+  status: string;
+  data: string;
+  hora: string;
+};
+
+export type DashboardData = {
+  metricas: {
+    pedidos_hoje: number;
+    pendentes: number;
+    entregues_semana: number;
+    total_filtrado: number;
+  };
+  pedidos_recentes: DashboardPedido[];
+};
+
+export const getDashboard = async (filters?: DashboardFilters) => {
+  const params = new URLSearchParams();
+
+  if (filters?.periodo && filters.periodo !== "all") {
+    params.append("periodo", filters.periodo);
+  }
+
+  if (filters?.status) {
+    params.append("status", filters.status);
+  }
+
+  if (filters?.search) {
+    params.append("search", filters.search);
+  }
+
+  const query = params.toString();
+  const res = await apiV1(`/pedidos/dashboard/${query ? `?${query}` : ""}`, {
+    method: "GET",
+  });
+
+  return res.json() as Promise<DashboardData>;
 };
 
 

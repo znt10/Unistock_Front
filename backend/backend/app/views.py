@@ -22,6 +22,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.settings import api_settings
 
 
 def relatorio_pdf(request):
@@ -151,26 +153,23 @@ class CookieTokenRefreshView(TokenRefreshView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # 2. Injeta o token no 'data' da requisição para enganar o SimpleJWT,
-        # fazendo ele achar que o token veio no body como ele espera.
-        request.data['refresh'] = refresh_token
-
         try:
-            # 3. Chama a view original do SimpleJWT para fazer a mágica de renovação
-            response = super().post(request, *args, **kwargs)
+            serializer = TokenRefreshSerializer(data={'refresh': refresh_token})
+            serializer.is_valid(raise_exception=True)
+            response = Response(serializer.validated_data, status=status.HTTP_200_OK)
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
-        # 4. Se deu tudo certo, pegamos o novo access_token e atualizamos o cookie
-        if response.status_code == 200:
-            access_token = response.data.get('access')
-
+        access_token = response.data.get('access')
+        if access_token:
             response.set_cookie(
                 key='access_token',
                 value=access_token,
                 httponly=True,  # Impede acesso via JavaScript (XSS)
-                secure=False,   # Mude para True em produção (HTTPS)
-                samesite='Lax'  # Ou 'None' se front e back estiverem em domínios diferentes (exige secure=True)
+                secure=not settings.DEBUG,
+                samesite='Lax',
+                path='/',
+                max_age=int(api_settings.ACCESS_TOKEN_LIFETIME.total_seconds()),
             )
             
             
@@ -214,12 +213,14 @@ class LoginView(APIView):
         response.set_cookie(
             key='access_token',
             value=str(access),
+            max_age=int(access.lifetime.total_seconds()),
             **cookie_args
         )
        
         response.set_cookie(
             key='refresh_token',
             value=str(refresh),
+            max_age=int(refresh.lifetime.total_seconds()),
             **cookie_args
         )
 
@@ -231,6 +232,7 @@ class LoginView(APIView):
             secure=not settings.DEBUG,
             samesite='Lax',
             path='/',
+            max_age=int(refresh.lifetime.total_seconds()),
         )
 
         return response

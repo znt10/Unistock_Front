@@ -4,7 +4,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isR
   const { headers, ...rest } = options;
 
   // 1. Faz a requisição original
-  let response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${API_URL}${endpoint}`, {
     ...rest,
     credentials: "include", 
     headers: {
@@ -14,10 +14,9 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isR
   });
 
   // 2. Se o token venceu (401) e ainda não tentamos fazer o refresh
-  if (response.status === 401 && !_isRetry) {
+  if ((response.status === 401 || response.status === 403) && !_isRetry) {
     try {
-      // 3. Bate na rota de refresh (ajuste a URL para a sua rota do Django)
-      const refreshResponse = await fetch(`${API_URL}/api/token/refresh/`, {
+      const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
         method: 'POST',
         credentials: "include", 
       });
