@@ -161,12 +161,35 @@ export const postLoja = async (nome_loja: string, tipo: string, cidade: string, 
     return res.json();
 };
 
-export const patchLoja = async (id: number, data: Partial<{ responsavel: number; nome_loja: string; ativo: boolean }>) => {
+export type LojaUpdateData = Partial<{
+    responsavel: number | null;
+    nome_loja: string;
+    tipo: string;
+    cidade: string;
+    endereco: string;
+    ativo: boolean;
+}>;
+
+export const patchLoja = async (id: number | string, data: LojaUpdateData) => {
     const res = await apiV1(`/lojas/${id}/`, {
         method: 'PATCH',
         body: JSON.stringify(data),
     });
     return res.json();
+};
+
+export type UsuarioResumo = {
+  id: number;
+  first_name: string;
+  email: string;
+};
+
+export const getUsuarios = async () => {
+  const res = await apiV1('/user/', {
+    method: 'GET',
+  });
+  const data = await res.json();
+  return (data.results ?? data) as UsuarioResumo[];
 };
 
 // No seu arquivo de API (ex: services/api.ts)
