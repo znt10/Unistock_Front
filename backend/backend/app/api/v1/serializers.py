@@ -114,11 +114,13 @@ class UsuarioSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         senha = validated_data.pop('password')
         email = validated_data.get('email')
+        username = validated_data.get('email')
         tipo_usuario = validated_data.pop('tipo_usuario')
 
         user = User(**validated_data)
         user.set_password(senha) 
-        user.username = email
+        user.username = username
+        user.email = email
         user.save()
 
         #pega ou cria o grupo

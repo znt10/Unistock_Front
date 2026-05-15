@@ -24,8 +24,10 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.settings import api_settings
+from rest_framework.permissions import IsAuthenticated,AllowAny
+ 
 
-
+ 
 def relatorio_pdf(request):
     # --- Lógica de Data ---
     agora_local = timezone.localtime(timezone.now())
@@ -182,6 +184,7 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
 
+
         user = authenticate(username=email, password=password)
 
 
@@ -252,7 +255,7 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-
+    permission_classes = [IsAuthenticated]
     @method_decorator(csrf_exempt)
     def post(self, request):
         response = Response({"message": "Logout realizado com sucesso"})
