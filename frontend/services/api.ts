@@ -1,7 +1,9 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const NO_REFRESH_ENDPOINTS = ["/login/", "/logout/", "/token/refresh/", "/api/v1/user/me/"];
 
 export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isRetry = false): Promise<Response> => {
   const { headers, ...rest } = options;
+  const canRefresh = !NO_REFRESH_ENDPOINTS.includes(endpoint);
 
   // 1. Faz a requisição original
   const response = await fetch(`${API_URL}${endpoint}`, {
@@ -14,7 +16,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isR
   });
 
   // 2. Se o token venceu (401) e ainda não tentamos fazer o refresh
-  if ((response.status === 401 || response.status === 403) && !_isRetry) {
+  if (canRefresh && (response.status === 401 || response.status === 403) && !_isRetry) {
     try {
       const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
         method: 'POST',
@@ -45,8 +47,17 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isR
 
   // Se deu qualquer outro erro que não seja 401, ou se o 401 persistir
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
+    let message = `Erro ${response.status}`;
+
+    try {
+      const data = await response.clone().json();
+      message = data?.error || data?.detail || message;
+    } catch {
+      const errorText = await response.clone().text();
+      message = errorText || message;
+    }
+
+    throw new Error(message);
   }
 
   return response;

@@ -249,15 +249,18 @@ const MENU_CONFIG: Record<
 export default function Sidebar() {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthStore((state) => state.hydrated);
   const setUser = useAuthStore((state) => state.setUser);
+  const isPublicRoute =
+    pathname === "/" || pathname === "/login" || pathname === "/registrar";
 
   useEffect(() => {
-    if (!hydrated || user) return;
+    if (!hydrated || user || isPublicRoute || isLoggingOut) return;
 
     getMe()
       .then((userInfo) => {
@@ -273,17 +276,19 @@ export default function Sidebar() {
       .catch(() => {
         router.push("/login");
       });
-  }, [hydrated, router, setUser, user]);
+  }, [hydrated, isLoggingOut, isPublicRoute, router, setUser, user]);
 
   // Pega o grupo do usuário e renderiza o menu correto
   const role = user?.group ?? "";
   const menuItems = MENU_CONFIG[role] || [];
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
+
     try {
       await logout();
     } finally {
-      router.push("/");
+      router.push("/login");
     }
   };
 

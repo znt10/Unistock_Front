@@ -6,7 +6,7 @@ from django.db import transaction
 
 
 class ItemPedidoSerializer(serializers.ModelSerializer):
-    produto = serializers.PrimaryKeyRelatedField(queryset=Produto.objects.all())
+    produto = serializers.SlugRelatedField(slug_field='public_id', queryset=Produto.objects.all())
     produto_nome = serializers.ReadOnlyField(source='produto.nome_produto')  # ← adiciona
 
     class Meta:
@@ -16,6 +16,8 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
 
 
 class PedidoSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='public_id', read_only=True)
+    loja = serializers.SlugRelatedField(slug_field='public_id', queryset=Loja.objects.all())
     # MUDANÇA 1: required=True (padrão) garante que a chave 'itens' deve ser enviada
     itens = ItemPedidoSerializer(many=True) 
     status = serializers.CharField(read_only=True)
@@ -67,6 +69,8 @@ class PedidoSerializer(serializers.ModelSerializer):
         return pedido
 
 class ProdutoSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='public_id', read_only=True)
+
     class Meta:
         model = Produto
         fields = ['id', 'nome_produto', 'codigo', 'unidade_medida', 'ativo']
@@ -128,6 +132,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return user
 
 class LojaSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='public_id', read_only=True)
     responsavel_nome = serializers.CharField(source='responsavel.username', read_only=True)
 
     class Meta:
@@ -140,6 +145,10 @@ class LojaSerializer(serializers.ModelSerializer):
         return fields
 
 class EstoqueSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='public_id', read_only=True)
+    produto = serializers.SlugRelatedField(slug_field='public_id', queryset=Produto.objects.all())
+    loja = serializers.SlugRelatedField(slug_field='public_id', queryset=Loja.objects.all())
+
     class Meta:
         model = Estoque
         fields = ['id', 'produto', 'loja', 'quantidade_atual', 'quantidade_minima']

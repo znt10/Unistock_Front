@@ -35,6 +35,7 @@ def is_gerente_ou_admin(user):
 class LojaViewSet(viewsets.ModelViewSet):
     queryset = Loja.objects.all().order_by('id') 
     serializer_class = LojaSerializer
+    lookup_field = 'public_id'
     
     def get_permissions(self):
         if self.action == 'list':
@@ -47,12 +48,14 @@ class EstoqueViewSet(viewsets.ModelViewSet,ResponsavelOuAdminMixin):
     queryset = Estoque.objects.all()
     serializer_class = EstoqueSerializer
     permission_classes = [IsAuthenticated,IsGerenteOrAdministrador]
+    lookup_field = 'public_id'
 
 
 # 🔹 PRODUTO
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all().order_by('nome_produto')
     serializer_class = ProdutoSerializer
+    lookup_field = 'public_id'
 
     def get_permissions(self):
         if self.action == 'list':
@@ -65,6 +68,7 @@ class ItemPedidoViewSet(ResponsavelOuAdminMixin,viewsets.ModelViewSet):
     queryset = ItemPedido.objects.all()
     serializer_class = ItemPedidoSerializer
     permission_classes = [IsAuthenticated,IsGerenteOrAdministradorOrResponsavel]
+    lookup_field = 'public_id'
 
     def get_queryset(self):
         user = self.request.user
@@ -81,6 +85,7 @@ class PedidoViewSet( viewsets.ModelViewSet):
     queryset = Pedido.objects.all().order_by('-data_pedido')
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
+    lookup_field = 'public_id'
 
     def get_queryset(self):
         user = self.request.user
@@ -98,7 +103,7 @@ class PedidoViewSet( viewsets.ModelViewSet):
             queryset = queryset.filter(status=status)
 
         if loja:
-            queryset = queryset.filter(loja_id=loja)
+            queryset = queryset.filter(loja__public_id=loja)
 
         if data:
             data_inicio = make_aware(
@@ -177,7 +182,7 @@ class PedidoViewSet( viewsets.ModelViewSet):
             },
             "pedidos_recentes": [
                 {
-                    "id": pedido.id,
+                    "id": pedido.public_id,
                     "loja": pedido.loja.nome_loja if pedido.loja else "Sem loja",
                     "responsavel": pedido.responsavel.first_name or pedido.responsavel.username,
                     "quantidade_total": pedido.total_quantidade or 0,
@@ -212,7 +217,7 @@ class UsuarioViewSet(UserOuAdminMixin, viewsets.ModelViewSet):
                 "email": user.email,
                 "group": group,
                 "loja": {
-                    "id": loja_vinculada.id,
+                    "id": loja_vinculada.public_id,
                     "nome": loja_vinculada.nome_loja
                 } if loja_vinculada else None
             })
@@ -242,7 +247,7 @@ class UsuarioViewSet(UserOuAdminMixin, viewsets.ModelViewSet):
             # 2. Se for Responsável, vincula à loja
             if group_name == 'Responsavel' and id_loja:
                 try:
-                    loja = Loja.objects.get(id=id_loja)
+                    loja = Loja.objects.get(public_id=id_loja)
                     # Se o seu model Loja tem o campo 'responsavel':
                     loja.responsavel = user 
                     loja.save()

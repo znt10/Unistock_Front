@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import  IsAuthenticated
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from .models import Pedido
+from .models import Loja, Pedido
 from django.contrib.auth import get_user_model
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -165,7 +165,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             response.set_cookie(
                 key='access_token',
                 value=access_token,
-                httponly=True,  # Impede acesso via JavaScript (XSS)
+                httponly=True, 
                 secure=not settings.DEBUG,
                 samesite='Lax',
                 path='/',
@@ -194,13 +194,28 @@ class LoginView(APIView):
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
         group = user.groups.first()
+
+        if group is None:
+            return Response(
+                {'error': 'Usuario sem grupo. Adicione o usuario ao grupo Gerente ou Responsavel.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         role = group.name
-        
+        loja_vinculada = Loja.objects.filter(responsavel=user).first()
         
         response = Response({
             'message': 'Login realizado com sucesso',
-
-            "role": role,
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'first_name': user.first_name,
+                'group': role,
+                'loja': {
+                    'id': loja_vinculada.public_id,
+                    'nome': loja_vinculada.nome_loja,
+                } if loja_vinculada else None,
+            },
             })
         
         cookie_args = {
@@ -228,11 +243,8 @@ class LoginView(APIView):
         response.set_cookie(
             key='role',
             value=role,
-            httponly=True,
-            secure=not settings.DEBUG,
-            samesite='Lax',
-            path='/',
             max_age=int(refresh.lifetime.total_seconds()),
+            **cookie_args
         )
 
         return response

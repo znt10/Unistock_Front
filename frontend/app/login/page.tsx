@@ -2,14 +2,12 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getMe, login } from "@/services/auth";
-import { useAuthStore } from "@/stores/authStore";
+import { login } from "@/services/auth";
 
 import { CubeIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,9 +38,9 @@ export default function LoginPage() {
       await login(email, password);
 
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : "Erro ao fazer login");
     } finally {
       setLoading(false);
     }
