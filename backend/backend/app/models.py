@@ -30,9 +30,22 @@ class Loja(BaseModel):
 
 
 class Produto(BaseModel):
+    class Categoria(models.TextChoices):
+        SALGADOS_GDE = "SALGADOS_GDE", "Salgados grande"
+        SALGADOS_MINI = "SALGADOS_MINI", "Salgados mini"
+        ESFIHAS_GDE = "ESFIHAS_GDE", "Esfihas grande"
+        ESFIHAS_MINI = "ESFIHAS_MINI", "Esfihas mini"
+        RECHEIOS = "RECHEIOS", "Recheios"
+        MERCADO = "MERCADO", "Mercado"
+
     nome_produto = models.CharField(max_length=100)
     codigo = models.CharField(max_length=50)
     unidade_medida = models.CharField(max_length=20)
+    categoria = models.CharField(
+        max_length=30,
+        choices=Categoria.choices,
+        default=Categoria.MERCADO,
+    )
     ativo = models.BooleanField(default=True)
 
     def __str__(self):
@@ -85,10 +98,32 @@ class ItemPedido(BaseModel):
 
 
 class Estoque(BaseModel):
+    class EstadoProduto(models.TextChoices):
+        NORMAL = "NORMAL", "Normal"
+        CONGELADO = "CONGELADO", "Congelado"
+        RESFRIADO = "RESFRIADO", "Resfriado"
+
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
     loja = models.ForeignKey(Loja, on_delete=models.CASCADE)
     quantidade_atual = models.IntegerField()
     quantidade_minima = models.IntegerField()
+    estado = models.CharField(
+        max_length=20,
+        choices=EstadoProduto.choices,
+        default=EstadoProduto.NORMAL,
+    )
 
     def __str__(self):
         return f"Estoque de {self.produto.nome_produto} na {self.loja.nome_loja}"
+
+
+class Notificacao(BaseModel):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notificacoes')
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, null=True, blank=True, related_name='notificacoes')
+    tipo = models.CharField(max_length=50, default='info')
+    titulo = models.CharField(max_length=120)
+    mensagem = models.TextField()
+    lida = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.titulo

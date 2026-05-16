@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { getMe, logout, register } from "@/services/auth";
+import { logout, register } from "@/services/auth";
 import { getLoja } from "@/services/uni";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -246,15 +246,13 @@ type LojaOption = {
   name?: string;
 };
 
-const MENU_CONFIG: Record<
-  string,
-  MenuItem[]
-> = {
+const MENU_CONFIG: Record<string, MenuItem[]> = {
   Gerente: [
     { href: "/dashboard", label: "Painel Geral", icon: "Painel" },
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
+    { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
-    { href: "/Painel_unidade", label: "Painel unidade", icon: "List" },
+    { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
     {
       action: "createResponsible",
       label: "Criar responsável",
@@ -262,6 +260,7 @@ const MENU_CONFIG: Record<
     },
   ],
   Responsavel: [
+    { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
     { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
   ],
@@ -288,31 +287,6 @@ export default function Sidebar() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthStore((state) => state.hydrated);
-  const setUser = useAuthStore((state) => state.setUser);
-  const isPublicRoute =
-    pathname === "/" ||
-    pathname === "/login" ||
-    pathname === "/registrar" ||
-    pathname === "/esqueci-senha" ||
-    pathname === "/redefinir-senha";
-  useEffect(() => {
-    if (!hydrated || user || isPublicRoute || isLoggingOut) return;
-
-    getMe()
-      .then((userInfo) => {
-        setUser({
-          id: userInfo.id,
-          email: userInfo.email,
-          first_name: userInfo.first_name,
-          group: userInfo.group,
-          loja_id: userInfo.loja?.id ?? null,
-          loja_nome: userInfo.loja?.nome ?? null,
-        });
-      })
-      .catch(() => {
-        router.push("/login");
-      });
-  }, [hydrated, isLoggingOut, isPublicRoute, router, setUser, user]);
 
   useEffect(() => {
     if (!isResponsibleFormOpen) return;

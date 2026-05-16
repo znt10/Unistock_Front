@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { postPedido } from "@/services/uni";
 import { useAuthStore } from "@/stores/authStore";
@@ -18,18 +18,13 @@ export default function NovoPedidoPage() {
 
   const user = useAuthStore((state) => state.user);
 
-  const [produtoSelecionado, setProdutoSelecionado] = useState<number | "">("");
+  const [produtoSelecionado, setProdutoSelecionado] = useState("");
   const [quantidade, setQuantidade] = useState<number>(0);
   const [descricao, setDescricao] = useState("");
-  const [lojaSelecionada, setLojaSelecionada] = useState<number | "">("");
+  const [lojaSelecionada, setLojaSelecionada] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔥 pré-seleciona loja quando user carregar
-  useEffect(() => {
-    if (user?.loja_id) {
-      setLojaSelecionada(user.loja_id);
-    }
-  }, [user]);
+  const isGerente = user?.group === "Gerente";
 
   const handleSubmit = async () => {
     if (loading) return;
@@ -59,7 +54,7 @@ export default function NovoPedidoPage() {
         descricao: descricao.trim(),
         itens: [
           {
-            produto: Number(produtoSelecionado),
+            produto: produtoSelecionado,
             quantidade: Number(quantidade),
           },
         ],
@@ -77,22 +72,14 @@ export default function NovoPedidoPage() {
       setDescricao("");
       setLojaSelecionada("");
 
-      router.push("/meuspedidos");
-    } catch (error: any) {
-      console.error("Erro completo:", error.response?.data);
-
-      const serverErrors = error.response?.data;
-
-      if (serverErrors) {
-        alert(
-          "Erro no servidor:\n" +
-            Object.entries(serverErrors)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join("\n"),
-        );
+      if (isGerente) {
+        router.push("/painel_unidade");
       } else {
-        alert("Erro ao criar pedido");
+        router.push("/meuspedidos");
       }
+    } catch (error: unknown) {
+      console.error("Erro completo:", error);
+      alert(error instanceof Error ? error.message : "Erro ao criar pedido");
     } finally {
       setLoading(false);
     }

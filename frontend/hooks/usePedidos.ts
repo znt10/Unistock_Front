@@ -2,16 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { getPedidos } from "@/services/uni";
 
 export interface Pedido {
-  id: number;
+  id: string;
   itens?: {
-    produto: number;
+    produto: string;
     produto_nome?: string;
     quantidade: number;
   }[];
   descricao: string;
   data: string;
   hora: string;
-  loja: number;
+  loja: string;
   status: string;
   created_at: string;
   updated_at: string;

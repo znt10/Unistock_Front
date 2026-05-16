@@ -4,14 +4,14 @@
 import { useState } from "react";
 
 type Loja = {
-  id: number;
+  id: string;
   nome_loja: string;
   cidade: string;
 };
 
 interface Props {
   lojas: Loja[];
-  onSelect: (id: number | "") => void;
+  onSelect: (id: string) => void;
 }
 
 export default function AutocompleteLoja({ lojas, onSelect }: Props) {

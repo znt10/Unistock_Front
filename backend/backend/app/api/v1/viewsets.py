@@ -13,7 +13,7 @@ from django.utils.timezone import make_aware
 
 from django.contrib.auth.models import User
 
-from app.models import Pedido, ItemPedido, Produto, Loja, Estoque
+from app.models import Pedido, ItemPedido, Produto, Loja, Estoque, Notificacao
 from .mixins import ApenasAdminPodeCriarMixin, ResponsavelOuAdminMixin, UserOuAdminMixin
 from .serializers import (
     PedidoSerializer,
@@ -21,7 +21,8 @@ from .serializers import (
     ProdutoSerializer,
     UsuarioSerializer,
     LojaSerializer,
-    EstoqueSerializer
+    EstoqueSerializer,
+    NotificacaoSerializer
 )
 from app.permissions import IsGerenteOrAdministrador, IsGerenteOrAdministradorOrResponsavel
 from rest_framework.decorators import action
@@ -61,6 +62,41 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return [AllowAny()]
         return [IsAuthenticated(), IsGerenteOrAdministrador()]
+
+
+# 🔹 NOTIFICACAO
+class NotificacaoViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificacaoSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'public_id'
+
+    def get_queryset(self):
+        return Notificacao.objects.filter(
+            usuario=self.request.user
+        ).order_by('-created_at')
+
+    def create(self, request, *args, **kwargs):
+        return Response(
+            {"detail": "Notificações são criadas automaticamente pelo sistema."},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+    @action(detail=True, methods=['patch'], url_path='marcar-lida')
+    def marcar_lida(self, request, public_id=None):
+        notificacao = self.get_object()
+        notificacao.lida = True
+        notificacao.save(update_fields=['lida', 'updated_at'])
+        return Response({"ok": True})
+
+    @action(detail=False, methods=['patch'], url_path='todas-lidas')
+    def todas_lidas(self, request):
+        self.get_queryset().update(lida=True)
+        return Response({"ok": True})
+
+    @action(detail=False, methods=['delete'], url_path='limpar')
+    def limpar(self, request):
+        self.get_queryset().delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # 🔹 ITEM PEDIDO 
@@ -125,6 +161,49 @@ class PedidoViewSet( viewsets.ModelViewSet):
             )
 
         return queryset
+
+    def _somar_itens_no_estoque(self, pedido):
+        for item in pedido.itens.select_related('produto').all():
+            estoque, _ = Estoque.objects.get_or_create(
+                loja=pedido.loja,
+                produto=item.produto,
+                defaults={
+                    'quantidade_atual': 0,
+                    'quantidade_minima': 0,
+                }
+            )
+            estoque.quantidade_atual += item.quantidade
+            estoque.save(update_fields=['quantidade_atual', 'updated_at'])
+
+    @action(detail=True, methods=['patch'], url_path='status')
+    def atualizar_status(self, request, public_id=None):
+        if not is_gerente_ou_admin(request.user):
+            raise PermissionDenied("Apenas gerente ou administrador pode alterar o status do pedido.")
+
+        pedido = self.get_object()
+        status_novo = request.data.get('status')
+
+        status_validos = [choice[0] for choice in Pedido.Status.choices]
+        if status_novo not in status_validos:
+            return Response(
+                {"status": f"Status inválido. Use: {', '.join(status_validos)}."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        status_anterior = pedido.status
+
+        if status_anterior == Pedido.Status.ENTREGUE and status_novo == Pedido.Status.ENTREGUE:
+            serializer = self.get_serializer(pedido)
+            return Response(serializer.data)
+
+        pedido.status = status_novo
+        pedido.save(update_fields=['status', 'updated_at'])
+
+        if status_novo == Pedido.Status.ENTREGUE and status_anterior != Pedido.Status.ENTREGUE:
+            self._somar_itens_no_estoque(pedido)
+
+        serializer = self.get_serializer(pedido)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='dashboard')
     def dashboard(self, request):

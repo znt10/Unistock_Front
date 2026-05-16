@@ -6,7 +6,7 @@ interface User {
   email: string;
   first_name: string;
   group: string;
-  loja_id: number | null;
+  loja_id: string | null;
   loja_nome: string | null;
 }
 

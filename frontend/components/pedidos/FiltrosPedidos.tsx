@@ -1,7 +1,7 @@
 // components/pedidos/FiltrosPedidos.tsx
 
 import { useAuthStore } from "@/stores/authStore";
-import { getLojas } from "@/services/uni";
+import { getLoja } from "@/services/uni";
 import { useQuery } from "@tanstack/react-query";
 
 interface FiltrosPedidosProps {
@@ -32,7 +32,7 @@ export function FiltrosPedidos({ filters, onChange }: FiltrosPedidosProps) {
 
   const { data: lojas } = useQuery({
     queryKey: ["lojas"],
-    queryFn: getLojas,
+    queryFn: getLoja,
     enabled: isGerente, // só busca se for gerente
   });
 
@@ -69,14 +69,7 @@ export function FiltrosPedidos({ filters, onChange }: FiltrosPedidosProps) {
         <select
           value={filters.loja ?? ""}
           onChange={(e) => handleChange("loja", e.target.value)}
-        >
-          <option value="">Todas as lojas</option>
-          {lojas?.map((loja) => (
-            <option key={loja.id} value={String(loja.id)}>
-              {loja.nome}
-            </option>
-          ))}
-        </select>
+        ></select>
       )}
     </div>
   );

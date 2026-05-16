@@ -3,8 +3,9 @@
 import React, { Suspense, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { usePedidos } from "@/hooks/usePedidos";
-import { useQuery } from "@tanstack/react-query";
-import { getLoja } from "@/services/uni";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLojas } from "@/hooks/useLoja";
+import { patchPedidoStatus } from "@/services/uni";
 import { selectIsGerente, useAuthStore } from "@/stores/authStore";
 import { useSearchParams } from "next/navigation";
 
@@ -38,16 +39,37 @@ const Icons = {
       <polyline points="12 6 12 12 16 14" />
     </svg>
   ),
+  Check: () => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m20 6-11 11-5-5" />
+    </svg>
+  ),
 };
+
+function hojeISO() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function MeusPedidosContent() {
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const lojaParam = searchParams.get("loja") ?? "";
+  const statusParam = searchParams.get("status") ?? "";
+  const dataParam = searchParams.get("data") ?? "";
   const isGerente = useAuthStore(selectIsGerente);
   const hydrated = useAuthStore((state) => state.hydrated);
 
-  const [status, setStatus] = useState("");
-  const [data, setData] = useState("");
+  const [status, setStatus] = useState(statusParam);
+  const [data, setData] = useState(dataParam);
   const [loja, setLoja] = useState(lojaParam);
 
   const { data: pedidosData = [], isLoading } = usePedidos({
@@ -56,11 +78,71 @@ function MeusPedidosContent() {
     loja: loja || undefined,
   });
 
-  const { data: lojas = [] } = useQuery({
-    queryKey: ["lojas"],
-    queryFn: getLoja,
-    enabled: isGerente,
-  });
+  const [pedidoAtualizando, setPedidoAtualizando] = useState<string | null>(
+    null,
+  );
+  const [entregandoTodos, setEntregandoTodos] = useState(false);
+
+  const { data: lojas = [] } = useLojas();
+
+  const mudarStatusPedido = async (
+    id: string,
+    statusNovo: "PENDENTE" | "ENTREGUE" | "CANCELADO",
+  ) => {
+    try {
+      setPedidoAtualizando(id);
+      await patchPedidoStatus(id, statusNovo);
+      await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      await queryClient.invalidateQueries({ queryKey: ["estoque"] });
+      alert(
+        statusNovo === "ENTREGUE"
+          ? "Pedido entregue. Estoque da loja atualizado."
+          : "Status atualizado com sucesso.",
+      );
+    } catch (error: unknown) {
+      alert(
+        error instanceof Error ? error.message : "Erro ao atualizar status.",
+      );
+    } finally {
+      setPedidoAtualizando(null);
+    }
+  };
+
+  const pedidosPendentesVisiveis = pedidosData.filter(
+    (pedido) => pedido.status === "PENDENTE",
+  );
+
+  const marcarPedidosHoje = () => {
+    setData(hojeISO());
+    setStatus("PENDENTE");
+  };
+
+  const entregarTodosVisiveis = async () => {
+    if (pedidosPendentesVisiveis.length === 0) return;
+
+    const ok = window.confirm(
+      `Marcar ${pedidosPendentesVisiveis.length} pedido(s) pendente(s) como ENTREGUE?`,
+    );
+    if (!ok) return;
+
+    try {
+      setEntregandoTodos(true);
+      for (const pedido of pedidosPendentesVisiveis) {
+        await patchPedidoStatus(pedido.id, "ENTREGUE");
+      }
+      await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      await queryClient.invalidateQueries({ queryKey: ["estoque"] });
+      alert("Pedidos entregues. Estoque das lojas atualizado.");
+    } catch (error: unknown) {
+      alert(
+        error instanceof Error ? error.message : "Erro ao entregar pedidos.",
+      );
+    } finally {
+      setEntregandoTodos(false);
+    }
+  };
 
   if (!hydrated) {
     return (
@@ -95,6 +177,37 @@ function MeusPedidosContent() {
             </p>
           </header>
 
+          {isGerente && (
+            <div className="mb-6 grid grid-cols-1 gap-3 rounded-[24px] border border-theme-border bg-theme-card p-4 shadow-sm md:grid-cols-3">
+              <button
+                type="button"
+                onClick={marcarPedidosHoje}
+                className="rounded-2xl border border-theme-border bg-theme-header px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-title transition hover:border-blue-500/40 hover:text-blue-500"
+              >
+                Pedidos de hoje
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatus("PENDENTE")}
+                className="rounded-2xl border border-theme-border bg-theme-header px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-title transition hover:border-orange-500/40 hover:text-orange-500"
+              >
+                Ver pendentes
+              </button>
+              <button
+                type="button"
+                onClick={entregarTodosVisiveis}
+                disabled={
+                  entregandoTodos || pedidosPendentesVisiveis.length === 0
+                }
+                className="rounded-2xl bg-green-600 px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {entregandoTodos
+                  ? "Entregando..."
+                  : `Entregar todos (${pedidosPendentesVisiveis.length})`}
+              </button>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
             {/* TABELA */}
             <div className="lg:col-span-3 bg-theme-card border border-theme-border rounded-[32px] overflow-hidden shadow-2xl">
@@ -117,6 +230,11 @@ function MeusPedidosContent() {
                       <th className="p-6 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] text-center">
                         Status
                       </th>
+                      {isGerente && (
+                        <th className="p-6 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] text-center">
+                          Ação
+                        </th>
+                      )}
                     </tr>
                   </thead>
 
@@ -124,7 +242,7 @@ function MeusPedidosContent() {
                     {isLoading ? (
                       <tr>
                         <td
-                          colSpan={5}
+                          colSpan={isGerente ? 6 : 5}
                           className="p-10 text-center text-theme-text-sub/40 text-sm"
                         >
                           Carregando...
@@ -133,7 +251,7 @@ function MeusPedidosContent() {
                     ) : pedidosData.length === 0 ? (
                       <tr>
                         <td
-                          colSpan={5}
+                          colSpan={isGerente ? 6 : 5}
                           className="p-10 text-center text-theme-text-sub/40 text-sm"
                         >
                           Nenhum pedido encontrado.
@@ -189,6 +307,42 @@ function MeusPedidosContent() {
                               </span>
                             </div>
                           </td>
+                          {isGerente && (
+                            <td className="p-6">
+                              <div className="flex justify-center gap-2">
+                                {item.status !== "ENTREGUE" && (
+                                  <button
+                                    type="button"
+                                    disabled={pedidoAtualizando === item.id}
+                                    onClick={() =>
+                                      mudarStatusPedido(item.id, "ENTREGUE")
+                                    }
+                                    className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-3 py-2 text-[10px] font-black uppercase tracking-[1px] text-white transition hover:bg-green-700 disabled:opacity-50"
+                                  >
+                                    <Icons.Check />
+                                    Entregar
+                                  </button>
+                                )}
+                                {item.status === "PENDENTE" && (
+                                  <button
+                                    type="button"
+                                    disabled={pedidoAtualizando === item.id}
+                                    onClick={() =>
+                                      mudarStatusPedido(item.id, "CANCELADO")
+                                    }
+                                    className="rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-[10px] font-black uppercase tracking-[1px] text-red-500 transition hover:bg-red-500/10 disabled:opacity-50"
+                                  >
+                                    Cancelar
+                                  </button>
+                                )}
+                                {item.status === "ENTREGUE" && (
+                                  <span className="rounded-xl border border-green-500/20 bg-green-500/5 px-3 py-2 text-[10px] font-black uppercase tracking-[1px] text-green-500">
+                                    Entregue
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       ))
                     )}
@@ -209,7 +363,6 @@ function MeusPedidosContent() {
               </div>
 
               <div className="space-y-6">
-                {/* Loja — só para gerente/admin */}
                 {isGerente && (
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-theme-text-sub/30 uppercase tracking-[2px] ml-1">
@@ -221,15 +374,14 @@ function MeusPedidosContent() {
                       className="w-full bg-theme-header border border-theme-border text-theme-text-title rounded-2xl py-4 px-5 text-xs font-bold outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all appearance-none cursor-pointer uppercase"
                     >
                       <option value="">Todas as Lojas</option>
-                      {(lojas.results ?? lojas).map((l) => (
-                        <option key={l.id} value={String(l.id)}>
+                      {lojas.map((l) => (
+                        <option key={l.id} value={l.id}>
                           {l.nome_loja}
                         </option>
                       ))}
                     </select>
                   </div>
                 )}
-
                 {/* Situação */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-theme-text-sub/30 uppercase tracking-[2px] ml-1">

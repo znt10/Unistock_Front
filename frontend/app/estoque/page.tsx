@@ -1,0 +1,320 @@
+"use client";
+
+import { useMemo, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import Sidebar from "@/components/Sidebar";
+import BarraLojas from "@/components/estoque/BarraLojas";
+import CategoriaEstoque from "@/components/estoque/CategoriaEstoque";
+import TotalGeral from "@/components/estoque/TotalGeral";
+import { useEstoque } from "@/hooks/useEstoque";
+import { useLojas } from "@/hooks/useLoja";
+import { useProdutos } from "@/hooks/useProduto";
+import { getEstoques } from "@/services/uni";
+import type { EstadoProduto, EstoqueLocal } from "@/data/estruturaEstoque";
+
+const CATEGORIAS_VIEW: Record<
+  string,
+  { label: string; cor: "orange" | "red" | "blue" | "green"; temEstado?: boolean }
+> = {
+  SALGADOS_GDE: { label: "SALGADOS GDE", cor: "orange" },
+  SALGADOS_MINI: { label: "SALGADOS MINI", cor: "orange", temEstado: true },
+  ESFIHAS_GDE: { label: "ESFIHAS GDE", cor: "red" },
+  ESFIHAS_MINI: { label: "ESFIHAS MINI", cor: "red" },
+  RECHEIOS: { label: "RECHEIOS", cor: "blue" },
+  MERCADO: { label: "MERCADO", cor: "green" },
+};
+
+const CATEGORIA_ALIASES: Record<string, keyof typeof CATEGORIAS_VIEW> = {
+  "SALGADOS GDE": "SALGADOS_GDE",
+  "SALGADOS GRANDE": "SALGADOS_GDE",
+  "SALGADOS MINI": "SALGADOS_MINI",
+  "ESFIHAS GDE": "ESFIHAS_GDE",
+  "ESFIHAS GRANDE": "ESFIHAS_GDE",
+  "ESFIHAS MINI": "ESFIHAS_MINI",
+  RECHEIOS: "RECHEIOS",
+  MERCADO: "MERCADO",
+};
+
+function normalizarCategoria(categoria?: string) {
+  if (!categoria) return "MERCADO";
+  const chave = categoria.trim().toUpperCase();
+  return CATEGORIAS_VIEW[chave] ? chave : CATEGORIA_ALIASES[chave] || "MERCADO";
+}
+
+function normalizarEstado(estado?: string): EstadoProduto {
+  if (estado === "CONGELADO") return "Congelado";
+  if (estado === "RESFRIADO") return "Resfriado";
+  return "Normal";
+}
+
+function formatarData(data?: string) {
+  if (!data) return "Sem atualizacao";
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(data));
+}
+
+export default function EstoquePage() {
+  const [lojaSelecionada, setLojaSelecionada] = useState<string>("TODAS");
+  const [agora, setAgora] = useState(() => Date.now());
+  const { data: lojasQuery = [], isLoading: carregandoLojas } = useLojas();
+  const { data: produtosQuery = [], isLoading: carregandoProdutos } = useProdutos();
+  const { data: estoquesApi = [], isLoading: carregandoEstoques } = useQuery({
+    queryKey: ["estoque"],
+    queryFn: getEstoques,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
+  });
+  const lojas = useMemo(
+    () => (Array.isArray(lojasQuery) ? lojasQuery : []),
+    [lojasQuery],
+  );
+  const produtos = useMemo(
+    () => (Array.isArray(produtosQuery) ? produtosQuery : []),
+    [produtosQuery],
+  );
+  const {
+    estoque,
+    historico,
+    alterados,
+    notificacoesExternas,
+    ultimaAtualizacao,
+    atualizarItem,
+    limparBadge,
+  } = useEstoque();
+
+  const lojaAtiva = lojaSelecionada || "TODAS";
+  const lojaAtivaNome =
+    lojaAtiva === "TODAS"
+      ? "Todas as lojas"
+      : lojas.find((loja) => loja.id === lojaAtiva)?.nome_loja || "Selecione uma loja";
+
+  const categorias = useMemo(() => {
+    const agrupadas = new Map<string, Map<string, string>>();
+
+    produtos
+      .filter((produto) => produto.ativo !== false)
+      .forEach((produto) => {
+        const categoriaCodigo = normalizarCategoria(produto.categoria);
+        const config = CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
+        const produtosCategoria = agrupadas.get(config.label) || new Map<string, string>();
+        produtosCategoria.set(produto.id, produto.nome_produto);
+        agrupadas.set(config.label, produtosCategoria);
+      });
+
+    return Object.entries(CATEGORIAS_VIEW)
+      .map(([, config]) => ({
+        categoria: config.label,
+        cor: config.cor,
+        temEstado: config.temEstado,
+        produtos: Array.from(agrupadas.get(config.label) || [])
+          .map(([id, nome]) => ({ id, nome }))
+          .sort((a, b) => a.nome.localeCompare(b.nome)),
+      }))
+      .filter((categoria) => categoria.produtos.length > 0);
+  }, [produtos]);
+
+  const categoriaPorProduto = useMemo(() => {
+    const mapa = new Map<string, string>();
+
+    produtos.forEach((produto) => {
+      const categoriaCodigo = normalizarCategoria(produto.categoria);
+      const config = CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
+      mapa.set(produto.id, config.label);
+    });
+
+    return mapa;
+  }, [produtos]);
+
+  const estoqueVisivel = useMemo(() => {
+    const base: EstoqueLocal = { ...estoque };
+
+    estoquesApi.forEach((item) => {
+      const categoria = categoriaPorProduto.get(item.produto) || "MERCADO";
+
+      base[item.loja] = {
+        ...base[item.loja],
+        [categoria]: {
+          ...base[item.loja]?.[categoria],
+          [item.produto]: {
+            qtd: item.quantidade_atual,
+            estado: normalizarEstado(item.estado),
+            updatedAt: item.atualizado_em,
+          },
+        },
+      };
+    });
+
+    return base;
+  }, [categoriaPorProduto, estoque, estoquesApi]);
+
+  const estoqueTodasAsLojas = useMemo(() => {
+    const consolidado: typeof estoque = {};
+    consolidado.TODAS = {};
+
+    categorias.forEach((categoria) => {
+      consolidado.TODAS[categoria.categoria] = {};
+
+      categoria.produtos.forEach((produto) => {
+        const qtd = lojas.reduce(
+          (total, loja) =>
+            total + (estoqueVisivel[loja.id]?.[categoria.categoria]?.[produto.id]?.qtd || 0),
+          0,
+        );
+
+        const updatedAt = lojas
+          .map((loja) => estoqueVisivel[loja.id]?.[categoria.categoria]?.[produto.id]?.updatedAt)
+          .filter(Boolean)
+          .sort()
+          .at(-1);
+
+        consolidado.TODAS[categoria.categoria][produto.id] = {
+          qtd,
+          estado: "Normal",
+          updatedAt,
+        };
+      });
+    });
+
+    return consolidado;
+  }, [categorias, estoqueVisivel, lojas]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setAgora(Date.now()), 30000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const trocarLoja = (loja: string) => {
+    setLojaSelecionada(loja);
+    limparBadge();
+  };
+
+  const confirmarZerar = () => {
+    if (lojaAtiva === "TODAS") return;
+    const ok = window.confirm(`Zerar todo o estoque da loja ${lojaAtivaNome}?`);
+    if (ok) {
+      categorias.forEach((categoria) => {
+        categoria.produtos.forEach((produto) => {
+          atualizarItem(lojaAtiva, categoria.categoria, produto.id, { qtd: 0 });
+        });
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-theme-base font-sans text-theme-text-sub">
+      <Sidebar />
+
+      <main className="lg:ml-64">
+        <header className="sticky top-0 z-20 border-b border-theme-border bg-theme-base/95 px-5 py-4 backdrop-blur md:px-8">
+          <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <span className="mb-2 block text-[10px] font-black uppercase tracking-[3px] text-blue-500">
+                Controle por loja
+              </span>
+              <h1 className="text-2xl font-black uppercase tracking-tight text-theme-text-title md:text-3xl">
+                {lojaAtivaNome.toUpperCase() === "ZILDA"
+                  ? "ZILDA / CASA VERDE"
+                  : lojaAtivaNome}
+              </h1>
+              <p className="mt-1 text-sm font-medium text-theme-text-sub">
+                {produtos.length} produto(s) carregado(s) · Ultima atualizacao:{" "}
+                {formatarData(ultimaAtualizacao)}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {lojaAtiva !== "TODAS" && (
+                <button
+                  type="button"
+                  onClick={confirmarZerar}
+                  className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-black uppercase text-red-600 transition hover:bg-red-100"
+                >
+                  Zerar loja
+                </button>
+              )}
+            </div>
+          </div>
+
+          <BarraLojas
+            lojaAtiva={lojaAtiva}
+            lojas={lojas}
+            onChange={trocarLoja}
+            notificacoesExternas={notificacoesExternas}
+          />
+        </header>
+
+        <div className="space-y-5 px-5 py-6 md:px-8">
+          {carregandoLojas || carregandoProdutos || carregandoEstoques ? (
+            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+              Carregando lojas, produtos e estoque...
+            </div>
+          ) : lojas.length === 0 ? (
+            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+              Nenhuma loja cadastrada.
+            </div>
+          ) : categorias.length === 0 ? (
+            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+              Nenhum produto cadastrado.
+            </div>
+          ) : (
+            categorias.map((config) => (
+              <CategoriaEstoque
+                key={config.categoria}
+                loja={lojaAtiva}
+                categoria={config.categoria}
+                cor={config.cor}
+                produtos={config.produtos}
+                temEstado={config.temEstado}
+                itens={
+                  lojaAtiva === "TODAS"
+                    ? estoqueTodasAsLojas.TODAS?.[config.categoria] || {}
+                    : estoqueVisivel[lojaAtiva]?.[config.categoria] || {}
+                }
+                alterados={alterados}
+                agora={agora}
+                onUpdate={(loja, categoria, produto, data) => {
+                  if (loja === "TODAS") return;
+                  atualizarItem(loja, categoria, produto, data);
+                }}
+              />
+            ))
+          )}
+
+          <section className="rounded-lg border border-theme-border bg-theme-card p-4 shadow-sm">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-black uppercase tracking-[2px] text-theme-text-title">
+                Historico recente
+              </h2>
+              <span className="text-xs font-medium text-theme-text-sub">
+                Ultimas {Math.min(historico.length, 8)} alteracoes
+              </span>
+            </div>
+            <div className="space-y-2">
+              {historico.slice(0, 8).map((item, index) => (
+                <div
+                  key={`${item.updatedAt}-${index}`}
+                  className="flex flex-col justify-between gap-1 rounded-lg bg-theme-header px-3 py-2 text-xs md:flex-row md:items-center"
+                >
+                  <span className="font-bold text-theme-text-title">
+                    {item.loja} / {item.categoria} / {item.produto}
+                  </span>
+                  <span className="text-theme-text-sub">
+                    {item.anterior ?? "-"} para {item.novo ?? item.qtd ?? "-"} por {item.usuario || "Usuario"} em{" "}
+                    {formatarData(item.updatedAt)}
+                  </span>
+                </div>
+              ))}
+              {historico.length === 0 && (
+                <p className="text-sm font-medium text-theme-text-sub">Nenhuma alteracao registrada ainda.</p>
+              )}
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  );
+}

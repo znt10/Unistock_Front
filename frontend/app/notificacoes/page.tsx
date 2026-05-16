@@ -1,8 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  excluirNotificacao,
+  getNotificacoes,
+  limparNotificacoes,
+  marcarNotificacaoLida,
+  marcarTodasNotificacoesLidas,
+  type Notificacao,
+} from "@/services/uni";
 
 const Icons = {
   Bell: () => (
@@ -56,89 +65,133 @@ const Icons = {
   ),
 };
 
-export default function NotificacoesPage() {
-  const [notificacoes, setNotificacoes] = useState([
-    {
-      id: 1,
-      titulo: "Pedido realizado com sucesso!",
-      msg: "O pedido #882 foi processado.",
-      data: "Há 3 horas atrás",
-      lida: false,
-    },
-    {
-      id: 2,
-      titulo: "Pedido pendente!",
-      msg: "Um novo pedido aguarda sua revisão.",
-      data: "Há 13 horas atrás",
-      lida: false,
-    },
-    {
-      id: 3,
-      titulo: "Pedido enviado!",
-      msg: "A remessa saiu para entrega.",
-      data: "Há 1 dia atrás",
-      lida: true,
-    },
-  ]);
+const NOTIFICACOES_QUERY_KEY = ["notificacoes"];
 
-  const marcarLida = (id: number) => {
-    setNotificacoes((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, lida: true } : n)),
+function formatarData(data: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(data));
+}
+
+export default function NotificacoesPage() {
+  const queryClient = useQueryClient();
+  const {
+    data: notificacoes = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: NOTIFICACOES_QUERY_KEY,
+    queryFn: getNotificacoes,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10000,
+  });
+
+  const atualizarLista = (updater: (notificacoes: Notificacao[]) => Notificacao[]) => {
+    queryClient.setQueryData<Notificacao[]>(NOTIFICACOES_QUERY_KEY, (atual = []) =>
+      updater(atual),
     );
   };
 
-  const excluir = (id: number) => {
-    setNotificacoes((prev) => prev.filter((n) => n.id !== id));
+  const marcarLida = async (id: string) => {
+    await marcarNotificacaoLida(id);
+    atualizarLista((atual) =>
+      atual.map((n) => (n.id === id ? { ...n, lida: true } : n)),
+    );
   };
+
+  const marcarTodasLidas = async () => {
+    await marcarTodasNotificacoesLidas();
+    atualizarLista((atual) => atual.map((n) => ({ ...n, lida: true })));
+  };
+
+  const excluir = async (id: string) => {
+    await excluirNotificacao(id);
+    atualizarLista((atual) => atual.filter((n) => n.id !== id));
+  };
+
+  const limparTudo = async () => {
+    await limparNotificacoes();
+    queryClient.setQueryData<Notificacao[]>(NOTIFICACOES_QUERY_KEY, []);
+  };
+
+  const naoLidas = notificacoes.filter((n) => !n.lida).length;
 
   return (
     <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 p-6 lg:ml-64 transition-all relative">
-        {/* Efeito visual de luz no fundo */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-blue-500/5 blur-[100px] pointer-events-none" />
 
         <div className="max-w-4xl mx-auto mt-10 relative z-10">
-          {/* HEADER */}
-          <header className="mb-10 flex justify-between items-end">
+          <header className="mb-10 flex flex-col gap-5 md:flex-row md:justify-between md:items-end">
             <div>
               <span className="text-blue-500 text-[10px] font-black uppercase tracking-[3px] mb-2 block">
                 Central de Alertas
               </span>
               <h1 className="text-4xl font-black text-theme-text-title flex items-center gap-4 tracking-tighter uppercase">
-                Notificações
+                Notificacoes
+                {naoLidas > 0 && (
+                  <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-black text-white">
+                    {naoLidas}
+                  </span>
+                )}
               </h1>
               <p className="text-theme-text-sub/60 font-medium mt-2">
-                Gerencie os avisos e atualizações importantes do sistema.
+                Avisos de pedidos e atualizacoes importantes do sistema.
               </p>
             </div>
 
-            <Link
-              href="/configuracoes"
-              className="p-3 rounded-2xl bg-theme-card border border-theme-border text-theme-text-sub hover:text-blue-500 hover:border-blue-500/50 transition-all hover:rotate-90 duration-500 shadow-sm"
-            >
-              <Icons.Settings />
-            </Link>
+            <div className="flex items-center gap-3">
+              {notificacoes.length > 0 && (
+                <button
+                  onClick={marcarTodasLidas}
+                  className="rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub transition hover:border-blue-500/50 hover:text-blue-500"
+                >
+                  Marcar todas
+                </button>
+              )}
+              <Link
+                href="/configuracoes"
+                className="p-3 rounded-2xl bg-theme-card border border-theme-border text-theme-text-sub hover:text-blue-500 hover:border-blue-500/50 transition-all hover:rotate-90 duration-500 shadow-sm"
+              >
+                <Icons.Settings />
+              </Link>
+            </div>
           </header>
 
-          {/* LISTA DE NOTIFICAÇÕES */}
           <div className="bg-theme-card border border-theme-border rounded-[32px] overflow-hidden shadow-xl transition-all">
-            {notificacoes.length > 0 ? (
+            {isLoading && (
+              <div className="p-20 text-center text-sm font-bold uppercase tracking-widest text-theme-text-sub/40">
+                Carregando notificacoes...
+              </div>
+            )}
+
+            {isError && (
+              <div className="p-20 text-center text-sm font-bold uppercase tracking-widest text-red-500">
+                Nao foi possivel carregar as notificacoes
+              </div>
+            )}
+
+            {!isLoading && !isError && notificacoes.length > 0 && (
               <div className="divide-y divide-theme-border">
                 {notificacoes.map((n) => (
                   <div
                     key={n.id}
                     className={`p-8 transition-all hover:bg-theme-hover group relative ${
-                      n.lida ? "opacity-50" : "bg-theme-card"
+                      n.lida ? "opacity-55" : "bg-theme-card"
                     }`}
                   >
                     <div className="flex justify-between items-start gap-6">
-                      <div
-                        className="flex items-start gap-6 flex-1 cursor-pointer"
+                      <button
+                        type="button"
+                        className="flex items-start gap-6 flex-1 cursor-pointer text-left"
                         onClick={() => marcarLida(n.id)}
                       >
-                        {/* Indicador de Nova Notificação */}
                         <div className="mt-1 relative">
                           <div
                             className={`${n.lida ? "text-theme-text-sub/30" : "text-blue-500"}`}
@@ -161,18 +214,18 @@ export default function NotificacoesPage() {
                             {n.titulo}
                           </h3>
                           <p className="text-theme-text-sub/80 mt-1 font-medium">
-                            {n.msg}
+                            {n.mensagem}
                           </p>
                           <span className="text-[10px] font-bold text-theme-text-sub/40 mt-3 block uppercase tracking-wider">
-                            {n.data}
+                            {formatarData(n.criada_em)}
                           </span>
                         </div>
-                      </div>
+                      </button>
 
                       <button
                         onClick={() => excluir(n.id)}
                         className="p-2 text-theme-text-sub/20 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                        title="Excluir notificação"
+                        title="Excluir notificacao"
                       >
                         <Icons.Trash />
                       </button>
@@ -180,26 +233,27 @@ export default function NotificacoesPage() {
                   </div>
                 ))}
               </div>
-            ) : (
+            )}
+
+            {!isLoading && !isError && notificacoes.length === 0 && (
               <div className="p-20 text-center">
                 <div className="text-theme-text-sub/20 flex justify-center mb-4">
                   <Icons.Bell />
                 </div>
                 <p className="text-theme-text-sub/40 font-bold uppercase tracking-widest text-sm">
-                  Nenhuma notificação por aqui
+                  Nenhuma notificacao por aqui
                 </p>
               </div>
             )}
           </div>
 
-          {/* BOTÃO LIMPAR TUDO (OPCIONAL) */}
           {notificacoes.length > 0 && (
             <div className="mt-6 flex justify-center">
               <button
-                onClick={() => setNotificacoes([])}
+                onClick={limparTudo}
                 className="text-[10px] font-black uppercase tracking-[2px] text-theme-text-sub/40 hover:text-red-500 transition-colors"
               >
-                Limpar todo o histórico
+                Limpar todo o historico
               </button>
             </div>
           )}

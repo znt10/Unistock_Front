@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
 import { getLojaById, getUsuarios, patchLoja, UsuarioResumo } from "@/services/uni";
 
 const Icons = {
@@ -44,6 +46,7 @@ const Icons = {
 export default function EditarLoja() {
   const params = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const id = params.id as string;
 
   const [tipo, setTipo] = useState("Loja");
@@ -103,13 +106,18 @@ export default function EditarLoja() {
 
     try {
       setSalvando(true);
-      await patchLoja(id, {
+      const lojaAtualizada = await patchLoja(id, {
         nome_loja: nomeLoja.trim(),
         cidade: cidade.trim(),
         endereco: endereco.trim(),
         responsavel: responsavel ? Number(responsavel) : null,
         ativo,
       });
+      queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
+        if (!lojasAtuais) return lojasAtuais;
+        return lojasAtuais.map((loja) => (loja.id === id ? lojaAtualizada : loja));
+      });
+      queryClient.setQueryData(["lojas", id], lojaAtualizada);
       alert("Unidade atualizada com sucesso!");
       router.push(`/lojas/detalhes/${id}`);
     } catch (error) {

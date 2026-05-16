@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
 import { postLoja } from "@/services/uni";
 
 const Icons = {
@@ -73,6 +75,7 @@ const Icons = {
 
 export default function NovaLoja() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [tipo, setTipo] = useState<"Loja" | "Fabrica">("Loja");
   const [nomeLoja, setNomeLoja] = useState("");
@@ -98,10 +101,14 @@ export default function NovaLoja() {
 
     try {
       setLoading(true);
-      await postLoja(nomeLoja.trim(), tipo, cidade.trim(), endereco.trim());
+      const lojaCriada = await postLoja(nomeLoja.trim(), tipo, cidade.trim(), endereco.trim());
+      queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
+        if (!lojasAtuais) return lojasAtuais;
+        return [...lojasAtuais, lojaCriada];
+      });
       alert("Unidade salva com sucesso!");
       router.push("/lojas");
-    } catch (error: any) {
+    } catch (error: unknown) {
       alert("Erro ao salvar unidade. Tente novamente.");
       console.error(error);
     } finally {

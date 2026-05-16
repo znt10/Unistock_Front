@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
 import { getLojaById, deleteLoja } from "@/services/uni"; // Ajuste o caminho do import
 
 // Ícones (Mantidos conforme seu código original)
@@ -98,34 +100,41 @@ const Icons = {
   ),
 };
 
+type LojaDetalhe = {
+  id: string;
+  nome_loja: string;
+  cidade: string;
+  endereco: string;
+  responsavel?: string | number | null;
+  responsavel_nome?: string | null;
+  ativo: boolean;
+};
+
 export default function DetalheLoja() {
   const params = useParams();
   const router = useRouter();
-  const [loja, setLoja] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (params.id) {
-      fetchLoja();
-    }
-  }, [params.id]);
-
-  const fetchLoja = async () => {
-    try {
-      const data = await getLojaById(params.id as string);
-      setLoja(data);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao carregar loja.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const queryClient = useQueryClient();
+  const id = params.id as string;
+  const { data: loja, isLoading: loading } = useQuery<LojaDetalhe>({
+    queryKey: ["lojas", id],
+    queryFn: () => getLojaById(id),
+    enabled: Boolean(id),
+    staleTime: 30 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
 
   const handleDeletar = async () => {
     if (confirm("Tem certeza que deseja remover esta unidade?")) {
       const ok = await deleteLoja(params.id as string);
-      if (ok) router.push("/lojas");
+      if (ok) {
+        queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
+          if (!lojasAtuais) return lojasAtuais;
+          return lojasAtuais.filter((item) => item.id !== id);
+        });
+        queryClient.removeQueries({ queryKey: ["lojas", id] });
+        router.push("/lojas");
+      }
     }
   };
 

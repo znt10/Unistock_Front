@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from app.models import Estoque, Pedido, ItemPedido, Produto, Loja
+from app.models import Estoque, Pedido, ItemPedido, Produto, Loja, Notificacao
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -66,14 +66,44 @@ class PedidoSerializer(serializers.ModelSerializer):
                 **item 
             )
 
+        gerentes = User.objects.filter(groups__name='Gerente') | User.objects.filter(is_superuser=True)
+        gerentes = gerentes.distinct()
+
+        for gerente in gerentes:
+            Notificacao.objects.create(
+                usuario=gerente,
+                pedido=pedido,
+                tipo='novo_pedido',
+                titulo='Novo pedido recebido',
+                mensagem=f'{user.first_name or user.username} criou um pedido para {pedido.loja.nome_loja}.'
+            )
+
+        Notificacao.objects.create(
+            usuario=user,
+            pedido=pedido,
+            tipo='pedido_criado',
+            titulo='Pedido criado com sucesso',
+            mensagem=f'Seu pedido para {pedido.loja.nome_loja} foi enviado para análise.'
+        )
+
         return pedido
+
+
+class NotificacaoSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='public_id', read_only=True)
+    pedido = serializers.UUIDField(source='pedido.public_id', read_only=True)
+    criada_em = serializers.DateTimeField(source='created_at', read_only=True)
+
+    class Meta:
+        model = Notificacao
+        fields = ['id', 'pedido', 'tipo', 'titulo', 'mensagem', 'lida', 'criada_em']
 
 class ProdutoSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='public_id', read_only=True)
 
     class Meta:
         model = Produto
-        fields = ['id', 'nome_produto', 'codigo', 'unidade_medida', 'ativo']
+        fields = ['id', 'nome_produto', 'codigo', 'unidade_medida', 'categoria', 'ativo']
 
 class UsuarioSerializer(serializers.ModelSerializer):
     tipo_usuario = serializers.ChoiceField(
@@ -150,7 +180,8 @@ class EstoqueSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='public_id', read_only=True)
     produto = serializers.SlugRelatedField(slug_field='public_id', queryset=Produto.objects.all())
     loja = serializers.SlugRelatedField(slug_field='public_id', queryset=Loja.objects.all())
+    atualizado_em = serializers.DateTimeField(source='updated_at', read_only=True)
 
     class Meta:
         model = Estoque
-        fields = ['id', 'produto', 'loja', 'quantidade_atual', 'quantidade_minima']
+        fields = ['id', 'produto', 'loja', 'quantidade_atual', 'quantidade_minima', 'estado', 'atualizado_em']
