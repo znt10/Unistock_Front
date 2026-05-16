@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { getMe, logout } from "@/services/auth";
+import { getMe, logout, register } from "@/services/auth";
+import { getLoja } from "@/services/uni";
 import { useAuthStore } from "@/stores/authStore";
 
 const Icons = {
@@ -229,16 +230,36 @@ const Icons = {
 
 type IconKey = keyof typeof Icons;
 
+type MenuItem =
+  | { href: string; label: string; icon: IconKey; action?: never }
+  | {
+      action: "createResponsible";
+      label: string;
+      icon: IconKey;
+      href?: never;
+    };
+
+type LojaOption = {
+  id: number | string;
+  nome?: string;
+  nome_loja?: string;
+  name?: string;
+};
+
 const MENU_CONFIG: Record<
   string,
-  { href: string; label: string; icon: IconKey }[]
+  MenuItem[]
 > = {
   Gerente: [
     { href: "/dashboard", label: "Painel Geral", icon: "Painel" },
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
     { href: "/Painel_unidade", label: "Painel unidade", icon: "List" },
-    { href: "/registrar", label: "Usuários", icon: "UserCircle" },
+    {
+      action: "createResponsible",
+      label: "Criar responsável",
+      icon: "UserCircle",
+    },
   ],
   Responsavel: [
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
@@ -250,6 +271,18 @@ export default function Sidebar() {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isResponsibleFormOpen, setIsResponsibleFormOpen] = useState(false);
+  const [responsibleName, setResponsibleName] = useState("");
+  const [responsibleEmail, setResponsibleEmail] = useState("");
+  const [responsiblePassword, setResponsiblePassword] = useState("");
+  const [responsibleLoja, setResponsibleLoja] = useState("");
+  const [responsibleError, setResponsibleError] = useState<string | null>(null);
+  const [responsibleSuccess, setResponsibleSuccess] = useState<string | null>(
+    null,
+  );
+  const [lojas, setLojas] = useState<LojaOption[]>([]);
+  const [loadingLojas, setLoadingLojas] = useState(false);
+  const [submittingResponsible, setSubmittingResponsible] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -257,8 +290,11 @@ export default function Sidebar() {
   const hydrated = useAuthStore((state) => state.hydrated);
   const setUser = useAuthStore((state) => state.setUser);
   const isPublicRoute =
-    pathname === "/" || pathname === "/login" || pathname === "/registrar";
-
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname === "/registrar" ||
+    pathname === "/esqueci-senha" ||
+    pathname === "/redefinir-senha";
   useEffect(() => {
     if (!hydrated || user || isPublicRoute || isLoggingOut) return;
 
@@ -278,6 +314,26 @@ export default function Sidebar() {
       });
   }, [hydrated, isLoggingOut, isPublicRoute, router, setUser, user]);
 
+  useEffect(() => {
+    if (!isResponsibleFormOpen) return;
+
+    async function carregarLojas() {
+      setLoadingLojas(true);
+
+      try {
+        const data = await getLoja();
+        setLojas(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Falha ao buscar lojas:", err);
+        setLojas([]);
+      } finally {
+        setLoadingLojas(false);
+      }
+    }
+
+    carregarLojas();
+  }, [isResponsibleFormOpen]);
+
   // Pega o grupo do usuário e renderiza o menu correto
   const role = user?.group ?? "";
   const menuItems = MENU_CONFIG[role] || [];
@@ -289,6 +345,56 @@ export default function Sidebar() {
       await logout();
     } finally {
       router.push("/login");
+    }
+  };
+
+  const resetResponsibleForm = () => {
+    setResponsibleName("");
+    setResponsibleEmail("");
+    setResponsiblePassword("");
+    setResponsibleLoja("");
+  };
+
+  const openResponsibleForm = () => {
+    setResponsibleError(null);
+    setResponsibleSuccess(null);
+    setIsResponsibleFormOpen(true);
+    setIsOpenMobile(false);
+  };
+
+  const closeResponsibleForm = () => {
+    if (submittingResponsible) return;
+    setIsResponsibleFormOpen(false);
+  };
+
+  const handleResponsibleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResponsibleError(null);
+    setResponsibleSuccess(null);
+
+    if (!responsibleLoja) {
+      setResponsibleError("Selecione uma loja para o responsável.");
+      return;
+    }
+
+    setSubmittingResponsible(true);
+
+    try {
+      await register(
+        responsibleName,
+        responsibleEmail,
+        responsiblePassword,
+        "responsavel",
+        responsibleLoja,
+      );
+      setResponsibleSuccess("Responsável cadastrado com sucesso.");
+      resetResponsibleForm();
+    } catch (err: unknown) {
+      setResponsibleError(
+        err instanceof Error ? err.message : "Erro ao cadastrar responsável.",
+      );
+    } finally {
+      setSubmittingResponsible(false);
     }
   };
 
@@ -360,7 +466,31 @@ export default function Sidebar() {
             {menuItems.map((item) => {
               // Chama o ícone correspondente de forma dinâmica
               const IconComponent = Icons[item.icon];
-              const isActive = pathname === item.href;
+              const isAction = "action" in item;
+              const isActive = !isAction && pathname === item.href;
+
+              if (isAction) {
+                return (
+                  <li key={item.action}>
+                    <button
+                      type="button"
+                      onClick={openResponsibleForm}
+                      className={`flex w-full items-center gap-3 rounded-lg py-3 text-left transition-all ${
+                        isCollapsed ? "justify-center" : "px-4"
+                      } text-slate-400 hover:bg-slate-800/40 hover:text-white`}
+                    >
+                      <div className="shrink-0">
+                        <IconComponent />
+                      </div>
+                      {!isCollapsed && (
+                        <span className="text-[15px] font-medium whitespace-nowrap">
+                          {item.label}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                );
+              }
 
               return (
                 <li key={item.href}>
@@ -474,6 +604,167 @@ export default function Sidebar() {
           </button>
         </div>
       </aside>
+
+      {isResponsibleFormOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-black/55 px-4 py-6 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl border border-theme-border bg-theme-card p-6 text-theme-text-title shadow-2xl">
+            <div className="mb-6 flex items-start justify-between gap-4 rounded-lg border border-theme-border bg-theme-header/60 p-5">
+              <div>
+                <span className="text-[11px] font-black uppercase tracking-[3px] text-blue-500">
+                  Gestão de usuários
+                </span>
+                <h2 className="mt-2 text-2xl font-black tracking-tight">
+                  Criar responsável
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-theme-text-sub">
+                  Cadastre o responsável e vincule a uma loja.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeResponsibleForm}
+                className="rounded-lg border border-theme-border bg-theme-header p-2 text-theme-text-sub transition hover:text-theme-text-title"
+                aria-label="Fechar formulário"
+              >
+                <Icons.X />
+              </button>
+            </div>
+
+            <form onSubmit={handleResponsibleSubmit} className="space-y-6">
+              <div className="border-b border-theme-border pb-3">
+                <h3 className="text-sm font-black uppercase tracking-[2px] text-theme-text-title">
+                  Dados do responsável
+                </h3>
+                <p className="mt-1 text-sm text-theme-text-sub">
+                  Informe identificação e credenciais de acesso.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="responsible-name" className="text-sm font-bold">
+                  Nome completo
+                </label>
+                <input
+                  id="responsible-name"
+                  type="text"
+                  value={responsibleName}
+                  onChange={(e) => setResponsibleName(e.target.value)}
+                  placeholder="Nome do responsável"
+                  className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  required
+                />
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="responsible-email"
+                    className="text-sm font-bold"
+                  >
+                    E-mail
+                  </label>
+                  <input
+                    id="responsible-email"
+                    type="email"
+                    value={responsibleEmail}
+                    onChange={(e) => setResponsibleEmail(e.target.value)}
+                    placeholder="responsavel@email.com"
+                    className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="responsible-password"
+                    className="text-sm font-bold"
+                  >
+                    Senha inicial
+                  </label>
+                  <input
+                    id="responsible-password"
+                    type="password"
+                    value={responsiblePassword}
+                    onChange={(e) => setResponsiblePassword(e.target.value)}
+                    placeholder="Crie uma senha"
+                    className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4 border-t border-theme-border pt-5">
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-[2px] text-theme-text-title">
+                    Vínculo com loja
+                  </h3>
+                  <p className="mt-1 text-sm text-theme-text-sub">
+                    Escolha a unidade que esse responsável poderá operar.
+                  </p>
+                </div>
+                <label htmlFor="responsible-loja" className="text-sm font-bold">
+                  Loja vinculada
+                </label>
+                <select
+                  id="responsible-loja"
+                  value={responsibleLoja}
+                  onChange={(e) => setResponsibleLoja(e.target.value)}
+                  className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  required
+                >
+                  <option value="">
+                    {loadingLojas
+                      ? "Carregando lojas..."
+                      : lojas.length
+                        ? "Selecione uma loja"
+                        : "Nenhuma loja disponível"}
+                  </option>
+                  {lojas.map((loja) => (
+                    <option key={loja.id} value={loja.id}>
+                      {loja.nome_loja ||
+                        loja.nome ||
+                        loja.name ||
+                        `Loja ${loja.id}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {responsibleError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                  {responsibleError}
+                </div>
+              )}
+
+              {responsibleSuccess && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                  {responsibleSuccess}
+                </div>
+              )}
+
+              <div className="flex flex-col-reverse gap-3 border-t border-theme-border pt-5 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeResponsibleForm}
+                  className="rounded-lg border border-theme-border bg-theme-header px-5 py-3 text-sm font-bold text-theme-text-sub transition hover:text-theme-text-title"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingResponsible}
+                  className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98] disabled:opacity-60"
+                >
+                  {submittingResponsible
+                    ? "Cadastrando..."
+                    : "Cadastrar responsável"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }

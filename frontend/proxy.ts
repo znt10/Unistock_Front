@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/esqueci-senha"];
+const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha", "/redefinir-senha"];
 
 // Rotas permitidas por role
 const ROLE_ROUTES: Record<string, string[]> = {
-  Gerente: ["/dashboard", "/lojas", "/novopedido", "/meuspedidos", "/Painel_unidade", "/registrar", "/notificacoes", "/configuracoes"],
+  Gerente: ["/dashboard", "/lojas", "/novopedido", "/meuspedidos", "/Painel_unidade", "/notificacoes", "/configuracoes"],
   Responsavel: ["/novopedido", "/meuspedidos", "/notificacoes", "/configuracoes"],
 };
 
@@ -19,7 +19,6 @@ export default function proxy(request: NextRequest) {
   const refreshToken = request.cookies.get("refresh_token")?.value;
   const role = request.cookies.get("role")?.value;
   const { pathname } = request.nextUrl;
-
   // 1. Já logado tentando acessar login → redireciona pra home do role
   if (pathname === "/login" && token) {
     const redirect = ROLE_HOME[role ?? ""] ?? "/dashboard";

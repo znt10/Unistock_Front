@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login } from "@/services/auth";
 
@@ -136,12 +137,12 @@ export default function LoginPage() {
                 </span>
               </label>
 
-              <a
-                href="#"
+              <Link
+                href="/esqueci-senha"
                 className="text-sm font-medium text-blue-600 hover:underline"
               >
                 Esqueceu a senha?
-              </a>
+              </Link>
             </div>
 
             {error && (
