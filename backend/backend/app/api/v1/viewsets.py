@@ -5,6 +5,11 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import datetime, time, timedelta
+from django.db.models import Sum, Q
+from django.utils import timezone
+from django.utils.timezone import make_aware
+
 
 from django.contrib.auth.models import User
 
@@ -30,6 +35,7 @@ def is_gerente_ou_admin(user):
 class LojaViewSet(viewsets.ModelViewSet):
     queryset = Loja.objects.all().order_by('id') 
     serializer_class = LojaSerializer
+    lookup_field = 'public_id'
     
     def get_permissions(self):
         if self.action == 'list':
@@ -42,12 +48,14 @@ class EstoqueViewSet(viewsets.ModelViewSet,ResponsavelOuAdminMixin):
     queryset = Estoque.objects.all()
     serializer_class = EstoqueSerializer
     permission_classes = [IsAuthenticated,IsGerenteOrAdministrador]
+    lookup_field = 'public_id'
 
 
 # 🔹 PRODUTO
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all().order_by('nome_produto')
     serializer_class = ProdutoSerializer
+    lookup_field = 'public_id'
 
     def get_permissions(self):
         if self.action == 'list':
@@ -60,6 +68,7 @@ class ItemPedidoViewSet(ResponsavelOuAdminMixin,viewsets.ModelViewSet):
     queryset = ItemPedido.objects.all()
     serializer_class = ItemPedidoSerializer
     permission_classes = [IsAuthenticated,IsGerenteOrAdministradorOrResponsavel]
+    lookup_field = 'public_id'
 
     def get_queryset(self):
         user = self.request.user
@@ -75,8 +84,115 @@ class ItemPedidoViewSet(ResponsavelOuAdminMixin,viewsets.ModelViewSet):
 class PedidoViewSet( viewsets.ModelViewSet):
     queryset = Pedido.objects.all().order_by('-data_pedido')
     serializer_class = PedidoSerializer
-    permission_classes = [IsAuthenticated,IsGerenteOrAdministradorOrResponsavel]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'public_id'
 
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Pedido.objects.all().order_by('-data_pedido')
+        
+
+        if not is_gerente_ou_admin(user):
+            queryset = queryset.filter(loja__in=user.loja_set.all())
+
+        status = self.request.query_params.get('status')
+        data = self.request.query_params.get('data')
+        loja = self.request.query_params.get('loja')
+
+        if status:
+            queryset = queryset.filter(status=status)
+
+        if loja:
+            queryset = queryset.filter(loja__public_id=loja)
+
+        if data:
+            data_inicio = make_aware(
+                datetime.combine(
+                    datetime.strptime(data, "%Y-%m-%d").date(),
+                    time.min
+                )
+            )
+
+            data_fim = make_aware(
+                datetime.combine(
+                    datetime.strptime(data, "%Y-%m-%d").date(),
+                    time.max
+                )
+            )
+
+            queryset = queryset.filter(
+                data_pedido__range=(data_inicio, data_fim)
+            )
+
+        return queryset
+
+    @action(detail=False, methods=['get'], url_path='dashboard')
+    def dashboard(self, request):
+        hoje = timezone.localdate()
+        periodo = request.query_params.get('periodo', 'week')
+        status_filtro = request.query_params.get('status')
+        search = request.query_params.get('search')
+
+        queryset = self.get_queryset()
+
+        if periodo == 'today':
+            queryset = queryset.filter(data_pedido__date=hoje)
+        elif periodo == 'week':
+            inicio_semana = hoje - timedelta(days=6)
+            queryset = queryset.filter(data_pedido__date__range=(inicio_semana, hoje))
+        elif periodo == 'month':
+            queryset = queryset.filter(
+                data_pedido__year=hoje.year,
+                data_pedido__month=hoje.month
+            )
+
+        if status_filtro:
+            queryset = queryset.filter(status=status_filtro)
+
+        if search:
+            queryset = queryset.filter(
+                Q(loja__nome_loja__icontains=search) |
+                Q(responsavel__first_name__icontains=search) |
+                Q(responsavel__username__icontains=search) |
+                Q(descricao__icontains=search)
+            )
+
+        pedidos_hoje = self.get_queryset().filter(data_pedido__date=hoje).count()
+        pendentes = self.get_queryset().filter(status=Pedido.Status.PENDENTE).count()
+        entregues_semana = self.get_queryset().filter(
+            status=Pedido.Status.ENTREGUE,
+            data_pedido__date__gte=hoje - timedelta(days=6),
+            data_pedido__date__lte=hoje
+        ).count()
+
+        pedidos_recentes = (
+            queryset
+            .select_related('loja', 'responsavel')
+            .prefetch_related('itens')
+            .annotate(total_quantidade=Sum('itens__quantidade'))
+            .order_by('-data_pedido')[:10]
+        )
+
+        return Response({
+            "metricas": {
+                "pedidos_hoje": pedidos_hoje,
+                "pendentes": pendentes,
+                "entregues_semana": entregues_semana,
+                "total_filtrado": queryset.count(),
+            },
+            "pedidos_recentes": [
+                {
+                    "id": pedido.public_id,
+                    "loja": pedido.loja.nome_loja if pedido.loja else "Sem loja",
+                    "responsavel": pedido.responsavel.first_name or pedido.responsavel.username,
+                    "quantidade_total": pedido.total_quantidade or 0,
+                    "status": pedido.status,
+                    "data": pedido.data_pedido.strftime('%d/%m/%Y'),
+                    "hora": pedido.data_pedido.strftime('%H:%M'),
+                }
+                for pedido in pedidos_recentes
+            ]
+        })
 
 # 🔹 USUÁRIO
 class UsuarioViewSet(UserOuAdminMixin, viewsets.ModelViewSet):
@@ -101,7 +217,7 @@ class UsuarioViewSet(UserOuAdminMixin, viewsets.ModelViewSet):
                 "email": user.email,
                 "group": group,
                 "loja": {
-                    "id": loja_vinculada.id,
+                    "id": loja_vinculada.public_id,
                     "nome": loja_vinculada.nome_loja
                 } if loja_vinculada else None
             })
@@ -131,7 +247,7 @@ class UsuarioViewSet(UserOuAdminMixin, viewsets.ModelViewSet):
             # 2. Se for Responsável, vincula à loja
             if group_name == 'Responsavel' and id_loja:
                 try:
-                    loja = Loja.objects.get(id=id_loja)
+                    loja = Loja.objects.get(public_id=id_loja)
                     # Se o seu model Loja tem o campo 'responsavel':
                     loja.responsavel = user 
                     loja.save()

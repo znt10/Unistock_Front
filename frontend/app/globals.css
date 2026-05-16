@@ -15,7 +15,8 @@
 
 
 /* 2. Definimos as cores do Tema Claro (usando HEX, que o v4 aceita nativamente) */
-:root {
+:root,
+[data-theme="light"] {
   --base: #f8fafc;
   --card: #ffffff;
   --header: #eff6ff;

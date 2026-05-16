@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { getRelatorio } from "@/services/uni";
-import { useLojas } from "@/hooks/useLoja";
+import { useLojas, type Loja } from "@/hooks/useLoja";
 
 const Icons = {
   Building: () => (
@@ -79,31 +79,15 @@ export default function GerenciaPedidos() {
       window.open(pdfUrl, "_blank");
 
       setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro detalhado:", error);
 
-      alert(error?.message || "Erro ao gerar PDF");
+      alert(error instanceof Error ? error.message : "Erro ao gerar PDF");
     } finally {
       setIsExporting(false);
     }
   };
 
-  const unidades = [
-    {
-      id: 1,
-      nome: "LOJA CENTRO",
-      pedidosAbertos: 12,
-      ultimaAtividade: "Há 5 min",
-    },
-    {
-      id: 2,
-      nome: "LOJA NORTE",
-      pedidosAbertos: 8,
-      ultimaAtividade: "Há 1 hora",
-    },
-    { id: 3, nome: "LOJA LIMÃO", pedidosAbertos: 3, ultimaAtividade: "Ontem" },
-    { id: 4, nome: "LOJA LAPA", pedidosAbertos: 15, ultimaAtividade: "Agora" },
-  ];
 
   return (
     <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans transition-colors duration-300">
@@ -196,7 +180,7 @@ export default function GerenciaPedidos() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {Array.isArray(lojas) &&
-              lojas.map((loja: any) => (
+              lojas.map((loja: Loja) => (
                 <div
                   key={loja.id}
                   className="bg-theme-card border border-theme-border rounded-[32px] p-8 hover:border-blue-500/30 transition-all group relative overflow-hidden shadow-2xl"
@@ -219,7 +203,7 @@ export default function GerenciaPedidos() {
                   </div>
 
                   {/* Botão de Ação */}
-                  <Link href="/meuspedidos">
+                  <Link href={`/meuspedidos?loja=${loja.id}`}>
                     <button className="w-full bg-theme-text-title hover:opacity-90 text-theme-base font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-[2px] shadow-lg relative z-10 active:scale-[0.98]">
                       Ver Pedidos da Loja
                     </button>

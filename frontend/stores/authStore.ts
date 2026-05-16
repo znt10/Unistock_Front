@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface User {
   id: number;
@@ -31,13 +31,22 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,
       }),
-
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);
       },
     }
   )
 );
+
+export const GERENTE_GROUPS = ["Gerente", "Administrador"] as const;
+
+export const selectIsGerente = (state: AuthState) =>
+  state.user?.group
+    ? GERENTE_GROUPS.includes(
+        state.user.group as (typeof GERENTE_GROUPS)[number]
+      )
+    : false;

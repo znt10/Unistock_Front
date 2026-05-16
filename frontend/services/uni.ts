@@ -2,12 +2,11 @@ import { apiFetch, apiV1, } from "./api";
 
 
 // 🔹 LOJAS
-export const getLoja = async () => {
-  const res = await apiV1('/lojas/', {
-    method: 'GET',
-  });
-
-  return res.json();
+// services/uni.ts
+export const getLoja= async () => {
+  const res = await apiV1("/lojas/", { method: "GET" });
+  const data = await res.json();
+  return data.results as { id: number; nome: string }[];
 };
 
 // 🔹 PRODUTOS
@@ -42,11 +41,84 @@ export const postPedido = async (pedidoData: PedidoData) => {
   return res.json();
 };
 
-export const getPedidos = async () => {
-  const res = await apiV1('/pedidos/', {
-    method: 'GET',
+export const getPedidos = async (filters?: {
+  status?: string;
+  data?: string;
+  loja?: string;
+}) => {
+
+  const params = new URLSearchParams();
+
+  if (filters?.status) {
+    params.append("status", filters.status);
+  }
+
+  if (filters?.data) {
+    params.append("data", filters.data);
+  } 
+
+  if (filters?.loja) {
+    params.append("loja", filters.loja);
+  }
+
+  const query = params.toString();
+  const res = await apiV1(
+    `/pedidos/${query ? `?${query}` : ""}`,
+    {
+      method: "GET",
+    }
+  );
+
+  return res.json();
+};
+
+export type DashboardFilters = {
+  periodo?: "today" | "week" | "month" | "all";
+  status?: string;
+  search?: string;
+};
+
+export type DashboardPedido = {
+  id: number;
+  loja: string;
+  responsavel: string;
+  quantidade_total: number;
+  status: string;
+  data: string;
+  hora: string;
+};
+
+export type DashboardData = {
+  metricas: {
+    pedidos_hoje: number;
+    pendentes: number;
+    entregues_semana: number;
+    total_filtrado: number;
+  };
+  pedidos_recentes: DashboardPedido[];
+};
+
+export const getDashboard = async (filters?: DashboardFilters) => {
+  const params = new URLSearchParams();
+
+  if (filters?.periodo && filters.periodo !== "all") {
+    params.append("periodo", filters.periodo);
+  }
+
+  if (filters?.status) {
+    params.append("status", filters.status);
+  }
+
+  if (filters?.search) {
+    params.append("search", filters.search);
+  }
+
+  const query = params.toString();
+  const res = await apiV1(`/pedidos/dashboard/${query ? `?${query}` : ""}`, {
+    method: "GET",
   });
-return res.json();
+
+  return res.json() as Promise<DashboardData>;
 };
 
 
@@ -89,10 +161,50 @@ export const postLoja = async (nome_loja: string, tipo: string, cidade: string, 
     return res.json();
 };
 
-export const patchLoja = async (id: number, data: Partial<{ responsavel: number; nome_loja: string; ativo: boolean }>) => {
+export type LojaUpdateData = Partial<{
+    responsavel: number | null;
+    nome_loja: string;
+    tipo: string;
+    cidade: string;
+    endereco: string;
+    ativo: boolean;
+}>;
+
+export const patchLoja = async (id: number | string, data: LojaUpdateData) => {
     const res = await apiV1(`/lojas/${id}/`, {
         method: 'PATCH',
         body: JSON.stringify(data),
     });
     return res.json();
+};
+
+export type UsuarioResumo = {
+  id: number;
+  first_name: string;
+  email: string;
+};
+
+export const getUsuarios = async () => {
+  const res = await apiV1('/user/', {
+    method: 'GET',
+  });
+  const data = await res.json();
+  return (data.results ?? data) as UsuarioResumo[];
+};
+
+// No seu arquivo de API (ex: services/api.ts)
+
+export const getLojaById = async (id: string) => {
+  const res = await apiV1(`/lojas/${id}/`, {
+    method: 'GET',
+  });
+  if (!res.ok) throw new Error("Erro ao buscar detalhes da loja");
+  return res.json();
+};
+
+export const deleteLoja = async (id: string) => {
+  const res = await apiV1(`/lojas/${id}/`, {
+    method: 'DELETE',
+  });
+  return res.ok;
 };

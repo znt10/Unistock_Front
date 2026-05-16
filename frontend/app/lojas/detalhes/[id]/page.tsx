@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { getLojaById, deleteLoja } from "@/services/uni"; // Ajuste o caminho do import
 
-// Ícones Premium mantidos, mas com cores dinâmicas
+// Ícones (Mantidos conforme seu código original)
 const Icons = {
   ChevronLeft: () => (
     <svg
@@ -97,22 +99,54 @@ const Icons = {
 };
 
 export default function DetalheLoja() {
-  const loja = {
-    nome: "Loja Centro",
-    status: "Ativa",
-    cidade: "Patos-PB",
-    endereco: "Rua Central, 120",
-    responsavel: "João Silva",
-    telefone: "(83) 99999-9999",
-    email: "joaosilva@gmail.com",
+  const params = useParams();
+  const router = useRouter();
+  const [loja, setLoja] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (params.id) {
+      fetchLoja();
+    }
+  }, [params.id]);
+
+  const fetchLoja = async () => {
+    try {
+      const data = await getLojaById(params.id as string);
+      setLoja(data);
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao carregar loja.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleDeletar = async () => {
+    if (confirm("Tem certeza que deseja remover esta unidade?")) {
+      const ok = await deleteLoja(params.id as string);
+      if (ok) router.push("/lojas");
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="flex h-screen items-center justify-center bg-theme-base text-white">
+        Carregando...
+      </div>
+    );
+  if (!loja)
+    return (
+      <div className="flex h-screen items-center justify-center bg-theme-base text-white">
+        Loja não encontrada.
+      </div>
+    );
 
   return (
     <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
       <main className="flex-1 lg:ml-64 p-6 md:p-12 transition-all duration-300 relative overflow-hidden">
-        {/* Glow de fundo adaptável */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="max-w-5xl mx-auto relative z-10">
@@ -133,22 +167,26 @@ export default function DetalheLoja() {
 
               <div className="flex items-center gap-4">
                 <h1 className="text-[44px] font-black tracking-tighter text-theme-text-title leading-none uppercase">
-                  {loja.nome}
+                  {loja.nome_loja}
                 </h1>
-                <span className="mt-2 px-3 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all">
-                  {loja.status}
+                <span
+                  className={`mt-2 px-3 py-1 ${loja.ativo ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"} border rounded-lg text-[10px] font-black uppercase tracking-wider transition-all`}
+                >
+                  {loja.ativo ? "Ativa" : "Inativa"}
                 </span>
               </div>
             </div>
 
-            <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-2xl font-black text-[12px] uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 active:scale-95 border-none">
+            <Link
+              href={`/lojas/editar/${loja.id}`}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-2xl font-black text-[12px] uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 active:scale-95 border-none"
+            >
               <Icons.Edit /> Editar Unidade
-            </button>
+            </Link>
           </div>
 
           {/* Grid de Informações */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {/* Bloco de Localização */}
             <div className="md:col-span-2 bg-theme-card border border-theme-border rounded-[32px] p-8 shadow-sm relative overflow-hidden group transition-all">
               <div className="absolute top-0 right-0 p-8 text-blue-500 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all">
                 <Icons.MapPin />
@@ -176,7 +214,6 @@ export default function DetalheLoja() {
               </div>
             </div>
 
-            {/* Bloco de Responsável */}
             <div className="bg-theme-header border border-theme-border rounded-[32px] p-8 shadow-sm flex flex-col justify-between border-l-4 border-l-blue-600 transition-all hover:bg-theme-hover group">
               <span className="text-theme-text-sub/50 text-[10px] font-black uppercase tracking-[3px] mb-4 block">
                 Responsável
@@ -185,8 +222,9 @@ export default function DetalheLoja() {
                 <div className="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform">
                   <Icons.User />
                 </div>
+                {/* Se o seu back-end retornar o objeto do responsável, use loja.responsavel_nome */}
                 <h3 className="text-2xl font-black text-theme-text-title tracking-tighter mb-1 uppercase">
-                  {loja.responsavel}
+                  {loja.responsavel || "Não definido"}
                 </h3>
                 <p className="text-blue-500/70 text-[11px] font-black uppercase tracking-widest italic">
                   Gerente de Unidade
@@ -195,7 +233,7 @@ export default function DetalheLoja() {
             </div>
           </div>
 
-          {/* Bloco de Contatos Rápidos */}
+          {/* Contatos (Se o seu back-end tiver esses campos, senão pode omitir ou mockar) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-theme-card border border-theme-border rounded-[24px] p-6 flex items-center gap-6 hover:border-blue-500/40 hover:bg-theme-hover transition-all group cursor-default shadow-sm">
               <div className="p-4 bg-theme-header border border-theme-border rounded-2xl text-theme-text-sub group-hover:text-blue-500 group-hover:border-blue-500/30 transition-all">
@@ -206,7 +244,7 @@ export default function DetalheLoja() {
                   Telefone de Contato
                 </label>
                 <p className="text-lg font-black text-theme-text-title font-mono tracking-tighter">
-                  {loja.telefone}
+                  (83) 90000-0000
                 </p>
               </div>
             </div>
@@ -220,15 +258,17 @@ export default function DetalheLoja() {
                   E-mail Corporativo
                 </label>
                 <p className="text-lg font-black text-theme-text-title lowercase">
-                  {loja.email}
+                  contato@{loja.nome_loja?.toLowerCase().replace(/\s/g, "")}.com
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Zona de Perigo */}
           <div className="mt-20 pt-8 border-t border-theme-border flex justify-center">
-            <button className="flex items-center gap-2 text-theme-text-sub hover:text-red-500 transition-all font-black text-[11px] uppercase tracking-[2px] group">
+            <button
+              onClick={handleDeletar}
+              className="flex items-center gap-2 text-theme-text-sub hover:text-red-500 transition-all font-black text-[11px] uppercase tracking-[2px] group"
+            >
               <span className="w-8 h-8 rounded-lg border border-theme-border flex items-center justify-center group-hover:border-red-500 group-hover:bg-red-500/10 transition-all text-lg leading-none">
                 ×
               </span>

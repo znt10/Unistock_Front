@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import  IsAuthenticated
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from .models import Pedido
+from .models import Loja, Pedido
 from django.contrib.auth import get_user_model
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -20,9 +20,14 @@ from reportlab.lib.pagesizes import A4
 from django.utils import timezone
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.settings import api_settings
+from rest_framework.permissions import IsAuthenticated,AllowAny
+ 
 
-
-
+ 
 def relatorio_pdf(request):
     # --- Lógica de Data ---
     agora_local = timezone.localtime(timezone.now())
@@ -138,10 +143,47 @@ def relatorio_pdf(request):
 
 
 
+
+class CookieTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        # 1. Pega o refresh token que está salvo no cookie
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if not refresh_token:
+            return Response(
+                {"detail": "Refresh token não encontrado no cookie."}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        try:
+            serializer = TokenRefreshSerializer(data={'refresh': refresh_token})
+            serializer.is_valid(raise_exception=True)
+            response = Response(serializer.validated_data, status=status.HTTP_200_OK)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        access_token = response.data.get('access')
+        if access_token:
+            response.set_cookie(
+                key='access_token',
+                value=access_token,
+                httponly=True, 
+                secure=not settings.DEBUG,
+                samesite='Lax',
+                path='/',
+                max_age=int(api_settings.ACCESS_TOKEN_LIFETIME.total_seconds()),
+            )
+            
+            
+        return response
+    
+
+
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
+
 
         user = authenticate(username=email, password=password)
 
@@ -155,13 +197,28 @@ class LoginView(APIView):
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
         group = user.groups.first()
+
+        if group is None:
+            return Response(
+                {'error': 'Usuario sem grupo. Adicione o usuario ao grupo Gerente ou Responsavel.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         role = group.name
-        
+        loja_vinculada = Loja.objects.filter(responsavel=user).first()
         
         response = Response({
             'message': 'Login realizado com sucesso',
-
-            "role": role,
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'first_name': user.first_name,
+                'group': role,
+                'loja': {
+                    'id': loja_vinculada.public_id,
+                    'nome': loja_vinculada.nome_loja,
+                } if loja_vinculada else None,
+            },
             })
         
         cookie_args = {
@@ -174,12 +231,14 @@ class LoginView(APIView):
         response.set_cookie(
             key='access_token',
             value=str(access),
+            max_age=int(access.lifetime.total_seconds()),
             **cookie_args
         )
        
         response.set_cookie(
             key='refresh_token',
             value=str(refresh),
+            max_age=int(refresh.lifetime.total_seconds()),
             **cookie_args
         )
 
@@ -187,10 +246,8 @@ class LoginView(APIView):
         response.set_cookie(
             key='role',
             value=role,
-            httponly=True,
-            secure=not settings.DEBUG,
-            samesite='Lax',
-            path='/',
+            max_age=int(refresh.lifetime.total_seconds()),
+            **cookie_args
         )
 
         return response
@@ -198,7 +255,7 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-
+    permission_classes = [IsAuthenticated]
     @method_decorator(csrf_exempt)
     def post(self, request):
         response = Response({"message": "Logout realizado com sucesso"})

@@ -1,112 +1,219 @@
-Perfeito, aqui está pronto em Markdown para colar direto no README.md:
+- Login: `admin@email.com`
+- Senha: `UNIFIP@123`
 
-# 📦 Sistema de Gestão - API Django
+# UniStock API
 
-API desenvolvida com Django e Django REST Framework para gerenciamento de usuários, produtos e pedidos.
+Backend do sistema UniStock, desenvolvido com Django, Django REST Framework e MySQL.
 
-O sistema foi pensado para uso interno, onde um gerente cadastra os usuários e controla as operações.
+A API gerencia usuarios, lojas, produtos, estoque e pedidos. A autenticacao usa JWT salvo em cookies HTTP-only.
 
----
+## Tecnologias
 
-## 🚀 Como rodar o projeto
+- Python 3.12
+- Django
+- Django REST Framework
+- Simple JWT
+- MySQL
+- Docker Compose
 
-### 📥 1. Clonar o repositório
+## Como Rodar
 
-````bash
-git clone https://github.com/znt10/5-Periodo.git
-cd 5-Periodo
+Entre na pasta do backend:
 
----
-
-# 📦 Sistema de Gestão - API Django
-
-API desenvolvida com Django e Django REST Framework para gerenciamento de usuários, produtos e pedidos.
-
-O sistema foi pensado para uso interno, onde um gerente cadastra os usuários e controla as operações.
-
----
-
-## 🚀 Como rodar o projeto
-
-### 📥 1. Clonar o repositório
-```bash
-git clone https://github.com/znt10/5-Periodo.git
-cd 5-Periodo
-
-### 2. Criar ambiente virtual
-
-python -m venv venv
-x
-^```
-Ativar ambiente virtual:
-
-```bash
-Windows
-
-venv\Scripts\activate
-
-Linux/Mac
-
-source venv/bin/activate
-````
-
-📦 3. Instalar dependências
-
-```bash
-pip install -r requirements.txt
-
+```powershell
+cd "D:\5 Periodo\backend"
 ```
 
-⚙️ 4. Configurar banco de dados (opcional para teste)
-No settings.py, use SQLite:
+Suba o container:
 
-```bash
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+```powershell
+docker compose up --build
+```
+
+Ou rode em segundo plano:
+
+```powershell
+docker compose up -d --build
+```
+
+A API ficara disponivel em:
+
+```text
+http://localhost:8000
+```
+
+Para parar:
+
+```powershell
+docker compose down
+```
+
+## Banco de Dados
+
+O projeto usa MySQL. As variaveis ficam em `.env`:
+
+```env
+DB_ENGINE=django.db.backends.mysql
+DB_NAME=p5
+DB_USER=root
+DB_PASSWORD=12345
+DB_HOST=localhost
+DB_PORT=3306
+```
+
+No Docker Compose, o backend usa:
+
+```yaml
+DB_HOST: host.docker.internal
+```
+
+Isso permite que o container acesse o MySQL rodando na sua maquina.
+
+## Inicializacao Automatica
+
+Quando o container sobe, o `entrypoint.sh` executa automaticamente:
+
+```powershell
+python manage.py migrate
+python manage.py loaddata groups
+python manage.py ensure_admin
+python manage.py runserver 0.0.0.0:8000
+```
+
+Ou seja, ao rodar `docker compose up`, o projeto ja:
+
+- aplica migrations
+- carrega os grupos e permissoes
+- cria ou atualiza o admin padrao
+- sobe o servidor Django
+
+## Usuario Admin Padrao
+
+O Docker Compose cria/atualiza este usuario automaticamente:
+
+```text
+email: admin@email.com
+senha: UNIFIP@123
+grupo: Gerente
+is_staff: True
+is_superuser: True
+```
+
+Login da API:
+
+```text
+POST /login/
+```
+
+Admin Django:
+
+```text
+http://localhost:8000/admin/
+```
+
+## Grupos e Permissoes
+
+Os grupos ficam na fixture:
+
+```text
+backend/app/fixtures/groups.json
+```
+
+Grupos principais:
+
+- `Gerente`
+- `Responsavel`
+
+Para carregar manualmente:
+
+```powershell
+docker compose exec api python manage.py loaddata groups
+```
+
+## IDs Publicos
+
+Os models principais possuem `public_id` em UUID.
+
+A API mostra esse UUID no campo `id`, evitando expor IDs numericos internos.
+
+Exemplo:
+
+```json
+{
+  "id": "9d543ab7-50a1-11f1-bacf-3c7c3f7b9a64",
+  "nome_loja": "Loja Centro"
 }
 ```
 
-🔄 5. Rodar migrações
+Rotas de detalhe tambem usam UUID:
 
-```bash
-python manage.py migrate
+```text
+/api/v1/lojas/9d543ab7-50a1-11f1-bacf-3c7c3f7b9a64/
 ```
 
-👤 6. Criar superusuário
+## Endpoints Principais
 
-```bash
-python manage.py createsuperuser
+```text
+POST /login/
+POST /logout/
+POST /token/refresh/
+
+GET /api/v1/lojas/
+GET /api/v1/produtos/
+GET /api/v1/estoque/
+GET /api/v1/pedidos/
+GET /api/v1/pedidos/dashboard/
+GET /api/v1/user/me/
+POST /api/v1/user/registrar/
 ```
 
-▶️ 7. Iniciar o servidor
+Documentacao da API:
 
-```bash
-python manage.py runserver
+```text
+http://localhost:8000/api/schema/
+http://localhost:8000/api/schema/swagger/
 ```
 
-A API estará disponível em:
-http://127.0.0.1:8000/
+## Comandos Uteis
 
-⚙️ Funcionalidades
-Cadastro de usuários (Administrador/Gerente)
-Autenticação com JWT
-Controle de permissões
-CRUD de produtos
-CRUD de pedidos
-CRUD de loja
-CRUD de estoque
-CRUD de itempedido
-🧱 Estrutura do projeto
-usuarios → gerenciamento de usuários
-produtos → cadastro de produtos
-pedidos → controle de pedidos
-🔐 Autenticação
+Rodar checks:
 
-A API utiliza JWT.
+```powershell
+docker compose exec api python manage.py check
+```
 
-Após o login, utilize o token nas requisições (preferencialmente via cookies para maior segurança).
+Criar migrations:
 
----
+```powershell
+docker compose exec api python manage.py makemigrations
+```
+
+Aplicar migrations:
+
+```powershell
+docker compose exec api python manage.py migrate
+```
+
+Abrir shell Django:
+
+```powershell
+docker compose exec api python manage.py shell
+```
+
+Recriar/atualizar admin padrao:
+
+```powershell
+docker compose exec api python manage.py ensure_admin
+```
+
+Ver logs:
+
+```powershell
+docker compose logs -f
+```
+
+## Observacoes
+
+- Prefira rodar comandos Django pelo Docker.
+- O ambiente virtual local pode falhar se o `mysqlclient` nao estiver instalado corretamente.
+- Usuarios precisam estar em um grupo, como `Gerente` ou `Responsavel`, para acessar o sistema corretamente.

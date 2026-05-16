@@ -20,9 +20,6 @@ export function useLojas() {
       const data = await getLoja();
   
       return (data.results ?? data) as Loja[];
-    },
-    staleTime: 5 * 60 * 1000, 
-    refetchOnWindowFocus: false, 
-    refetchOnMount: false,      
+    },  
   });
 }
