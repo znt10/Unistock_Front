@@ -1,12 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  CATEGORIAS_ESTOQUE,
-  criarEstoqueInicial,
-  type EstadoProduto,
-  type EstoqueLocal,
-} from "@/data/estruturaEstoque";
+import { type EstadoProduto, type EstoqueLocal } from "@/data/estruturaEstoque";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -29,17 +24,15 @@ export type HistoricoEstoque = UpdatePayload & {
 };
 
 function carregarEstoque() {
-  if (typeof window === "undefined") return criarEstoqueInicial();
+  if (typeof window === "undefined") return {};
 
-  const base = criarEstoqueInicial();
   const salvo = window.localStorage.getItem(STORAGE_KEY);
-  if (!salvo) return base;
+  if (!salvo) return {};
 
   try {
-    const parsed = JSON.parse(salvo) as EstoqueLocal;
-    return { ...base, ...parsed };
+    return JSON.parse(salvo) as EstoqueLocal;
   } catch {
-    return base;
+    return {};
   }
 }
 
@@ -152,17 +145,6 @@ export function useEstoque() {
     [aplicarUpdate, enviar, usuario],
   );
 
-  const zerarLoja = useCallback(
-    (loja: string) => {
-      Object.entries(CATEGORIAS_ESTOQUE).forEach(([categoria, config]) => {
-        config.produtos.forEach((produto) => {
-          atualizarItem(loja, categoria, produto, { qtd: 0 });
-        });
-      });
-    },
-    [atualizarItem],
-  );
-
   const ultimaAtualizacao = useMemo(() => {
     let ultima = "";
     Object.values(estoque).forEach((categorias) => {
@@ -184,7 +166,6 @@ export function useEstoque() {
     notificacoesExternas,
     ultimaAtualizacao,
     atualizarItem,
-    zerarLoja,
     limparBadge: () => setNotificacoesExternas(0),
   };
 }

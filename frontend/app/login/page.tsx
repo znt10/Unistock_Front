@@ -38,7 +38,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
 
-      router.push("/dashboard");
+      router.push("/lojas");
     } catch (err: unknown) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Erro ao fazer login");

@@ -141,55 +141,6 @@ export const getPedidos = async (filters?: {
   return res.json();
 };
 
-export type DashboardFilters = {
-  periodo?: "today" | "week" | "month" | "all";
-  status?: string;
-  search?: string;
-};
-
-export type DashboardPedido = {
-  id: number;
-  loja: string;
-  responsavel: string;
-  quantidade_total: number;
-  status: string;
-  data: string;
-  hora: string;
-};
-
-export type DashboardData = {
-  metricas: {
-    pedidos_hoje: number;
-    pendentes: number;
-    entregues_semana: number;
-    total_filtrado: number;
-  };
-  pedidos_recentes: DashboardPedido[];
-};
-
-export const getDashboard = async (filters?: DashboardFilters) => {
-  const params = new URLSearchParams();
-
-  if (filters?.periodo && filters.periodo !== "all") {
-    params.append("periodo", filters.periodo);
-  }
-
-  if (filters?.status) {
-    params.append("status", filters.status);
-  }
-
-  if (filters?.search) {
-    params.append("search", filters.search);
-  }
-
-  const query = params.toString();
-  const res = await apiV1(`/pedidos/dashboard/${query ? `?${query}` : ""}`, {
-    method: "GET",
-  });
-
-  return res.json() as Promise<DashboardData>;
-};
-
 export type Notificacao = {
   id: string;
   pedido: string | null;
@@ -250,8 +201,11 @@ export const limparNotificacoes = async () => {
 
 
 // 🔹 RELATÓRIO (PDF)
-export const getRelatorio = async () => {
-  const response = await apiFetch(`/gerar_pdf/`, {
+// services/uni.ts — antes
+
+// depois
+export const getRelatorio = async (periodo: "dia" | "semana" | "mes" = "dia") => {
+  const response = await apiFetch(`/gerar_pdf/?periodo=${periodo}`, {
     method: 'GET',
     credentials: 'include',
   });

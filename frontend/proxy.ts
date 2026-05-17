@@ -4,13 +4,13 @@ const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha", "/redefinir-sen
 
 // Rotas permitidas por role
 const ROLE_ROUTES: Record<string, string[]> = {
-  Gerente: ["/dashboard", "/lojas", "/novopedido", "/meuspedidos", "/painel_unidade", "/notificacoes", "/configuracoes","/estoque","/produtos"],
+  Gerente: ["/lojas", "/novopedido", "/meuspedidos", "/painel_unidade", "/notificacoes", "/configuracoes","/estoque","/produtos"],
   Responsavel: ["/novopedido", "/meuspedidos", "/notificacoes", "/configuracoes"],
 };
 
 // Rota padrão após login por role
 const ROLE_HOME: Record<string, string> = {
-  Gerente: "/dashboard",
+  Gerente: "/lojas",
   Responsavel: "/novopedido",
 };
 
@@ -21,7 +21,7 @@ export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // 1. Já logado tentando acessar login → redireciona pra home do role
   if (pathname === "/login" && token) {
-    const redirect = ROLE_HOME[role ?? ""] ?? "/dashboard";
+    const redirect = ROLE_HOME[role ?? ""] ?? "/lojas";
     return NextResponse.redirect(new URL(redirect, request.url));
   }
 

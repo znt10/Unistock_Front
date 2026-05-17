@@ -5,9 +5,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
-from datetime import datetime, time, timedelta
-from django.db.models import Sum, Q
-from django.utils import timezone
+from datetime import datetime, time
 from django.utils.timezone import make_aware
 
 
@@ -204,74 +202,6 @@ class PedidoViewSet( viewsets.ModelViewSet):
 
         serializer = self.get_serializer(pedido)
         return Response(serializer.data)
-
-    @action(detail=False, methods=['get'], url_path='dashboard')
-    def dashboard(self, request):
-        hoje = timezone.localdate()
-        periodo = request.query_params.get('periodo', 'week')
-        status_filtro = request.query_params.get('status')
-        search = request.query_params.get('search')
-
-        queryset = self.get_queryset()
-
-        if periodo == 'today':
-            queryset = queryset.filter(data_pedido__date=hoje)
-        elif periodo == 'week':
-            inicio_semana = hoje - timedelta(days=6)
-            queryset = queryset.filter(data_pedido__date__range=(inicio_semana, hoje))
-        elif periodo == 'month':
-            queryset = queryset.filter(
-                data_pedido__year=hoje.year,
-                data_pedido__month=hoje.month
-            )
-
-        if status_filtro:
-            queryset = queryset.filter(status=status_filtro)
-
-        if search:
-            queryset = queryset.filter(
-                Q(loja__nome_loja__icontains=search) |
-                Q(responsavel__first_name__icontains=search) |
-                Q(responsavel__username__icontains=search) |
-                Q(descricao__icontains=search)
-            )
-
-        pedidos_hoje = self.get_queryset().filter(data_pedido__date=hoje).count()
-        pendentes = self.get_queryset().filter(status=Pedido.Status.PENDENTE).count()
-        entregues_semana = self.get_queryset().filter(
-            status=Pedido.Status.ENTREGUE,
-            data_pedido__date__gte=hoje - timedelta(days=6),
-            data_pedido__date__lte=hoje
-        ).count()
-
-        pedidos_recentes = (
-            queryset
-            .select_related('loja', 'responsavel')
-            .prefetch_related('itens')
-            .annotate(total_quantidade=Sum('itens__quantidade'))
-            .order_by('-data_pedido')[:10]
-        )
-
-        return Response({
-            "metricas": {
-                "pedidos_hoje": pedidos_hoje,
-                "pendentes": pendentes,
-                "entregues_semana": entregues_semana,
-                "total_filtrado": queryset.count(),
-            },
-            "pedidos_recentes": [
-                {
-                    "id": pedido.public_id,
-                    "loja": pedido.loja.nome_loja if pedido.loja else "Sem loja",
-                    "responsavel": pedido.responsavel.first_name or pedido.responsavel.username,
-                    "quantidade_total": pedido.total_quantidade or 0,
-                    "status": pedido.status,
-                    "data": pedido.data_pedido.strftime('%d/%m/%Y'),
-                    "hora": pedido.data_pedido.strftime('%H:%M'),
-                }
-                for pedido in pedidos_recentes
-            ]
-        })
 
 # 🔹 USUÁRIO
 class UsuarioViewSet(UserOuAdminMixin, viewsets.ModelViewSet):

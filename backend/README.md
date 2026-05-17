@@ -162,7 +162,6 @@ GET /api/v1/lojas/
 GET /api/v1/produtos/
 GET /api/v1/estoque/
 GET /api/v1/pedidos/
-GET /api/v1/pedidos/dashboard/
 GET /api/v1/user/me/
 POST /api/v1/user/registrar/
 ```

@@ -67,13 +67,19 @@ export default function CategoriaEstoque({
 
       {aberta && (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[620px] text-left">
+          <table className="w-full min-w-[760px] table-fixed text-left">
+            <colgroup>
+              <col className="w-[30%]" />
+              <col className="w-[18%]" />
+              <col className="w-[18%]" />
+              <col className="w-[34%]" />
+            </colgroup>
             <thead className="bg-theme-header text-[11px] uppercase tracking-[1px] text-theme-text-sub">
               <tr>
                 <th className="px-4 py-2">Produto</th>
-                <th className="px-4 py-2">Qtd</th>
-                <th className="px-4 py-2">Estado</th>
-                <th className="px-4 py-2">Ultima atualizacao</th>
+                <th className="px-4 py-2 text-center">Qtd</th>
+                <th className="px-4 py-2 text-center">Estado</th>
+                <th className="px-4 py-2 text-center">Ultima atualizacao</th>
               </tr>
             </thead>
             <tbody className="[&>tr:nth-child(even)]:bg-theme-hover/60">

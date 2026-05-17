@@ -128,10 +128,13 @@ export default function DetalheLoja() {
     if (confirm("Tem certeza que deseja remover esta unidade?")) {
       const ok = await deleteLoja(params.id as string);
       if (ok) {
-        queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
-          if (!lojasAtuais) return lojasAtuais;
-          return lojasAtuais.filter((item) => item.id !== id);
-        });
+        queryClient.setQueryData<Loja[] | undefined>(
+          LOJAS_QUERY_KEY,
+          (lojasAtuais) => {
+            if (!lojasAtuais) return lojasAtuais;
+            return lojasAtuais.filter((item) => item.id !== id);
+          },
+        );
         queryClient.removeQueries({ queryKey: ["lojas", id] });
         router.push("/lojas");
       }
@@ -233,7 +236,7 @@ export default function DetalheLoja() {
                 </div>
                 {/* Se o seu back-end retornar o objeto do responsável, use loja.responsavel_nome */}
                 <h3 className="text-2xl font-black text-theme-text-title tracking-tighter mb-1 uppercase">
-                  {loja.responsavel || "Não definido"}
+                  {loja.responsavel_nome || "Não definido"}
                 </h3>
                 <p className="text-blue-500/70 text-[11px] font-black uppercase tracking-widest italic">
                   Gerente de Unidade

@@ -14,7 +14,11 @@ import type { EstadoProduto, EstoqueLocal } from "@/data/estruturaEstoque";
 
 const CATEGORIAS_VIEW: Record<
   string,
-  { label: string; cor: "orange" | "red" | "blue" | "green"; temEstado?: boolean }
+  {
+    label: string;
+    cor: "orange" | "red" | "blue" | "green";
+    temEstado?: boolean;
+  }
 > = {
   SALGADOS_GDE: { label: "SALGADOS GDE", cor: "orange" },
   SALGADOS_MINI: { label: "SALGADOS MINI", cor: "orange", temEstado: true },
@@ -61,7 +65,8 @@ export default function EstoquePage() {
   const [lojaSelecionada, setLojaSelecionada] = useState<string>("TODAS");
   const [agora, setAgora] = useState(() => Date.now());
   const { data: lojasQuery = [], isLoading: carregandoLojas } = useLojas();
-  const { data: produtosQuery = [], isLoading: carregandoProdutos } = useProdutos();
+  const { data: produtosQuery = [], isLoading: carregandoProdutos } =
+    useProdutos();
   const { data: estoquesApi = [], isLoading: carregandoEstoques } = useQuery({
     queryKey: ["estoque"],
     queryFn: getEstoques,
@@ -90,7 +95,8 @@ export default function EstoquePage() {
   const lojaAtivaNome =
     lojaAtiva === "TODAS"
       ? "Todas as lojas"
-      : lojas.find((loja) => loja.id === lojaAtiva)?.nome_loja || "Selecione uma loja";
+      : lojas.find((loja) => loja.id === lojaAtiva)?.nome_loja ||
+        "Selecione uma loja";
 
   const categorias = useMemo(() => {
     const agrupadas = new Map<string, Map<string, string>>();
@@ -99,8 +105,10 @@ export default function EstoquePage() {
       .filter((produto) => produto.ativo !== false)
       .forEach((produto) => {
         const categoriaCodigo = normalizarCategoria(produto.categoria);
-        const config = CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
-        const produtosCategoria = agrupadas.get(config.label) || new Map<string, string>();
+        const config =
+          CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
+        const produtosCategoria =
+          agrupadas.get(config.label) || new Map<string, string>();
         produtosCategoria.set(produto.id, produto.nome_produto);
         agrupadas.set(config.label, produtosCategoria);
       });
@@ -122,8 +130,29 @@ export default function EstoquePage() {
 
     produtos.forEach((produto) => {
       const categoriaCodigo = normalizarCategoria(produto.categoria);
-      const config = CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
+      const config =
+        CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
       mapa.set(produto.id, config.label);
+    });
+
+    return mapa;
+  }, [produtos]);
+
+  const nomePorLoja = useMemo(() => {
+    const mapa = new Map<string, string>();
+
+    lojas.forEach((loja) => {
+      mapa.set(loja.id, loja.nome_loja);
+    });
+
+    return mapa;
+  }, [lojas]);
+
+  const nomePorProduto = useMemo(() => {
+    const mapa = new Map<string, string>();
+
+    produtos.forEach((produto) => {
+      mapa.set(produto.id, produto.nome_produto);
     });
 
     return mapa;
@@ -151,37 +180,6 @@ export default function EstoquePage() {
     return base;
   }, [categoriaPorProduto, estoque, estoquesApi]);
 
-  const estoqueTodasAsLojas = useMemo(() => {
-    const consolidado: typeof estoque = {};
-    consolidado.TODAS = {};
-
-    categorias.forEach((categoria) => {
-      consolidado.TODAS[categoria.categoria] = {};
-
-      categoria.produtos.forEach((produto) => {
-        const qtd = lojas.reduce(
-          (total, loja) =>
-            total + (estoqueVisivel[loja.id]?.[categoria.categoria]?.[produto.id]?.qtd || 0),
-          0,
-        );
-
-        const updatedAt = lojas
-          .map((loja) => estoqueVisivel[loja.id]?.[categoria.categoria]?.[produto.id]?.updatedAt)
-          .filter(Boolean)
-          .sort()
-          .at(-1);
-
-        consolidado.TODAS[categoria.categoria][produto.id] = {
-          qtd,
-          estado: "Normal",
-          updatedAt,
-        };
-      });
-    });
-
-    return consolidado;
-  }, [categorias, estoqueVisivel, lojas]);
-
   useEffect(() => {
     const timer = window.setInterval(() => setAgora(Date.now()), 30000);
     return () => window.clearInterval(timer);
@@ -192,18 +190,6 @@ export default function EstoquePage() {
     limparBadge();
   };
 
-  const confirmarZerar = () => {
-    if (lojaAtiva === "TODAS") return;
-    const ok = window.confirm(`Zerar todo o estoque da loja ${lojaAtivaNome}?`);
-    if (ok) {
-      categorias.forEach((categoria) => {
-        categoria.produtos.forEach((produto) => {
-          atualizarItem(lojaAtiva, categoria.categoria, produto.id, { qtd: 0 });
-        });
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-theme-base font-sans text-theme-text-sub">
       <Sidebar />
@@ -212,30 +198,18 @@ export default function EstoquePage() {
         <header className="sticky top-0 z-20 border-b border-theme-border bg-theme-base/95 px-5 py-4 backdrop-blur md:px-8">
           <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <span className="mb-2 block text-[10px] font-black uppercase tracking-[3px] text-blue-500">
+              <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-blue-500">
                 Controle por loja
               </span>
-              <h1 className="text-2xl font-black uppercase tracking-tight text-theme-text-title md:text-3xl">
+              <h1 className="text-3xl font-black uppercase tracking-tight text-theme-text-title md:text-4xl">
                 {lojaAtivaNome.toUpperCase() === "ZILDA"
                   ? "ZILDA / CASA VERDE"
                   : lojaAtivaNome}
               </h1>
-              <p className="mt-1 text-sm font-medium text-theme-text-sub">
+              <p className="mt-1 text-base font-medium text-theme-text-sub">
                 {produtos.length} produto(s) carregado(s) · Ultima atualizacao:{" "}
                 {formatarData(ultimaAtualizacao)}
               </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {lojaAtiva !== "TODAS" && (
-                <button
-                  type="button"
-                  onClick={confirmarZerar}
-                  className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-black uppercase text-red-600 transition hover:bg-red-100"
-                >
-                  Zerar loja
-                </button>
-              )}
             </div>
           </div>
 
@@ -249,17 +223,23 @@ export default function EstoquePage() {
 
         <div className="space-y-5 px-5 py-6 md:px-8">
           {carregandoLojas || carregandoProdutos || carregandoEstoques ? (
-            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-base font-black uppercase tracking-[2px] text-theme-text-sub">
               Carregando lojas, produtos e estoque...
             </div>
           ) : lojas.length === 0 ? (
-            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-base font-black uppercase tracking-[2px] text-theme-text-sub">
               Nenhuma loja cadastrada.
             </div>
           ) : categorias.length === 0 ? (
-            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+            <div className="rounded-lg border border-theme-border bg-theme-card p-10 text-center text-base font-black uppercase tracking-[2px] text-theme-text-sub">
               Nenhum produto cadastrado.
             </div>
+          ) : lojaAtiva === "TODAS" ? (
+            <TotalGeral
+              estoque={estoqueVisivel}
+              lojas={lojas}
+              categorias={categorias}
+            />
           ) : (
             categorias.map((config) => (
               <CategoriaEstoque
@@ -269,15 +249,10 @@ export default function EstoquePage() {
                 cor={config.cor}
                 produtos={config.produtos}
                 temEstado={config.temEstado}
-                itens={
-                  lojaAtiva === "TODAS"
-                    ? estoqueTodasAsLojas.TODAS?.[config.categoria] || {}
-                    : estoqueVisivel[lojaAtiva]?.[config.categoria] || {}
-                }
+                itens={estoqueVisivel[lojaAtiva]?.[config.categoria] || {}}
                 alterados={alterados}
                 agora={agora}
                 onUpdate={(loja, categoria, produto, data) => {
-                  if (loja === "TODAS") return;
                   atualizarItem(loja, categoria, produto, data);
                 }}
               />
@@ -286,10 +261,10 @@ export default function EstoquePage() {
 
           <section className="rounded-lg border border-theme-border bg-theme-card p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-black uppercase tracking-[2px] text-theme-text-title">
+              <h2 className="text-base font-black uppercase tracking-[2px] text-theme-text-title">
                 Historico recente
               </h2>
-              <span className="text-xs font-medium text-theme-text-sub">
+              <span className="text-sm font-medium text-theme-text-sub">
                 Ultimas {Math.min(historico.length, 8)} alteracoes
               </span>
             </div>
@@ -297,19 +272,23 @@ export default function EstoquePage() {
               {historico.slice(0, 8).map((item, index) => (
                 <div
                   key={`${item.updatedAt}-${index}`}
-                  className="flex flex-col justify-between gap-1 rounded-lg bg-theme-header px-3 py-2 text-xs md:flex-row md:items-center"
+                  className="flex flex-col justify-between gap-1 rounded-lg bg-theme-header px-3 py-2 text-sm md:flex-row md:items-center"
                 >
                   <span className="font-bold text-theme-text-title">
-                    {item.loja} / {item.categoria} / {item.produto}
+                    {nomePorLoja.get(item.loja) || item.loja} / {item.categoria}{" "}
+                    / {nomePorProduto.get(item.produto) || item.produto}
                   </span>
                   <span className="text-theme-text-sub">
-                    {item.anterior ?? "-"} para {item.novo ?? item.qtd ?? "-"} por {item.usuario || "Usuario"} em{" "}
+                    {item.anterior ?? "-"} para {item.novo ?? item.qtd ?? "-"}{" "}
+                    por {item.usuario || "Usuario"} em{" "}
                     {formatarData(item.updatedAt)}
                   </span>
                 </div>
               ))}
               {historico.length === 0 && (
-                <p className="text-sm font-medium text-theme-text-sub">Nenhuma alteracao registrada ainda.</p>
+                <p className="text-base font-medium text-theme-text-sub">
+                  Nenhuma alteracao registrada ainda.
+                </p>
               )}
             </div>
           </section>

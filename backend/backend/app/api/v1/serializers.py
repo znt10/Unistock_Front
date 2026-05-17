@@ -165,7 +165,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 class LojaSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='public_id', read_only=True)
-    responsavel_nome = serializers.CharField(source='responsavel.username', read_only=True)
+    responsavel_nome = serializers.CharField(source='responsavel.first_name', read_only=True)
 
     class Meta:
         model = Loja

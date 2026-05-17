@@ -10,8 +10,15 @@ export interface Loja {
   tipo: string;
   cidade: string;
   endereco: string;
-  responsavel: number;
-  responsavel_nome: string;
+  responsavel:
+    | number
+    | null
+    | {
+        first_name?: string;
+        email?: string;
+      };
+  responsavel_nome?: string;
+  first_name?: string;
   ativo: boolean;
 }
 

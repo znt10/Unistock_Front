@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-export const GERENTE_GROUPS = ["Gerente", "Administrador"] as const;
+export const GERENTE_GROUPS = ["Gerente", "Administrador", "Admin"] as const;
 
 export const selectIsGerente = (state: AuthState) =>
   state.user?.group

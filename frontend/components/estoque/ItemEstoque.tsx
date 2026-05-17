@@ -57,7 +57,7 @@ export default function ItemEstoque({
           )}
         </span>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-3 text-center">
         {editando ? (
           <input
             autoFocus
@@ -70,7 +70,7 @@ export default function ItemEstoque({
               if (e.key === "Enter") salvar();
               if (e.key === "Escape") setEditando(false);
             }}
-            className="h-9 w-24 rounded-lg border border-blue-400 bg-white px-3 text-sm font-bold text-theme-text-title outline-none ring-2 ring-blue-100"
+            className="h-9 w-24 rounded-lg border border-blue-400 bg-white px-3 text-center text-sm font-bold text-theme-text-title outline-none ring-2 ring-blue-100"
           />
         ) : (
           <button
@@ -79,13 +79,13 @@ export default function ItemEstoque({
               setValor(String(item.qtd));
               setEditando(true);
             }}
-            className={`min-w-16 rounded-lg px-3 py-1.5 text-sm font-black ring-1 transition hover:scale-105 ${statusClasses(item.qtd)}`}
+            className={`inline-flex min-w-16 justify-center rounded-lg px-3 py-1.5 text-sm font-black ring-1 transition hover:scale-105 ${statusClasses(item.qtd)}`}
           >
             {item.qtd}
           </button>
         )}
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-3 text-center">
         {temEstado ? (
           <select
             value={item.estado || "Normal"}
@@ -102,7 +102,7 @@ export default function ItemEstoque({
           <span className="text-xs font-medium text-theme-text-sub">Normal</span>
         )}
       </td>
-      <td className="px-4 py-3 text-xs font-medium text-theme-text-sub">
+      <td className="px-4 py-3 text-center text-xs font-medium text-theme-text-sub">
         {formatarHora(item.updatedAt)}
       </td>
     </tr>

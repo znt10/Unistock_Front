@@ -22,15 +22,15 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError(null);
     setSuccess(null);
     setLoading(true);
 
     try {
       await register(firstName, email, password, "gerente");
-      setSuccess("Conta de gerente criada com sucesso. Faça login para continuar.");
+      setSuccess("Conta de gerente criada com sucesso. Faca login para continuar.");
       setFirstName("");
       setEmail("");
       setPassword("");
@@ -60,7 +60,7 @@ export default function RegisterPage() {
               Crie uma conta de gerente para administrar o sistema.
             </p>
             <p className="max-w-md text-sm leading-6 text-theme-text-sub">
-              Depois de entrar, o gerente poderá cadastrar responsáveis para as
+              Depois de entrar, o gerente podera cadastrar responsaveis para as
               lojas pelo painel interno.
             </p>
           </div>
@@ -92,7 +92,7 @@ export default function RegisterPage() {
                     type="text"
                     placeholder="Nome do gerente"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(event) => setFirstName(event.target.value)}
                     className="w-full rounded-lg border border-theme-border bg-theme-card py-3 pl-11 pr-4 text-theme-text-title outline-none transition placeholder:text-theme-text-sub focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     required
                   />
@@ -110,7 +110,7 @@ export default function RegisterPage() {
                     type="email"
                     placeholder="gerente@email.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(event) => setEmail(event.target.value)}
                     className="w-full rounded-lg border border-theme-border bg-theme-card py-3 pl-11 pr-4 text-theme-text-title outline-none transition placeholder:text-theme-text-sub focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     required
                   />
@@ -128,7 +128,7 @@ export default function RegisterPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Crie uma senha"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(event) => setPassword(event.target.value)}
                     className="w-full rounded-lg border border-theme-border bg-theme-card py-3 pl-11 pr-12 text-theme-text-title outline-none transition placeholder:text-theme-text-sub focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     required
                   />
@@ -170,9 +170,9 @@ export default function RegisterPage() {
             </button>
 
             <p className="text-center text-sm text-theme-text-sub">
-              Já possui uma conta?{" "}
+              Ja possui uma conta?{" "}
               <Link href="/login" className="font-bold text-blue-600 hover:underline">
-                Faça login
+                Faca login
               </Link>
             </p>
           </form>

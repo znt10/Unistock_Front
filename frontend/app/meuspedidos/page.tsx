@@ -93,7 +93,6 @@ function MeusPedidosContent() {
       setPedidoAtualizando(id);
       await patchPedidoStatus(id, statusNovo);
       await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
-      await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       await queryClient.invalidateQueries({ queryKey: ["estoque"] });
       alert(
         statusNovo === "ENTREGUE"
@@ -132,7 +131,6 @@ function MeusPedidosContent() {
         await patchPedidoStatus(pedido.id, "ENTREGUE");
       }
       await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
-      await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       await queryClient.invalidateQueries({ queryKey: ["estoque"] });
       alert("Pedidos entregues. Estoque das lojas atualizado.");
     } catch (error: unknown) {
