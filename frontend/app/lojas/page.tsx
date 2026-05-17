@@ -1,205 +1,245 @@
 "use client";
 
-import React from "react";
-import Sidebar from "@/components/Sidebar";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import { useLojas } from "@/hooks/useLoja";
+import Sidebar from "@/components/Sidebar";
+import { type Loja, useLojas } from "@/hooks/useLoja";
 
 const Icons = {
   Plus: () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
       <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   ),
+  Search: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  ),
+  Store: () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+      <path d="M3 6h18" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+  ),
+  Eye: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ),
   Edit: () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-  ),
-  ChevronLeft: () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  ),
-  ChevronRight: () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m9 18 6-6-6-6" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
     </svg>
   ),
 };
 
+function nomeResponsavel(loja: Loja) {
+  if (loja.first_name) return loja.first_name;
+  if (loja.responsavel_nome) return loja.responsavel_nome;
+  if (loja.responsavel && typeof loja.responsavel === "object") {
+    return loja.responsavel.first_name || loja.responsavel.email || "";
+  }
+  return "";
+}
+
 export default function LojasGerencia() {
-  const { data: lojas = [], isLoading } = useLojas();
+  const [busca, setBusca] = useState("");
+  const { data: lojas = [], isLoading, isError, refetch } = useLojas();
+
+  const lojasFiltradas = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+    if (!termo) return lojas;
+
+    return lojas.filter((loja) =>
+      [loja.nome_loja, loja.tipo, loja.cidade, loja.endereco, nomeResponsavel(loja)]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(termo),
+    );
+  }, [busca, lojas]);
+
+  const totalAtivas = lojas.filter((loja) => loja.ativo !== false).length;
+  const totalInativas = lojas.length - totalAtivas;
 
   return (
     <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300 relative">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
-
-        <div className="relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-            <div>
-              <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
-                Gestão de Unidades
-              </span>
-              <h1 className="text-4xl font-black tracking-tighter text-theme-text-title uppercase leading-none">
-                Lojas
-              </h1>
-            </div>
-
-            <Link
-              href="/lojas/novaloja"
-              className="flex items-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-900/20 active:scale-95"
-            >
-              <Icons.Plus /> Criar Nova Unidade
-            </Link>
+      <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300">
+        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <span className="mb-3 block text-sm font-black uppercase tracking-[4px] text-blue-500">
+              Gestao de unidades
+            </span>
+            <h1 className="text-5xl font-black uppercase leading-none tracking-tighter text-theme-text-title">
+              Gerenciar Lojas
+            </h1>
+            <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-theme-text-sub">
+              Consulte, cadastre e edite as unidades usadas nos pedidos e no
+              controle de estoque.
+            </p>
           </div>
 
-          <div className="bg-theme-card border border-theme-border rounded-[32px] overflow-hidden shadow-2xl">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-theme-border bg-theme-header/50">
-                    <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
-                      Unidade
-                    </th>
-                    <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
-                      Cidade
-                    </th>
-                    <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
-                      Endereço
-                    </th>
-                    <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
-                      Responsável
-                    </th>
-                    <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
-                      Status
-                    </th>
-                    <th className="p-7 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] text-center">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-theme-border">
-                  {isLoading ? (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="p-10 text-center text-theme-text-sub/40 text-sm"
-                      >
-                        Carregando...
-                      </td>
-                    </tr>
-                  ) : lojas.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="p-10 text-center text-theme-text-sub/40 text-sm"
-                      >
-                        Nenhuma loja cadastrada.
-                      </td>
-                    </tr>
-                  ) : (
-                    lojas.map((loja) => (
-                      <tr
-                        key={loja.id}
-                        className="group hover:bg-theme-hover transition-all cursor-default"
-                      >
-                        <td className="p-7">
-                          <span className="text-[17px] font-black text-theme-text-title group-hover:text-blue-500 transition-colors tracking-tight uppercase">
-                            {loja.nome_loja}
-                          </span>
-                        </td>
-                        <td className="p-7 text-theme-text-sub/80 font-bold text-sm uppercase">
-                          {loja.cidade}
-                        </td>
-                        <td className="p-7 text-theme-text-sub/80 font-bold text-sm">
-                          {loja.endereco}
-                        </td>
-                        <td className="p-7 text-theme-text-sub/80 font-bold text-sm">
-                          {loja.responsavel_nome}
-                        </td>
-                        <td className="p-7">
-                          <span
-                            className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
-                              loja.ativo
-                                ? "bg-green-500/5 text-green-500 border-green-500/20"
-                                : "bg-red-500/5 text-red-500 border-red-500/20"
-                            }`}
-                          >
-                            {loja.ativo ? "Ativa" : "Inativa"}
-                          </span>
-                        </td>
-                        <td className="p-7">
-                          <div className="flex justify-center">
-                            <Link
-                              href={`/lojas/${loja.id}`}
-                              className="p-3 bg-theme-header border border-theme-border rounded-xl text-theme-text-sub/40 hover:text-blue-500 hover:border-blue-500/40 hover:bg-theme-hover transition-all active:scale-90"
-                            >
-                              <Icons.Edit />
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <Link
+            href="/lojas/novaloja"
+            className="inline-flex items-center justify-center gap-3 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-black uppercase tracking-[2px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95"
+          >
+            <Icons.Plus /> Nova unidade
+          </Link>
+        </div>
 
-            <div className="p-8 border-t border-theme-border flex justify-center items-center gap-4 bg-theme-header/30">
-              <button className="w-11 h-11 flex items-center justify-center bg-theme-header border border-theme-border rounded-xl text-theme-text-sub/40 hover:text-theme-text-title hover:bg-theme-hover transition-all active:scale-90">
-                <Icons.ChevronLeft />
-              </button>
-              <span className="w-11 h-11 flex items-center justify-center bg-blue-600 text-white font-black rounded-xl text-sm shadow-lg shadow-blue-900/40 border border-blue-500">
-                1
-              </span>
-              <button className="w-11 h-11 flex items-center justify-center bg-theme-header border border-theme-border rounded-xl text-theme-text-sub/40 hover:text-theme-text-title hover:bg-theme-hover transition-all active:scale-90">
-                <Icons.ChevronRight />
-              </button>
-            </div>
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-theme-border bg-theme-card p-5 shadow-sm">
+            <p className="text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+              Total
+            </p>
+            <strong className="mt-2 block text-4xl font-black text-theme-text-title">
+              {lojas.length}
+            </strong>
+          </div>
+          <div className="rounded-2xl border border-theme-border bg-theme-card p-5 shadow-sm">
+            <p className="text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+              Ativas
+            </p>
+            <strong className="mt-2 block text-4xl font-black text-emerald-600">
+              {totalAtivas}
+            </strong>
+          </div>
+          <div className="rounded-2xl border border-theme-border bg-theme-card p-5 shadow-sm">
+            <p className="text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
+              Inativas
+            </p>
+            <strong className="mt-2 block text-4xl font-black text-red-600">
+              {totalInativas}
+            </strong>
           </div>
         </div>
+
+        <div className="mb-6 rounded-2xl border border-theme-border bg-theme-card p-4 shadow-sm">
+          <div className="relative">
+            <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-theme-text-sub">
+              <Icons.Search />
+            </div>
+            <input
+              type="text"
+              value={busca}
+              onChange={(event) => setBusca(event.target.value)}
+              placeholder="Buscar por loja, cidade, endereco ou responsavel..."
+              className="w-full rounded-xl border border-theme-border bg-theme-header py-4 pl-12 pr-4 text-base font-bold text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            />
+          </div>
+        </div>
+
+        <section className="overflow-hidden rounded-[28px] border border-theme-border bg-theme-card shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[980px] text-left">
+              <thead className="bg-theme-header text-sm uppercase tracking-[1px] text-theme-text-sub">
+                <tr>
+                  <th className="px-6 py-4">Unidade</th>
+                  <th className="px-6 py-4">Tipo</th>
+                  <th className="px-6 py-4">Cidade</th>
+                  <th className="px-6 py-4">Endereco</th>
+                  <th className="px-6 py-4">Responsavel</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-center">Acoes</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-theme-border">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-base font-bold text-theme-text-sub">
+                      Carregando lojas...
+                    </td>
+                  </tr>
+                ) : isError ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center">
+                      <p className="mb-4 text-base font-bold text-red-600">
+                        Erro ao carregar lojas.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="rounded-xl border border-theme-border bg-theme-header px-4 py-2 text-base font-black text-theme-text-title transition hover:bg-theme-hover"
+                      >
+                        Tentar novamente
+                      </button>
+                    </td>
+                  </tr>
+                ) : lojasFiltradas.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-base font-bold text-theme-text-sub">
+                      Nenhuma loja encontrada.
+                    </td>
+                  </tr>
+                ) : (
+                  lojasFiltradas.map((loja) => (
+                    <tr key={loja.id} className="transition hover:bg-theme-hover">
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-theme-border bg-theme-header text-blue-500">
+                            <Icons.Store />
+                          </div>
+                          <span className="text-lg font-black uppercase text-theme-text-title">
+                            {loja.nome_loja}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 text-base font-bold text-theme-text-sub">
+                        {loja.tipo || "-"}
+                      </td>
+                      <td className="px-6 py-5 text-base font-bold text-theme-text-sub">
+                        {loja.cidade || "-"}
+                      </td>
+                      <td className="px-6 py-5 text-base font-bold text-theme-text-sub">
+                        {loja.endereco || "-"}
+                      </td>
+                      <td className="px-6 py-5 text-base font-bold text-theme-text-sub">
+                        {nomeResponsavel(loja) || "Sem responsavel"}
+                      </td>
+                      <td className="px-6 py-5">
+                        <span
+                          className={`rounded-xl border px-3 py-1.5 text-sm font-black uppercase ${
+                            loja.ativo !== false
+                              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600"
+                              : "border-red-500/20 bg-red-500/10 text-red-600"
+                          }`}
+                        >
+                          {loja.ativo !== false ? "Ativa" : "Inativa"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center justify-center gap-2">
+                          <Link
+                            href={`/lojas/detalhes/${loja.id}`}
+                            className="rounded-xl border border-theme-border bg-theme-header p-3 text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500"
+                            aria-label={`Ver ${loja.nome_loja}`}
+                          >
+                            <Icons.Eye />
+                          </Link>
+                          <Link
+                            href={`/lojas/editar/${loja.id}`}
+                            className="rounded-xl border border-theme-border bg-theme-header p-3 text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500"
+                            aria-label={`Editar ${loja.nome_loja}`}
+                          >
+                            <Icons.Edit />
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </main>
     </div>
   );

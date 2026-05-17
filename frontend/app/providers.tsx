@@ -4,7 +4,7 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
-import { ThemeSync } from "@/components/ThemeSync";
+import { useAuthStore } from "@/stores/authStore";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -28,10 +28,26 @@ export function Providers({ children }: { children: React.ReactNode }) {
       client={queryClient}
       persistOptions={{ persister }}
     >
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-        <ThemeSync />
-        {children}
+      <ThemeProvider
+        attribute="data-theme"
+        defaultTheme="dark"
+        disableTransitionOnChange
+        enableSystem={false}
+        value={{
+          dark: "dark-blue",
+          light: "light",
+        }}
+      >
+        <HydrationGuard>{children}</HydrationGuard>
       </ThemeProvider>
     </PersistQueryClientProvider>
   );
+}
+
+function HydrationGuard({ children }: { children: React.ReactNode }) {
+  const hydrated = useAuthStore((state) => state.hydrated);
+
+  if (!hydrated) return null;
+
+  return <>{children}</>;
 }

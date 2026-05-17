@@ -3,6 +3,9 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { logout } from "@/services/auth";
+import { useAuthStore } from "@/stores/authStore";
 
 const Icons = {
   User: () => (
@@ -86,20 +89,37 @@ const Icons = {
 };
 
 export default function GerenciarConta() {
+  const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+
+  const nome = user?.first_name || "Usuário UniStock";
+  const email = user?.email || "E-mail não informado";
+  const cargo = user?.group || "Cargo não informado";
+  const loja = user?.loja_nome || "Nenhuma loja vinculada";
+  const inicial = nome.trim().charAt(0).toUpperCase() || "U";
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      router.push("/login");
+    }
+  };
+
   const opcoesConta = [
     {
       titulo: "Informações Pessoais",
-      subtitulo: "Nome, foto de perfil e cargo na unidade.",
+      subtitulo: nome,
       icon: <Icons.User />,
     },
     {
       titulo: "E-mail de Acesso",
-      subtitulo: "usuario@unistock.com.br",
+      subtitulo: email,
       icon: <Icons.Mail />,
     },
     {
-      titulo: "Senha e Autenticação",
-      subtitulo: "Altere sua senha ou ative o 2FA.",
+      titulo: "Cargo e Unidade",
+      subtitulo: `${cargo} - ${loja}`,
       icon: <Icons.Key />,
     },
     {
@@ -107,6 +127,7 @@ export default function GerenciarConta() {
       subtitulo: "Sair da sua conta em todos os dispositivos.",
       icon: <Icons.LogOut />,
       danger: true,
+      onClick: handleLogout,
     },
   ];
 
@@ -137,14 +158,17 @@ export default function GerenciarConta() {
         {/* Card Perfil principal */}
         <div className="max-w-4xl bg-theme-card border border-theme-border rounded-[32px] p-8 mb-10 flex items-center gap-6 shadow-sm transition-all">
           <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl font-black text-white shadow-lg border-4 border-theme-base transition-all">
-            U
+            {inicial}
           </div>
           <div>
             <h2 className="text-2xl font-black text-theme-text-title transition-colors">
-              Usuário UniStock
+              {nome}
             </h2>
             <p className="text-theme-text-sub font-medium transition-colors">
-              Administrador de Unidade
+              {email}
+            </p>
+            <p className="text-theme-text-sub/70 text-sm font-bold uppercase tracking-[2px] mt-2 transition-colors">
+              {cargo} - {loja}
             </p>
           </div>
         </div>
@@ -161,6 +185,8 @@ export default function GerenciarConta() {
           {opcoesConta.map((item, index) => (
             <button
               key={index}
+              type="button"
+              onClick={item.onClick}
               className={`w-full bg-theme-card border rounded-[24px] p-6 flex items-center justify-between transition-all group shadow-sm active:scale-[0.99] ${
                 item.danger
                   ? "border-red-500/20 hover:bg-red-500/10 hover:border-red-500/30"

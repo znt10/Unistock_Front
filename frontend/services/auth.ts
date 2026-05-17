@@ -17,9 +17,8 @@ export const login = async (email: string, password: string) => {
   });
 
   const data = await response.json();
-  if (!response.ok) throw new Error(data?.error || "Erro ao fazer login");
+  const userInfo = data.user;
 
-  const userInfo = await getMe();
   useAuthStore.getState().setUser({
     id: userInfo.id,
     email: userInfo.email,
@@ -33,6 +32,8 @@ export const login = async (email: string, password: string) => {
 
 // 🔹 LOGOUT
 export const logout = async () => {
+  useAuthStore.getState().clearUser();
+
   try {
     // Pega o token do cookie
     const token = document.cookie
@@ -48,11 +49,6 @@ export const logout = async () => {
         'Content-Type': 'application/json',
       },
     });
-
-    if (response) {
-      useAuthStore.getState().clearUser();
-      window.location.href = '/';
-    }
 
     return response;
   } catch (error) {

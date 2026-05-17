@@ -229,16 +229,14 @@ const Icons = {
 
 type IconKey = keyof typeof Icons;
 
-const MENU_CONFIG: Record<
-  string,
-  { href: string; label: string; icon: IconKey }[]
-> = {
+type MenuItem = { href: string; label: string; icon: IconKey };
+
+const MENU_CONFIG: Record<string, MenuItem[]> = {
   Gerente: [
-    { href: "/dashboard", label: "Painel Geral", icon: "Painel" },
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
+    { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
-    { href: "/Painel_unidade", label: "Painel_unidade", icon: "List" },
-    { href: "/registrar", label: "Usuários", icon: "UserCircle" },
+    { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
   ],
   Responsavel: [
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
@@ -249,20 +247,23 @@ const MENU_CONFIG: Record<
 export default function Sidebar() {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const hydrated = useAuthStore((state) => state.hydrated);
 
   // Pega o grupo do usuário e renderiza o menu correto
   const role = user?.group ?? "";
   const menuItems = MENU_CONFIG[role] || [];
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
+
     try {
       await logout();
     } finally {
-      router.push("/");
+      router.push("/login");
     }
   };
 
@@ -294,7 +295,7 @@ export default function Sidebar() {
       >
         {/* Logo */}
         <Link
-          href="/dashboard"
+          href="/lojas"
           className="flex items-center gap-3 border-b border-slate-800/50 p-5 overflow-hidden whitespace-nowrap"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#1d4ed8] text-white">
@@ -317,7 +318,7 @@ export default function Sidebar() {
             </div>
             {!isCollapsed && (
               <span className="text-[17px] font-semibold text-white whitespace-nowrap">
-                User
+                {user?.first_name || "Usuario"}
               </span>
             )}
           </div>
@@ -360,6 +361,11 @@ export default function Sidebar() {
                 </li>
               );
             })}
+            {menuItems.length === 0 && !isCollapsed && (
+              <li className="px-4 py-3 text-[13px] font-medium text-slate-500">
+                {hydrated ? "Carregando menu..." : "Carregando..."}
+              </li>
+            )}
           </ul>
         </nav>
 
@@ -420,11 +426,13 @@ export default function Sidebar() {
             <li>
               <button
                 onClick={handleLogout}
+                disabled={isLoggingOut}
                 className={`flex w-full items-center gap-3 cursor-pointer text-[14px] text-slate-400 hover:text-white transition-colors px-3 py-2.5 rounded-lg hover:bg-red-500/10 ${
                   isCollapsed ? "justify-center" : ""
-                }`}
+                } disabled:cursor-not-allowed disabled:opacity-60`}
               >
-                <Icons.LogOut /> {!isCollapsed && "Sair"}
+                <Icons.LogOut />{" "}
+                {!isCollapsed && (isLoggingOut ? "Saindo..." : "Sair")}
               </button>
             </li>
           </ul>

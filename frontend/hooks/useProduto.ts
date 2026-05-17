@@ -2,20 +2,38 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProdutos } from "@/services/uni"; // ← confirma o nome da função
 
+export const PRODUTOS_QUERY_KEY = ["produtos", "v3"] as const;
+
 export interface Produto {
-  id: number;
+  id: string;
   nome_produto: string;
-  
+  codigo?: string;
+  unidade_medida?: string;
+  categoria?: string;
+  ativo?: boolean;
+}
+
+function normalizarProdutos(data: unknown): Produto[] {
+  if (Array.isArray(data)) return data as Produto[];
+
+  if (data && typeof data === "object" && "results" in data) {
+    const results = (data as { results?: unknown }).results;
+    return Array.isArray(results) ? (results as Produto[]) : [];
+  }
+
+  return [];
 }
 
 export function useProdutos() {
   return useQuery<Produto[]>({
-    queryKey: ["produtos"],
+    queryKey: PRODUTOS_QUERY_KEY,
     queryFn: async () => {
       const data = await getProdutos();
-      return data.results as Produto[];
+      return normalizarProdutos(data);
     },
-    staleTime: 0,              
-    refetchOnWindowFocus: true, 
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 }

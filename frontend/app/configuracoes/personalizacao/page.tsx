@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useSyncExternalStore } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -101,12 +101,12 @@ const Icons = {
 };
 
 export default function PersonalizacaoPerfil() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { setTheme, resolvedTheme } = useTheme();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   if (!mounted) return null; //
 
