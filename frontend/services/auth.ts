@@ -1,5 +1,9 @@
 import { apiFetch, apiV1 } from './api';
 import { useAuthStore } from '@/stores/authStore';
+
+const setClientCookie = (name: string, value: string, maxAge: number) => {
+  document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
+};
 // 🔹 LOGIN
 
 
@@ -18,6 +22,12 @@ export const login = async (email: string, password: string) => {
 
   const data = await response.json();
   const userInfo = data.user;
+
+  if (data.access && data.refresh) {
+    setClientCookie("access_token", data.access, 60 * 60);
+    setClientCookie("refresh_token", data.refresh, 7 * 24 * 60 * 60);
+    setClientCookie("role", userInfo.group, 7 * 24 * 60 * 60);
+  }
 
   useAuthStore.getState().setUser({
     id: userInfo.id,

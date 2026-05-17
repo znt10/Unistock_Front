@@ -1,18 +1,38 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const NO_REFRESH_ENDPOINTS = ["/login/", "/logout/", "/token/refresh/", "/api/v1/user/me/"];
 
+const getCookie = (name: string) => {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return (
+    document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${name}=`))
+      ?.split("=")[1] ?? null
+  );
+};
+
 export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isRetry = false): Promise<Response> => {
   const { headers, ...rest } = options;
   const canRefresh = !NO_REFRESH_ENDPOINTS.includes(endpoint);
+  const accessToken = getCookie("access_token");
+  const requestHeaders = new Headers(headers);
+
+  if (!requestHeaders.has("Content-Type")) {
+    requestHeaders.set("Content-Type", "application/json");
+  }
+
+  if (accessToken) {
+    requestHeaders.set("Authorization", `Bearer ${accessToken}`);
+  }
 
   // 1. Faz a requisição original
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...rest,
     credentials: "include", 
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
+    headers: requestHeaders,
   });
 
   // 2. Se o token venceu (401) e ainda não tentamos fazer o refresh
