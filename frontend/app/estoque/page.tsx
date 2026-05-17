@@ -191,22 +191,22 @@ export default function EstoquePage() {
   };
 
   return (
-    <div className="min-h-screen bg-theme-base font-sans text-theme-text-sub">
+    <div className="min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub">
       <Sidebar />
 
-      <main className="lg:ml-64">
+      <main className="min-w-0 pt-16 lg:ml-64 lg:pt-0">
         <header className="sticky top-0 z-20 border-b border-theme-border bg-theme-base/95 px-5 py-4 backdrop-blur md:px-8">
           <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-blue-500">
                 Controle por loja
               </span>
-              <h1 className="text-3xl font-black uppercase tracking-tight text-theme-text-title md:text-4xl">
+              <h1 className="break-words text-2xl font-black uppercase tracking-tight text-theme-text-title sm:text-3xl md:text-4xl">
                 {lojaAtivaNome.toUpperCase() === "ZILDA"
                   ? "ZILDA / CASA VERDE"
                   : lojaAtivaNome}
               </h1>
-              <p className="mt-1 text-base font-medium text-theme-text-sub">
+              <p className="mt-1 text-sm font-medium text-theme-text-sub sm:text-base">
                 {produtos.length} produto(s) carregado(s) · Ultima atualizacao:{" "}
                 {formatarData(ultimaAtualizacao)}
               </p>

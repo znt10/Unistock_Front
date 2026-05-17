@@ -195,9 +195,9 @@ function BotaoRelatorio() {
         disabled={isGerando}
         onClick={() => setAberto((v) => !v)}
         className={`
-          flex items-center gap-2.5 rounded-xl border border-theme-border
+          flex w-full items-center justify-center gap-2.5 rounded-xl border border-theme-border
           bg-theme-card px-5 py-2.5 text-sm font-bold text-theme-text-title
-          transition-all hover:bg-theme-hover active:scale-95
+          transition-all hover:bg-theme-hover active:scale-95 sm:w-auto
           ${isGerando ? "cursor-not-allowed opacity-50" : ""}
         `}
       >
@@ -274,10 +274,10 @@ export default function GerenciaPedidos() {
     : [];
 
   return (
-    <div className="flex min-h-screen bg-theme-base font-sans text-theme-text-sub transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 p-6 transition-all lg:ml-64 md:p-10">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all sm:p-6 md:p-10 lg:ml-64 lg:pt-10">
         {/* ── Cabeçalho ── */}
         <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
@@ -293,7 +293,9 @@ export default function GerenciaPedidos() {
           </div>
 
           {/* ← botão com dropdown de período */}
-          <BotaoRelatorio />
+          <div className="w-full sm:w-auto">
+            <BotaoRelatorio />
+          </div>
         </div>
 
         {/* ── Busca ── */}
@@ -320,20 +322,20 @@ export default function GerenciaPedidos() {
             Nenhuma loja encontrada.
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-8">
             {lojasFiltradas.map((loja: Loja) => (
               <div
                 key={loja.id}
-                className="group relative overflow-hidden rounded-[32px] border border-theme-border bg-theme-card p-8 shadow-2xl transition-all hover:border-blue-500/30"
+                className="group relative overflow-hidden rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl transition-all hover:border-blue-500/30 sm:p-8"
               >
                 {/* cabeçalho do card */}
                 <div className="relative z-10 mb-8 flex items-start justify-between">
-                  <div className="flex items-center gap-5">
+                  <div className="flex min-w-0 items-center gap-4 sm:gap-5">
                     <div className="rounded-2xl border border-blue-500/10 bg-blue-600/10 p-4 transition-transform group-hover:scale-110">
                       <Icons.Building />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-black text-theme-text-title">
+                      <h2 className="break-words text-xl font-black text-theme-text-title sm:text-2xl">
                         {loja.nome_loja}
                       </h2>
                       <span className="mt-0.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-green-500">
@@ -352,7 +354,7 @@ export default function GerenciaPedidos() {
                   >
                     Ver todos os pedidos
                   </Link>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <Link
                       href={`/meuspedidos?loja=${loja.id}&data=${hojeISO()}`}
                       className="rounded-2xl border border-theme-border bg-theme-header px-4 py-3 text-center text-[10px] font-black uppercase tracking-[1px] text-theme-text-title transition hover:border-blue-500/40 hover:text-blue-500"

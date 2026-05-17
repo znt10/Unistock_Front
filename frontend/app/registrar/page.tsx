@@ -42,7 +42,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-theme-base font-sans text-theme-text-title">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-theme-base font-sans text-theme-text-title">
       <aside className="hidden w-1/2 items-center justify-center bg-theme-header px-10 lg:flex">
         <div className="w-full max-w-lg">
           <div className="mb-10 flex items-center gap-4">
@@ -67,7 +67,7 @@ export default function RegisterPage() {
         </div>
       </aside>
 
-      <main className="flex w-full items-center justify-center px-5 py-10 sm:px-8 lg:w-1/2">
+      <main className="flex min-w-0 w-full items-center justify-center px-5 py-10 sm:px-8 lg:w-1/2">
         <div className="w-full max-w-md">
           <header className="mb-8 text-center">
             <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600">

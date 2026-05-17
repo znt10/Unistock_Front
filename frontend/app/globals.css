@@ -2,6 +2,16 @@
 
 @import "tailwindcss";
 
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 /* 1. Ensinamos ao Tailwind v4 quais são as nossas classes personalizadas */
 @theme {
   --color-theme-base: var(--base);

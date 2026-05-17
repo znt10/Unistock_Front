@@ -69,16 +69,16 @@ export default function LojasGerencia() {
   const totalInativas = lojas.length - totalAtivas;
 
   return (
-    <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="mb-3 block text-sm font-black uppercase tracking-[4px] text-blue-500">
               Gestao de unidades
             </span>
-            <h1 className="text-5xl font-black uppercase leading-none tracking-tighter text-theme-text-title">
+            <h1 className="text-4xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-5xl">
               Gerenciar Lojas
             </h1>
             <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-theme-text-sub">
@@ -89,7 +89,7 @@ export default function LojasGerencia() {
 
           <Link
             href="/lojas/novaloja"
-            className="inline-flex items-center justify-center gap-3 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-black uppercase tracking-[2px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95"
+            className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-black uppercase tracking-[2px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 sm:w-auto"
           >
             <Icons.Plus /> Nova unidade
           </Link>

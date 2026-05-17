@@ -134,10 +134,10 @@ export default function PersonalizacaoPerfil() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-theme-base font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-14">
           <div>
             <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
@@ -202,7 +202,7 @@ export default function PersonalizacaoPerfil() {
           {opcoesPersonalizacao.map((item, index) => (
             <button
               key={index}
-              className="w-full bg-theme-card border border-theme-border rounded-[24px] p-6 flex items-center justify-between hover:border-blue-500/40 hover:bg-theme-hover transition-all group shadow-sm active:scale-[0.99]"
+              className="group flex w-full flex-col items-start justify-between gap-5 rounded-[24px] border border-theme-border bg-theme-card p-5 transition-all hover:border-blue-500/40 hover:bg-theme-hover shadow-sm active:scale-[0.99] sm:flex-row sm:items-center sm:p-6"
             >
               <div className="flex items-center gap-4 md:gap-7">
                 <div className="bg-theme-header p-4 rounded-[20px] text-blue-500 border border-theme-border group-hover:border-blue-500/30 transition-all">

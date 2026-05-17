@@ -117,10 +117,10 @@ export default function NovaLoja() {
   };
 
   return (
-    <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300 relative overflow-hidden">
+      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="max-w-3xl mx-auto relative z-10">
@@ -137,7 +137,7 @@ export default function NovaLoja() {
                 Cancelar e Voltar
               </span>
             </Link>
-            <h1 className="text-4xl font-black tracking-tighter text-theme-text-title uppercase leading-none">
+            <h1 className="text-3xl font-black tracking-tighter text-theme-text-title uppercase leading-none sm:text-4xl">
               Adicionar Unidade
             </h1>
             <p className="text-theme-text-sub/60 font-medium mt-3">
@@ -146,15 +146,15 @@ export default function NovaLoja() {
           </div>
 
           {/* Card */}
-          <div className="bg-theme-card border border-theme-border rounded-[40px] p-10 shadow-2xl">
+          <div className="rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl sm:p-8 md:rounded-[40px] md:p-10">
             {/* Toggle Fábrica / Loja */}
-            <div className="flex bg-theme-header p-1.5 rounded-2xl border border-theme-border w-fit mb-10">
+            <div className="mb-10 grid w-full grid-cols-2 rounded-2xl border border-theme-border bg-theme-header p-1.5 sm:w-fit">
               {(["Fabrica", "Loja"] as const).map((opcao) => (
                 <button
                   key={opcao}
                   type="button"
                   onClick={() => setTipo(opcao)}
-                  className={`px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 ${
+                  className={`px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-95 sm:px-8 ${
                     tipo === opcao
                       ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20"
                       : "text-theme-text-sub/50 hover:text-theme-text-title"
@@ -219,7 +219,7 @@ export default function NovaLoja() {
               </div>
 
               {/* Botões */}
-              <div className="grid grid-cols-2 gap-6 pt-6">
+              <div className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2 sm:gap-6">
                 <Link
                   href="/lojas"
                   className="flex justify-center items-center py-4 rounded-2xl border border-red-500/20 text-red-500/70 font-black text-[12px] uppercase tracking-widest hover:bg-red-500/10 hover:border-red-500/40 transition-all active:scale-95"

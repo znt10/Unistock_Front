@@ -155,10 +155,10 @@ export default function DetalheLoja() {
     );
 
   return (
-    <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-64 p-6 md:p-12 transition-all duration-300 relative overflow-hidden">
+      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all duration-300 sm:p-6 md:p-12 lg:ml-64 lg:pt-12">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="max-w-5xl mx-auto relative z-10">
@@ -177,8 +177,8 @@ export default function DetalheLoja() {
                 </span>
               </Link>
 
-              <div className="flex items-center gap-4">
-                <h1 className="text-[44px] font-black tracking-tighter text-theme-text-title leading-none uppercase">
+              <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
+                <h1 className="break-words text-4xl font-black tracking-tighter text-theme-text-title leading-none uppercase sm:text-[44px]">
                   {loja.nome_loja}
                 </h1>
                 <span
@@ -191,7 +191,7 @@ export default function DetalheLoja() {
 
             <Link
               href={`/lojas/editar/${loja.id}`}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-2xl font-black text-[12px] uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 active:scale-95 border-none"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border-none bg-blue-600 px-8 py-3.5 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-900/20 transition-all hover:bg-blue-700 active:scale-95 sm:w-auto"
             >
               <Icons.Edit /> Editar Unidade
             </Link>
@@ -199,7 +199,7 @@ export default function DetalheLoja() {
 
           {/* Grid de Informações */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="md:col-span-2 bg-theme-card border border-theme-border rounded-[32px] p-8 shadow-sm relative overflow-hidden group transition-all">
+            <div className="group relative overflow-hidden rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all sm:p-8 md:col-span-2">
               <div className="absolute top-0 right-0 p-8 text-blue-500 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all">
                 <Icons.MapPin />
               </div>
@@ -226,7 +226,7 @@ export default function DetalheLoja() {
               </div>
             </div>
 
-            <div className="bg-theme-header border border-theme-border rounded-[32px] p-8 shadow-sm flex flex-col justify-between border-l-4 border-l-blue-600 transition-all hover:bg-theme-hover group">
+            <div className="group flex flex-col justify-between rounded-[32px] border border-l-4 border-theme-border border-l-blue-600 bg-theme-header p-5 shadow-sm transition-all hover:bg-theme-hover sm:p-8">
               <span className="text-theme-text-sub/50 text-[10px] font-black uppercase tracking-[3px] mb-4 block">
                 Responsável
               </span>
@@ -247,7 +247,7 @@ export default function DetalheLoja() {
 
           {/* Contatos (Se o seu back-end tiver esses campos, senão pode omitir ou mockar) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-theme-card border border-theme-border rounded-[24px] p-6 flex items-center gap-6 hover:border-blue-500/40 hover:bg-theme-hover transition-all group cursor-default shadow-sm">
+            <div className="group flex items-center gap-4 rounded-[24px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover sm:gap-6 sm:p-6 cursor-default">
               <div className="p-4 bg-theme-header border border-theme-border rounded-2xl text-theme-text-sub group-hover:text-blue-500 group-hover:border-blue-500/30 transition-all">
                 <Icons.Phone />
               </div>
@@ -261,7 +261,7 @@ export default function DetalheLoja() {
               </div>
             </div>
 
-            <div className="bg-theme-card border border-theme-border rounded-[24px] p-6 flex items-center gap-6 hover:border-blue-500/40 hover:bg-theme-hover transition-all group cursor-default shadow-sm">
+            <div className="group flex items-center gap-4 rounded-[24px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover sm:gap-6 sm:p-6 cursor-default">
               <div className="p-4 bg-theme-header border border-theme-border rounded-2xl text-theme-text-sub group-hover:text-blue-500 group-hover:border-blue-500/30 transition-all">
                 <Icons.Mail />
               </div>
@@ -269,7 +269,7 @@ export default function DetalheLoja() {
                 <label className="text-theme-text-sub/50 text-[10px] font-black uppercase tracking-widest block mb-1">
                   E-mail Corporativo
                 </label>
-                <p className="text-lg font-black text-theme-text-title lowercase">
+                <p className="break-all text-lg font-black text-theme-text-title lowercase">
                   contato@{loja.nome_loja?.toLowerCase().replace(/\s/g, "")}.com
                 </p>
               </div>

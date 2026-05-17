@@ -48,7 +48,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-theme-base text-theme-text-title font-sans">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-theme-base text-theme-text-title font-sans">
       {/* LADO ESQUERDO */}
       <div className="hidden w-1/2 flex-col items-center justify-center bg-theme-header lg:flex">
         <div className="flex items-center gap-4">
@@ -60,7 +60,7 @@ export default function LoginPage() {
       </div>
 
       {/* LADO DIREITO */}
-      <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
+      <div className="flex w-full items-center justify-center p-5 sm:p-8 lg:w-1/2">
         <div className="w-full max-w-md">
           <header className="mb-10 flex flex-col items-center text-center">
             <div className="mb-4 flex items-center gap-2">
@@ -126,7 +126,7 @@ export default function LoginPage() {
             </div>
 
             {/* Extras */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"

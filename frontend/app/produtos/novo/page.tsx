@@ -130,10 +130,10 @@ export default function NovoProduto() {
   };
 
   return (
-    <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="max-w-3xl mx-auto">
           <div className="mb-12">
             <Link
@@ -148,7 +148,7 @@ export default function NovoProduto() {
               </span>
             </Link>
 
-            <h1 className="text-4xl font-black tracking-tighter text-theme-text-title uppercase leading-none">
+            <h1 className="text-3xl font-black tracking-tighter text-theme-text-title uppercase leading-none sm:text-4xl">
               Cadastrar Produto
             </h1>
             <p className="text-theme-text-sub/60 font-medium mt-3">
@@ -156,7 +156,7 @@ export default function NovoProduto() {
             </p>
           </div>
 
-          <div className="bg-theme-card border border-theme-border rounded-[32px] p-8 md:p-10 shadow-2xl">
+          <div className="rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl sm:p-8 md:p-10">
             <form className="space-y-8" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <label

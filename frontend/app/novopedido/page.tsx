@@ -9,9 +9,6 @@ import { useLojas } from "@/hooks/useLoja";
 import AutocompleteProduto from "@/components/HeroUI/AutocompleteP";
 import AutocompleteLoja from "@/components/HeroUI/AutocompleteLoja";
 
-// Chave incremental para forçar reset dos Autocomplete
-let chaveReset = 0;
-
 export default function NovoPedidoPage() {
   const { data: produtos = [] } = useProdutos();
   const { data: lojas = [] } = useLojas();
@@ -84,11 +81,11 @@ export default function NovoPedidoPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-theme-base text-theme-text-sub">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub">
       <Sidebar />
 
-      <main className="flex flex-1 flex-col items-center justify-center p-6 lg:ml-64">
-        <section className="w-full max-w-2xl rounded-[32px] border border-theme-border bg-theme-card p-8 shadow-2xl">
+      <main className="flex min-w-0 flex-1 flex-col items-center justify-center p-5 pt-20 sm:p-6 lg:ml-64 lg:pt-6">
+        <section className="w-full max-w-2xl rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl sm:p-8">
           <header className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-theme-text-title">
               Novo Pedido
@@ -179,11 +176,11 @@ export default function NovoPedidoPage() {
           </div>
 
           {/* ── BOTÕES ── */}
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <button
               type="button"
               onClick={limparFormulario}
-              className="w-1/2 rounded-2xl border border-theme-border bg-theme-header p-4 transition hover:bg-theme-border"
+              className="w-full rounded-2xl border border-theme-border bg-theme-header p-4 transition hover:bg-theme-border sm:w-1/2"
             >
               Limpar
             </button>
@@ -192,7 +189,7 @@ export default function NovoPedidoPage() {
               type="button"
               onClick={handleSubmit}
               disabled={loading}
-              className={`w-1/2 rounded-2xl bg-blue-600 p-4 font-bold text-white transition ${
+              className={`w-full rounded-2xl bg-blue-600 p-4 font-bold text-white transition sm:w-1/2 ${
                 loading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-500"
               }`}
             >

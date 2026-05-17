@@ -132,10 +132,10 @@ export default function GerenciarConta() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-theme-base font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all duration-300">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-14">
           <div>
@@ -156,7 +156,7 @@ export default function GerenciarConta() {
         </div>
 
         {/* Card Perfil principal */}
-        <div className="max-w-4xl bg-theme-card border border-theme-border rounded-[32px] p-8 mb-10 flex items-center gap-6 shadow-sm transition-all">
+        <div className="mb-10 flex max-w-4xl flex-col items-start gap-6 rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all sm:flex-row sm:items-center sm:p-8">
           <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl font-black text-white shadow-lg border-4 border-theme-base transition-all">
             {inicial}
           </div>
@@ -187,7 +187,7 @@ export default function GerenciarConta() {
               key={index}
               type="button"
               onClick={item.onClick}
-              className={`w-full bg-theme-card border rounded-[24px] p-6 flex items-center justify-between transition-all group shadow-sm active:scale-[0.99] ${
+              className={`group flex w-full flex-col items-start justify-between gap-5 rounded-[24px] border bg-theme-card p-5 transition-all shadow-sm active:scale-[0.99] sm:flex-row sm:items-center sm:p-6 ${
                 item.danger
                   ? "border-red-500/20 hover:bg-red-500/10 hover:border-red-500/30"
                   : "border-theme-border hover:border-blue-500/40 hover:bg-theme-hover"

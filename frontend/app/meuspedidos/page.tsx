@@ -144,9 +144,9 @@ function MeusPedidosContent() {
 
   if (!hydrated) {
     return (
-      <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
+      <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
         <Sidebar />
-        <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all">
+        <main className="min-w-0 flex-1 p-5 pt-20 transition-all sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
           Carregando...
         </main>
       </div>
@@ -154,10 +154,10 @@ function MeusPedidosContent() {
   }
 
   return (
-    <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 lg:ml-64 p-8 md:p-12 transition-all relative overflow-hidden">
+      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
@@ -165,7 +165,7 @@ function MeusPedidosContent() {
             <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
               Histórico de Requisições
             </span>
-            <h1 className="text-4xl font-black tracking-tighter text-theme-text-title uppercase leading-none">
+            <h1 className="text-3xl font-black tracking-tighter text-theme-text-title uppercase leading-none sm:text-4xl">
               Meus Pedidos
             </h1>
             <p className="text-theme-text-sub/60 font-medium mt-3">
@@ -210,7 +210,7 @@ function MeusPedidosContent() {
             {/* TABELA */}
             <div className="lg:col-span-3 bg-theme-card border border-theme-border rounded-[32px] overflow-hidden shadow-2xl">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full min-w-[820px] border-collapse text-left">
                   <thead>
                     <tr className="border-b border-theme-border bg-theme-header/50">
                       <th className="p-6 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px]">
@@ -350,7 +350,7 @@ function MeusPedidosContent() {
             </div>
 
             {/* FILTROS */}
-            <aside className="bg-theme-card border border-theme-border rounded-[32px] p-8 shadow-2xl sticky top-8">
+            <aside className="rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl lg:sticky lg:top-8 sm:p-8">
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-2 bg-blue-600/10 rounded-lg text-blue-500">
                   <Icons.Filter />

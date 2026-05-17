@@ -177,13 +177,13 @@ export default function Configuracoes() {
     (secao) => !secao.adminOnly || podeGerenciarAcessos,
   );
   const cardClass =
-    "group flex w-full cursor-pointer items-center justify-between rounded-[28px] border border-theme-border bg-theme-card p-7 text-left shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover active:scale-[0.985]";
+    "group flex w-full cursor-pointer flex-col items-start justify-between gap-5 rounded-[28px] border border-theme-border bg-theme-card p-5 text-left shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover active:scale-[0.985] sm:flex-row sm:items-center sm:p-7";
 
   return (
-    <div className="flex min-h-screen bg-theme-base font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 p-8 transition-all duration-300 md:p-12 lg:ml-64">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="mb-14">
           <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-blue-500">
             Painel Administrativo

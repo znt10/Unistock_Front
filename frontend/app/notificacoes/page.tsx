@@ -121,19 +121,19 @@ export default function NotificacoesPage() {
   const naoLidas = notificacoes.filter((n) => !n.lida).length;
 
   return (
-    <div className="flex min-h-screen bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex-1 p-6 lg:ml-64 transition-all relative">
+      <main className="relative min-w-0 flex-1 p-5 pt-20 transition-all sm:p-6 lg:ml-64 lg:pt-6">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-blue-500/5 blur-[100px] pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto mt-10 relative z-10">
+        <div className="relative z-10 mx-auto mt-4 max-w-4xl lg:mt-10">
           <header className="mb-10 flex flex-col gap-5 md:flex-row md:justify-between md:items-end">
             <div>
               <span className="text-blue-500 text-[10px] font-black uppercase tracking-[3px] mb-2 block">
                 Central de Alertas
               </span>
-              <h1 className="text-4xl font-black text-theme-text-title flex items-center gap-4 tracking-tighter uppercase">
+              <h1 className="flex flex-wrap items-center gap-3 text-3xl font-black tracking-tighter text-theme-text-title uppercase sm:gap-4 sm:text-4xl">
                 Notificacoes
                 {naoLidas > 0 && (
                   <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-black text-white">
@@ -146,11 +146,11 @@ export default function NotificacoesPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex w-full items-center gap-3 md:w-auto">
               {notificacoes.length > 0 && (
                 <button
                   onClick={marcarTodasLidas}
-                  className="rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub transition hover:border-blue-500/50 hover:text-blue-500"
+                  className="flex-1 rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub transition hover:border-blue-500/50 hover:text-blue-500 md:flex-none"
                 >
                   Marcar todas
                 </button>
@@ -182,14 +182,14 @@ export default function NotificacoesPage() {
                 {notificacoes.map((n) => (
                   <div
                     key={n.id}
-                    className={`p-8 transition-all hover:bg-theme-hover group relative ${
+                    className={`group relative p-5 transition-all hover:bg-theme-hover sm:p-8 ${
                       n.lida ? "opacity-55" : "bg-theme-card"
                     }`}
                   >
-                    <div className="flex justify-between items-start gap-6">
+                    <div className="flex items-start justify-between gap-4 sm:gap-6">
                       <button
                         type="button"
-                        className="flex items-start gap-6 flex-1 cursor-pointer text-left"
+                        className="flex min-w-0 flex-1 cursor-pointer items-start gap-4 text-left sm:gap-6"
                         onClick={() => marcarLida(n.id)}
                       >
                         <div className="mt-1 relative">
@@ -203,7 +203,7 @@ export default function NotificacoesPage() {
                           )}
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <h3
                             className={`text-lg font-black tracking-tight uppercase ${
                               n.lida
