@@ -1,6 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const NO_REFRESH_ENDPOINTS = ["/login/", "/logout/", "/token/refresh/", "/api/v1/user/me/"];
 
+
 const getCookie = (name: string) => {
   if (typeof document === "undefined") {
     return null;
@@ -13,6 +14,7 @@ const getCookie = (name: string) => {
       ?.split("=")[1] ?? null
   );
 };
+
 
 export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isRetry = false): Promise<Response> => {
   const { headers, ...rest } = options;
