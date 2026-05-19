@@ -39,14 +39,18 @@ export const login = async (email: string, password: string) => {
     setClientCookie("role", userInfo.group, 7 * 24 * 60 * 60);
   }
 
-  useAuthStore.getState().setUser({
+  const user = {
     id: userInfo.id,
     email: userInfo.email,
     first_name: userInfo.first_name,
     group: userInfo.group,
     loja_id: userInfo.loja?.id ?? null,
     loja_nome: userInfo.loja?.nome ?? null,
-  });
+  };
+
+  useAuthStore.getState().setUser(user);
+
+  return user;
 };
 
 

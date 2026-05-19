@@ -17,6 +17,7 @@ export interface Pedido {
   updated_at: string;
 }
 
+
 interface PedidoFilters {
   status?: string;
   data?: string;

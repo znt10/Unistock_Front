@@ -17,6 +17,8 @@ export function usePedidoStatusActions() {
   );
   const [atualizandoLista, setAtualizandoLista] = useState(false);
 
+
+  
   const invalidarPedidos = async () => {
     await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
     await queryClient.invalidateQueries({ queryKey: ["estoque"] });
