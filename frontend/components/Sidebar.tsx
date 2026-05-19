@@ -235,6 +235,7 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
   Gerente: [
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
+    { href: "/produtos/novo", label: "Cadastrar Produto", icon: "Plus" },
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
   ],
@@ -243,6 +244,23 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
   ],
+};
+
+const normalizeRole = (role?: string) => {
+  const normalized = role
+    ?.normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (["gerente", "administrador", "admin"].includes(normalized ?? "")) {
+    return "Gerente";
+  }
+
+  if (normalized === "responsavel") {
+    return "Responsavel";
+  }
+
+  return "";
 };
 
 export default function Sidebar() {
@@ -255,7 +273,7 @@ export default function Sidebar() {
   const hydrated = useAuthStore((state) => state.hydrated);
 
   // Pega o grupo do usuário e renderiza o menu correto
-  const role = user?.group ?? "";
+  const role = normalizeRole(user?.group);
   const menuItems = MENU_CONFIG[role] || [];
 
   const handleLogout = async () => {
