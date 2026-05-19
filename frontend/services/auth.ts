@@ -4,6 +4,16 @@ import { useAuthStore } from '@/stores/authStore';
 const setClientCookie = (name: string, value: string, maxAge: number) => {
   document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
 };
+
+const clearClientCookie = (name: string) => {
+  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+};
+
+const clearAuthCookies = () => {
+  clearClientCookie("access_token");
+  clearClientCookie("refresh_token");
+  clearClientCookie("role");
+};
 // 🔹 LOGIN
 
 
@@ -64,6 +74,8 @@ export const logout = async () => {
   } catch (error) {
     console.error("Erro ao fazer logout:", error);
     throw error;
+  } finally {
+    clearAuthCookies();
   }
 };
 
