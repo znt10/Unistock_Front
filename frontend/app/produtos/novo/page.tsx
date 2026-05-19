@@ -246,6 +246,8 @@ export default function NovoProduto() {
                   <option value="SALGADOS_MINI">Salgados mini</option>
                   <option value="ESFIHAS_GDE">Esfihas grande</option>
                   <option value="ESFIHAS_MINI">Esfihas mini</option>
+                  <option value="FOGAZZAS_GDE">Fogazzas grande</option>
+                  <option value="FOGAZZAS_MINI">Fogazzas mini</option>
                   <option value="RECHEIOS">Recheios</option>
                   <option value="MERCADO">Mercado</option>
                 </select>

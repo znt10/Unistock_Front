@@ -1,6 +1,10 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const NO_REFRESH_ENDPOINTS = ["/login/", "/logout/", "/token/refresh/", "/api/v1/user/me/"];
-
+const NO_REFRESH_ENDPOINTS = [
+  "/login/",
+  "/logout/",
+  "/token/refresh/",
+  "/api/v1/user/me/",
+];
 
 const getCookie = (name: string) => {
   if (typeof document === "undefined") {
@@ -15,8 +19,19 @@ const getCookie = (name: string) => {
   );
 };
 
+const setClientCookie = (name: string, value: string, maxAge: number) => {
+  if (typeof document === "undefined") {
+    return;
+  }
 
-export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isRetry = false): Promise<Response> => {
+  document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
+};
+
+export const apiFetch = async (
+  endpoint: string,
+  options: RequestInit = {},
+  _isRetry = false,
+): Promise<Response> => {
   const { headers, ...rest } = options;
   const canRefresh = !NO_REFRESH_ENDPOINTS.includes(endpoint);
   const accessToken = getCookie("access_token");
@@ -30,45 +45,53 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isR
     requestHeaders.set("Authorization", `Bearer ${accessToken}`);
   }
 
-  // 1. Faz a requisição original
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...rest,
-    credentials: "include", 
+    credentials: "include",
     headers: requestHeaders,
   });
 
-  // 2. Se o token venceu (401) e ainda nao tentamos fazer o refresh.
-  // 403 e permissao negada, entao nao deve tentar renovar sessao.
-  if (canRefresh && response.status === 401 && !_isRetry) {
+  if (canRefresh && [401, 403].includes(response.status) && !_isRetry) {
     try {
+      const refreshToken = getCookie("refresh_token");
+
+      if (!refreshToken) {
+        throw new Error("Sessao expirada. Faca login novamente.");
+      }
+
       const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
-        method: 'POST',
-        credentials: "include", 
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refresh: refreshToken }),
       });
 
-      // Se o refresh falhou (ex: o refresh_token também venceu), lança o erro
       if (!refreshResponse.ok) {
-        throw new Error("Sessão expirada. Faça login novamente.");
+        throw new Error("Sessao expirada. Faca login novamente.");
       }
 
-      // 4. Se o refresh deu certo, o Django já atualizou o cookie de access_token.
-      // Então, refazemos a requisição original que tinha dado 401, passando _isRetry como true
+      const refreshData = await refreshResponse.json();
+
+      if (!refreshData.access) {
+        throw new Error("Sessao expirada. Faca login novamente.");
+      }
+
+      setClientCookie("access_token", refreshData.access, 60 * 60);
+
       return await apiFetch(endpoint, options, true);
-
     } catch (refreshError) {
-      // 5. O Refresh falhou de vez. O usuário precisa logar de novo.
       console.error("Erro no refresh:", refreshError);
-      
-      // Se estiver rodando no lado do cliente (Browser), redireciona para o login
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login'; // Ajuste para a sua rota de login
+
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
       }
-      
+
       throw refreshError;
     }
   }
 
-  // Se deu qualquer outro erro que não seja 401, ou se o 401 persistir
   if (!response.ok) {
     let message = `Erro ${response.status}`;
 
