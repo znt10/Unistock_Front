@@ -9,6 +9,23 @@ import { useLojas } from "@/hooks/useLoja";
 import AutocompleteProduto from "@/components/HeroUI/AutocompleteP";
 import AutocompleteLoja from "@/components/HeroUI/AutocompleteLoja";
 
+const normalizeRole = (role?: string) => {
+  const normalized = role
+    ?.normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (["gerente", "administrador", "admin"].includes(normalized ?? "")) {
+    return "Gerente";
+  }
+
+  if (normalized === "responsavel") {
+    return "Responsavel";
+  }
+
+  return "";
+};
+
 export default function NovoPedidoPage() {
   const { data: produtos = [] } = useProdutos();
   const { data: lojas = [] } = useLojas();
@@ -25,7 +42,7 @@ export default function NovoPedidoPage() {
   // Incrementar a chave força os componentes Autocomplete a remontarem (reset visual)
   const [resetKey, setResetKey] = useState(0);
 
-  const isGerente = user?.group === "Gerente";
+  const isGerente = normalizeRole(user?.group) === "Gerente";
 
   function limparFormulario() {
     setProdutoSelecionado("");
