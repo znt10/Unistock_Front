@@ -2,35 +2,70 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha", "/redefinir-senha"];
 
-// Rotas permitidas por role
 const ROLE_ROUTES: Record<string, string[]> = {
-  Gerente: ["/lojas", "/novopedido", "/meuspedidos", "/painel_unidade", "/notificacoes", "/configuracoes","/estoque","/produtos"],
-  Responsavel: ["/novopedido", "/meuspedidos", "/estoque", "/notificacoes", "/configuracoes"],
+  Gerente: [
+    "/lojas",
+    "/novopedido",
+    "/meuspedidos",
+    "/painel_unidade",
+    "/notificacoes",
+    "/configuracoes",
+    "/estoque",
+    "/produtos",
+  ],
+  Responsavel: [
+    "/novopedido",
+    "/meuspedidos",
+    "/estoque",
+    "/notificacoes",
+    "/configuracoes",
+  ],
 };
 
-// Rota padrão após login por role
 const ROLE_HOME: Record<string, string> = {
   Gerente: "/lojas",
   Responsavel: "/novopedido",
 };
 
+const normalizeRole = (role?: string) => {
+  if (!role) {
+    return undefined;
+  }
+
+  const normalized = role
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (["gerente", "administrador", "admin"].includes(normalized)) {
+    return "Gerente";
+  }
+
+  if (normalized === "responsavel") {
+    return "Responsavel";
+  }
+
+  return undefined;
+};
+
 export default function proxy(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
   const refreshToken = request.cookies.get("refresh_token")?.value;
-  const role = request.cookies.get("role")?.value;
+  const role = normalizeRole(request.cookies.get("role")?.value);
   const { pathname } = request.nextUrl;
-  // 1. Já logado tentando acessar login → redireciona pra home do role
-  if (pathname === "/login" && token) {
-    const redirect = ROLE_HOME[role ?? ""] ?? "/lojas";
-    return NextResponse.redirect(new URL(redirect, request.url));
+
+  if (pathname === "/" && token && role) {
+    return NextResponse.redirect(new URL(ROLE_HOME[role], request.url));
   }
 
-  // 2. Rotas públicas
+  if (pathname === "/login" && token && role) {
+    return NextResponse.redirect(new URL(ROLE_HOME[role], request.url));
+  }
+
   if (PUBLIC_ROUTES.includes(pathname)) {
     return NextResponse.next();
   }
 
-  // 3. Não logado → manda pro login
   if (!token) {
     if (refreshToken) {
       return refreshAccessToken(request);
@@ -39,16 +74,21 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // 4. Proteção por role — verifica se a rota é permitida pro role atual
-  const allowedRoutes = ROLE_ROUTES[role ?? ""] ?? [];
+  if (!role) {
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.delete("access_token");
+    response.cookies.delete("refresh_token");
+    response.cookies.delete("role");
+    return response;
+  }
+
+  const allowedRoutes = ROLE_ROUTES[role];
   const isAllowed = allowedRoutes.some((route) => pathname.startsWith(route));
 
   if (!isAllowed) {
-    const home = ROLE_HOME[role ?? ""] ?? "/login";
-    return NextResponse.redirect(new URL(home, request.url));
+    return NextResponse.redirect(new URL(ROLE_HOME[role], request.url));
   }
 
-  // 5. Permitido
   return NextResponse.next();
 }
 

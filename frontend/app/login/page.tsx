@@ -7,6 +7,19 @@ import { login } from "@/services/auth";
 
 import { CubeIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
+const getHomeByGroup = (group?: string) => {
+  const normalized = group
+    ?.normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (normalized === "responsavel") {
+    return "/novopedido";
+  }
+
+  return "/lojas";
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -36,9 +49,9 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      const user = await login(email, password);
 
-      router.push("/lojas");
+      router.push(getHomeByGroup(user?.group));
     } catch (err: unknown) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Erro ao fazer login");
