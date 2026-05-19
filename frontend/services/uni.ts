@@ -44,6 +44,14 @@ export type EstoqueApi = {
   atualizado_em?: string;
 };
 
+export type EstoquePayload = {
+  produto: string;
+  loja: string;
+  quantidade_atual: number;
+  quantidade_minima: number;
+  estado: "NORMAL" | "CONGELADO" | "RESFRIADO";
+};
+
 export const getEstoques = async () => {
   const estoques: EstoqueApi[] = [];
   let page = 1;
@@ -65,6 +73,27 @@ export const getEstoques = async () => {
   }
 
   return estoques;
+};
+
+export const postEstoque = async (payload: EstoquePayload) => {
+  const res = await apiV1("/estoque/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  return res.json();
+};
+
+export const patchEstoque = async (
+  id: string,
+  payload: Partial<EstoquePayload>,
+) => {
+  const res = await apiV1(`/estoque/${id}/`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+
+  return res.json();
 };
 
 export const postProduto = async (

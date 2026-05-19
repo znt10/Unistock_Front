@@ -23,6 +23,17 @@ interface PedidoFilters {
   loja?: string;
 }
 
+function normalizarPedidos(data: unknown): Pedido[] {
+  if (Array.isArray(data)) return data as Pedido[];
+
+  if (data && typeof data === "object" && "results" in data) {
+    const results = (data as { results?: unknown }).results;
+    return Array.isArray(results) ? (results as Pedido[]) : [];
+  }
+
+  return [];
+}
+
 export function usePedidos(filters?: PedidoFilters) {
   return useQuery<Pedido[]>({
     queryKey: [
@@ -36,7 +47,7 @@ export function usePedidos(filters?: PedidoFilters) {
 
       const data = await getPedidos(filters);
 
-      return data.results as Pedido[];
+      return normalizarPedidos(data);
     },
 
     staleTime: 0,

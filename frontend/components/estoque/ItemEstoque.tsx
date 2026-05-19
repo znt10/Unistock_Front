@@ -70,7 +70,7 @@ export default function ItemEstoque({
               if (e.key === "Enter") salvar();
               if (e.key === "Escape") setEditando(false);
             }}
-            className="h-9 w-24 rounded-lg border border-blue-400 bg-white px-3 text-center text-sm font-bold text-theme-text-title outline-none ring-2 ring-blue-100"
+            className="h-9 w-24 rounded-lg border border-blue-400 bg-white px-3 text-center text-sm font-bold text-slate-950 outline-none ring-2 ring-blue-100"
           />
         ) : (
           <button

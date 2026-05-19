@@ -5,7 +5,7 @@ const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha", "/redefinir-sen
 // Rotas permitidas por role
 const ROLE_ROUTES: Record<string, string[]> = {
   Gerente: ["/lojas", "/novopedido", "/meuspedidos", "/painel_unidade", "/notificacoes", "/configuracoes","/estoque","/produtos"],
-  Responsavel: ["/novopedido", "/meuspedidos", "/notificacoes", "/configuracoes"],
+  Responsavel: ["/novopedido", "/meuspedidos", "/estoque", "/notificacoes", "/configuracoes"],
 };
 
 // Rota padrão após login por role

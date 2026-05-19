@@ -37,8 +37,9 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}, _isR
     headers: requestHeaders,
   });
 
-  // 2. Se o token venceu (401) e ainda não tentamos fazer o refresh
-  if (canRefresh && (response.status === 401 || response.status === 403) && !_isRetry) {
+  // 2. Se o token venceu (401) e ainda nao tentamos fazer o refresh.
+  // 403 e permissao negada, entao nao deve tentar renovar sessao.
+  if (canRefresh && response.status === 401 && !_isRetry) {
     try {
       const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
         method: 'POST',

@@ -241,6 +241,7 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
   Responsavel: [
     { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
     { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
+    { href: "/estoque", label: "Controle Estoque", icon: "Package" },
   ],
 };
 

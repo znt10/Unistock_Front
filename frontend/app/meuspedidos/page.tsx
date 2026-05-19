@@ -3,10 +3,12 @@
 import React, { Suspense, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { usePedidos } from "@/hooks/usePedidos";
-import { useQueryClient } from "@tanstack/react-query";
-import { useLojas } from "@/hooks/useLoja";
-import { patchPedidoStatus } from "@/services/uni";
-import { selectIsGerente, useAuthStore } from "@/stores/authStore";
+import { usePedidoStatusActions } from "@/hooks/usePedidoStatusActions";
+import {
+  selectIsGerente,
+  selectIsResponsavel,
+  useAuthStore,
+} from "@/stores/authStore";
 import { useSearchParams } from "next/navigation";
 
 const Icons = {
@@ -61,52 +63,29 @@ function hojeISO() {
 
 function MeusPedidosContent() {
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
   const lojaParam = searchParams.get("loja") ?? "";
   const statusParam = searchParams.get("status") ?? "";
   const dataParam = searchParams.get("data") ?? "";
   const isGerente = useAuthStore(selectIsGerente);
+  const isResponsavel = useAuthStore(selectIsResponsavel);
+  const podeAtualizarStatus = isGerente || isResponsavel;
   const hydrated = useAuthStore((state) => state.hydrated);
 
   const [status, setStatus] = useState(statusParam);
   const [data, setData] = useState(dataParam);
-  const [loja, setLoja] = useState(lojaParam);
 
   const { data: pedidosData = [], isLoading } = usePedidos({
     status,
     data,
-    loja: loja || undefined,
+    loja: lojaParam || undefined,
   });
 
-  const [pedidoAtualizando, setPedidoAtualizando] = useState<string | null>(
-    null,
-  );
-  const [entregandoTodos, setEntregandoTodos] = useState(false);
-
-  const { data: lojas = [] } = useLojas();
-
-  const mudarStatusPedido = async (
-    id: string,
-    statusNovo: "PENDENTE" | "ENTREGUE" | "CANCELADO",
-  ) => {
-    try {
-      setPedidoAtualizando(id);
-      await patchPedidoStatus(id, statusNovo);
-      await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
-      await queryClient.invalidateQueries({ queryKey: ["estoque"] });
-      alert(
-        statusNovo === "ENTREGUE"
-          ? "Pedido entregue. Estoque da loja atualizado."
-          : "Status atualizado com sucesso.",
-      );
-    } catch (error: unknown) {
-      alert(
-        error instanceof Error ? error.message : "Erro ao atualizar status.",
-      );
-    } finally {
-      setPedidoAtualizando(null);
-    }
-  };
+  const {
+    pedidoAtualizando,
+    atualizandoLista: entregandoTodos,
+    atualizarStatusPedido,
+    atualizarStatusPedidos,
+  } = usePedidoStatusActions();
 
   const pedidosPendentesVisiveis = pedidosData.filter(
     (pedido) => pedido.status === "PENDENTE",
@@ -125,21 +104,10 @@ function MeusPedidosContent() {
     );
     if (!ok) return;
 
-    try {
-      setEntregandoTodos(true);
-      for (const pedido of pedidosPendentesVisiveis) {
-        await patchPedidoStatus(pedido.id, "ENTREGUE");
-      }
-      await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
-      await queryClient.invalidateQueries({ queryKey: ["estoque"] });
-      alert("Pedidos entregues. Estoque das lojas atualizado.");
-    } catch (error: unknown) {
-      alert(
-        error instanceof Error ? error.message : "Erro ao entregar pedidos.",
-      );
-    } finally {
-      setEntregandoTodos(false);
-    }
+    await atualizarStatusPedidos(
+      pedidosPendentesVisiveis.map((pedido) => pedido.id),
+      "ENTREGUE",
+    );
   };
 
   if (!hydrated) {
@@ -169,7 +137,7 @@ function MeusPedidosContent() {
               Meus Pedidos
             </h1>
             <p className="text-theme-text-sub/60 font-medium mt-3">
-              {isGerente && loja
+              {isGerente && lojaParam
                 ? "Pedidos filtrados pela loja selecionada."
                 : "Acompanhe o status das suas solicitacoes de estoque em tempo real."}
             </p>
@@ -228,7 +196,7 @@ function MeusPedidosContent() {
                       <th className="p-6 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] text-center">
                         Status
                       </th>
-                      {isGerente && (
+                      {podeAtualizarStatus && (
                         <th className="p-6 text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] text-center">
                           Ação
                         </th>
@@ -240,7 +208,7 @@ function MeusPedidosContent() {
                     {isLoading ? (
                       <tr>
                         <td
-                          colSpan={isGerente ? 6 : 5}
+                          colSpan={podeAtualizarStatus ? 6 : 5}
                           className="p-10 text-center text-theme-text-sub/40 text-sm"
                         >
                           Carregando...
@@ -249,7 +217,7 @@ function MeusPedidosContent() {
                     ) : pedidosData.length === 0 ? (
                       <tr>
                         <td
-                          colSpan={isGerente ? 6 : 5}
+                          colSpan={podeAtualizarStatus ? 6 : 5}
                           className="p-10 text-center text-theme-text-sub/40 text-sm"
                         >
                           Nenhum pedido encontrado.
@@ -305,7 +273,7 @@ function MeusPedidosContent() {
                               </span>
                             </div>
                           </td>
-                          {isGerente && (
+                          {podeAtualizarStatus && (
                             <td className="p-6">
                               <div className="flex justify-center gap-2">
                                 {item.status !== "ENTREGUE" && (
@@ -313,7 +281,10 @@ function MeusPedidosContent() {
                                     type="button"
                                     disabled={pedidoAtualizando === item.id}
                                     onClick={() =>
-                                      mudarStatusPedido(item.id, "ENTREGUE")
+                                      atualizarStatusPedido(
+                                        item.id,
+                                        "ENTREGUE",
+                                      )
                                     }
                                     className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-3 py-2 text-[10px] font-black uppercase tracking-[1px] text-white transition hover:bg-green-700 disabled:opacity-50"
                                   >
@@ -326,7 +297,10 @@ function MeusPedidosContent() {
                                     type="button"
                                     disabled={pedidoAtualizando === item.id}
                                     onClick={() =>
-                                      mudarStatusPedido(item.id, "CANCELADO")
+                                      atualizarStatusPedido(
+                                        item.id,
+                                        "CANCELADO",
+                                      )
                                     }
                                     className="rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-[10px] font-black uppercase tracking-[1px] text-red-500 transition hover:bg-red-500/10 disabled:opacity-50"
                                   >
@@ -361,25 +335,6 @@ function MeusPedidosContent() {
               </div>
 
               <div className="space-y-6">
-                {isGerente && (
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-theme-text-sub/30 uppercase tracking-[2px] ml-1">
-                      Loja
-                    </label>
-                    <select
-                      value={loja}
-                      onChange={(e) => setLoja(e.target.value)}
-                      className="w-full bg-theme-header border border-theme-border text-theme-text-title rounded-2xl py-4 px-5 text-xs font-bold outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all appearance-none cursor-pointer uppercase"
-                    >
-                      <option value="">Todas as Lojas</option>
-                      {lojas.map((l) => (
-                        <option key={l.id} value={l.id}>
-                          {l.nome_loja}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
                 {/* Situação */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-theme-text-sub/30 uppercase tracking-[2px] ml-1">
@@ -414,7 +369,6 @@ function MeusPedidosContent() {
                   onClick={() => {
                     setStatus("");
                     setData("");
-                    setLoja("");
                   }}
                   className="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl text-white text-[12px] font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 active:scale-95 mt-4"
                 >

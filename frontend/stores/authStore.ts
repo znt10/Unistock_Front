@@ -43,10 +43,18 @@ export const useAuthStore = create<AuthState>()(
 );
 
 export const GERENTE_GROUPS = ["Gerente", "Administrador", "Admin"] as const;
+export const RESPONSAVEL_GROUPS = ["Responsavel", "Responsável"] as const;
 
 export const selectIsGerente = (state: AuthState) =>
   state.user?.group
     ? GERENTE_GROUPS.includes(
         state.user.group as (typeof GERENTE_GROUPS)[number]
+      )
+    : false;
+
+export const selectIsResponsavel = (state: AuthState) =>
+  state.user?.group
+    ? RESPONSAVEL_GROUPS.includes(
+        state.user.group as (typeof RESPONSAVEL_GROUPS)[number]
       )
     : false;

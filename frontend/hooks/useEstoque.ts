@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type EstadoProduto, type EstoqueLocal } from "@/data/estruturaEstoque";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuthStore } from "@/stores/authStore";
@@ -21,6 +21,8 @@ type UpdatePayload = {
 export type HistoricoEstoque = UpdatePayload & {
   anterior?: number;
   novo?: number;
+  anteriorEstado?: EstadoProduto;
+  novoEstado?: EstadoProduto;
 };
 
 function carregarEstoque() {
@@ -52,10 +54,16 @@ export function useEstoque() {
   const [historico, setHistorico] = useState<HistoricoEstoque[]>(() => carregarHistorico());
   const [alterados, setAlterados] = useState<Record<string, number>>({});
   const [notificacoesExternas, setNotificacoesExternas] = useState(0);
+  const historicoRef = useRef<HistoricoEstoque[]>(historico);
+
+  useEffect(() => {
+    historicoRef.current = historico;
+  }, [historico]);
 
   const aplicarUpdate = useCallback((payload: UpdatePayload, externo = false) => {
     setEstoque((atual) => {
-      const anterior = atual[payload.loja]?.[payload.categoria]?.[payload.produto]?.qtd;
+      const itemAnterior = atual[payload.loja]?.[payload.categoria]?.[payload.produto];
+      const anterior = itemAnterior?.qtd;
       const proximo: EstoqueLocal = {
         ...atual,
         [payload.loja]: {
@@ -78,9 +86,12 @@ export function useEstoque() {
         ...payload,
         anterior,
         novo: payload.qtd,
+        anteriorEstado: itemAnterior?.estado,
+        novoEstado: payload.estado,
       };
       setHistorico((lista) => {
         const novoHistorico = [entrada, ...lista].slice(0, 200);
+        historicoRef.current = novoHistorico;
         window.localStorage.setItem(HISTORY_KEY, JSON.stringify(novoHistorico));
         return novoHistorico;
       });
@@ -100,6 +111,67 @@ export function useEstoque() {
 
     if (externo) setNotificacoesExternas((valor) => valor + 1);
   }, []);
+
+  const marcarAlterado = useCallback((payload: UpdatePayload) => {
+    const chave = `${payload.loja}|${payload.categoria}|${payload.produto}`;
+    setAlterados((atual) => ({ ...atual, [chave]: Date.now() }));
+    window.setTimeout(() => {
+      setAlterados((atual) => {
+        const novo = { ...atual };
+        delete novo[chave];
+        return novo;
+      });
+    }, 1000);
+  }, []);
+
+  const desfazerUltimaAlteracao = useCallback((lojaFiltro?: string) => {
+    const lista = historicoRef.current;
+    const index = lista.findIndex(
+      (entrada) => !lojaFiltro || entrada.loja === lojaFiltro,
+    );
+
+    if (index < 0) return null;
+
+    const entrada = lista[index];
+    const payload: UpdatePayload = {
+      loja: entrada.loja,
+      categoria: entrada.categoria,
+      produto: entrada.produto,
+      qtd: entrada.anterior ?? 0,
+      estado: entrada.anteriorEstado ?? entrada.estado ?? "Normal",
+      updatedAt: new Date().toISOString(),
+      usuario,
+    };
+
+    setEstoque((atual) => {
+      const proximo: EstoqueLocal = {
+        ...atual,
+        [payload.loja]: {
+          ...atual[payload.loja],
+          [payload.categoria]: {
+            ...atual[payload.loja]?.[payload.categoria],
+            [payload.produto]: {
+              ...atual[payload.loja]?.[payload.categoria]?.[payload.produto],
+              qtd: payload.qtd ?? 0,
+              estado: payload.estado,
+              updatedAt: payload.updatedAt,
+            },
+          },
+        },
+      };
+
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(proximo));
+      return proximo;
+    });
+
+    const novoHistorico = lista.filter((_, itemIndex) => itemIndex !== index);
+    historicoRef.current = novoHistorico;
+    setHistorico(novoHistorico);
+    window.localStorage.setItem(HISTORY_KEY, JSON.stringify(novoHistorico));
+    marcarAlterado(payload);
+
+    return payload;
+  }, [marcarAlterado, usuario]);
 
   const { conectado, enviar, pendentes } = useWebSocket((message) => {
     if (message.tipo === "estoque:update" && message.payload) {
@@ -166,6 +238,7 @@ export function useEstoque() {
     notificacoesExternas,
     ultimaAtualizacao,
     atualizarItem,
+    desfazerUltimaAlteracao,
     limparBadge: () => setNotificacoesExternas(0),
   };
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useCallback, useMemo, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Sidebar from "@/components/Sidebar";
 import BarraLojas from "@/components/estoque/BarraLojas";
 import CategoriaEstoque from "@/components/estoque/CategoriaEstoque";
@@ -9,7 +9,8 @@ import TotalGeral from "@/components/estoque/TotalGeral";
 import { useEstoque } from "@/hooks/useEstoque";
 import { useLojas } from "@/hooks/useLoja";
 import { useProdutos } from "@/hooks/useProduto";
-import { getEstoques } from "@/services/uni";
+import { getEstoques, patchEstoque, postEstoque } from "@/services/uni";
+import { selectIsGerente, useAuthStore } from "@/stores/authStore";
 import type { EstadoProduto, EstoqueLocal } from "@/data/estruturaEstoque";
 
 const CATEGORIAS_VIEW: Record<
@@ -51,6 +52,12 @@ function normalizarEstado(estado?: string): EstadoProduto {
   return "Normal";
 }
 
+function estadoParaApi(estado?: EstadoProduto) {
+  if (estado === "Congelado") return "CONGELADO";
+  if (estado === "Resfriado") return "RESFRIADO";
+  return "NORMAL";
+}
+
 function formatarData(data?: string) {
   if (!data) return "Sem atualizacao";
   return new Intl.DateTimeFormat("pt-BR", {
@@ -62,8 +69,12 @@ function formatarData(data?: string) {
 }
 
 export default function EstoquePage() {
+  const queryClient = useQueryClient();
   const [lojaSelecionada, setLojaSelecionada] = useState<string>("TODAS");
   const [agora, setAgora] = useState(() => Date.now());
+  const usuario = useAuthStore((state) => state.user);
+  const lojaIdUsuario = usuario?.loja_id;
+  const isGerente = useAuthStore(selectIsGerente);
   const { data: lojasQuery = [], isLoading: carregandoLojas } = useLojas();
   const { data: produtosQuery = [], isLoading: carregandoProdutos } =
     useProdutos();
@@ -73,10 +84,14 @@ export default function EstoquePage() {
     staleTime: 30 * 1000,
     refetchOnWindowFocus: true,
   });
-  const lojas = useMemo(
-    () => (Array.isArray(lojasQuery) ? lojasQuery : []),
-    [lojasQuery],
-  );
+  const lojas = useMemo(() => {
+    const todas = Array.isArray(lojasQuery) ? lojasQuery : [];
+
+    if (isGerente) return todas;
+    if (!lojaIdUsuario) return [];
+
+    return todas.filter((loja) => loja.id === lojaIdUsuario);
+  }, [isGerente, lojaIdUsuario, lojasQuery]);
   const produtos = useMemo(
     () => (Array.isArray(produtosQuery) ? produtosQuery : []),
     [produtosQuery],
@@ -88,10 +103,13 @@ export default function EstoquePage() {
     notificacoesExternas,
     ultimaAtualizacao,
     atualizarItem,
+    desfazerUltimaAlteracao,
     limparBadge,
   } = useEstoque();
 
-  const lojaAtiva = lojaSelecionada || "TODAS";
+  const lojaAtiva = isGerente
+    ? lojaSelecionada || "TODAS"
+    : lojaIdUsuario || lojas[0]?.id || "";
   const lojaAtivaNome =
     lojaAtiva === "TODAS"
       ? "Todas as lojas"
@@ -180,15 +198,100 @@ export default function EstoquePage() {
     return base;
   }, [categoriaPorProduto, estoque, estoquesApi]);
 
+  const historicoVisivel = useMemo(() => {
+    if (isGerente) return historico;
+    if (!lojaAtiva) return [];
+
+    return historico.filter((item) => item.loja === lojaAtiva);
+  }, [historico, isGerente, lojaAtiva]);
+
   useEffect(() => {
     const timer = window.setInterval(() => setAgora(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, []);
 
   const trocarLoja = (loja: string) => {
+    if (!isGerente && loja !== lojaIdUsuario) return;
+
     setLojaSelecionada(loja);
     limparBadge();
   };
+
+  const salvarEstoqueApi = useCallback(async (
+    loja: string,
+    produto: string,
+    data: { qtd?: number; estado?: EstadoProduto },
+  ) => {
+    const itemAtual =
+      estoqueVisivel[loja]?.[categoriaPorProduto.get(produto) || "MERCADO"]?.[
+        produto
+      ];
+    const registro = estoquesApi.find(
+      (item) => item.loja === loja && item.produto === produto,
+    );
+    const quantidadeAtual = data.qtd ?? itemAtual?.qtd ?? 0;
+    const estadoAtual = estadoParaApi(data.estado ?? itemAtual?.estado);
+
+    if (registro) {
+      await patchEstoque(registro.id, {
+        quantidade_atual: quantidadeAtual,
+        estado: estadoAtual,
+      });
+    } else {
+      await postEstoque({
+        loja,
+        produto,
+        quantidade_atual: quantidadeAtual,
+        quantidade_minima: 0,
+        estado: estadoAtual,
+      });
+    }
+
+    await queryClient.invalidateQueries({ queryKey: ["estoque"] });
+  }, [categoriaPorProduto, estoqueVisivel, estoquesApi, queryClient]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const alvo = event.target as HTMLElement | null;
+      const tagName = alvo?.tagName;
+      const digitando =
+        tagName === "INPUT" ||
+        tagName === "TEXTAREA" ||
+        tagName === "SELECT" ||
+        Boolean(alvo?.isContentEditable);
+
+      if (
+        digitando ||
+        event.shiftKey ||
+        !(event.ctrlKey || event.metaKey) ||
+        event.key.toLowerCase() !== "z"
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const lojaFiltro =
+        isGerente && lojaAtiva === "TODAS" ? undefined : lojaAtiva;
+      const alteracao = desfazerUltimaAlteracao(lojaFiltro);
+
+      if (!alteracao) return;
+
+      salvarEstoqueApi(alteracao.loja, alteracao.produto, {
+        qtd: alteracao.qtd,
+        estado: alteracao.estado,
+      }).catch((error) => {
+        alert(
+          error instanceof Error
+            ? error.message
+            : "Erro ao desfazer alteracao.",
+        );
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [desfazerUltimaAlteracao, isGerente, lojaAtiva, salvarEstoqueApi]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub">
@@ -218,6 +321,7 @@ export default function EstoquePage() {
             lojas={lojas}
             onChange={trocarLoja}
             notificacoesExternas={notificacoesExternas}
+            mostrarTodas={isGerente}
           />
         </header>
 
@@ -254,6 +358,13 @@ export default function EstoquePage() {
                 agora={agora}
                 onUpdate={(loja, categoria, produto, data) => {
                   atualizarItem(loja, categoria, produto, data);
+                  salvarEstoqueApi(loja, produto, data).catch((error) => {
+                    alert(
+                      error instanceof Error
+                        ? error.message
+                        : "Erro ao salvar estoque.",
+                    );
+                  });
                 }}
               />
             ))
@@ -265,11 +376,11 @@ export default function EstoquePage() {
                 Historico recente
               </h2>
               <span className="text-sm font-medium text-theme-text-sub">
-                Ultimas {Math.min(historico.length, 8)} alteracoes
+                Ultimas {Math.min(historicoVisivel.length, 8)} alteracoes
               </span>
             </div>
             <div className="space-y-2">
-              {historico.slice(0, 8).map((item, index) => (
+              {historicoVisivel.slice(0, 8).map((item, index) => (
                 <div
                   key={`${item.updatedAt}-${index}`}
                   className="flex flex-col justify-between gap-1 rounded-lg bg-theme-header px-3 py-2 text-sm md:flex-row md:items-center"
@@ -285,7 +396,7 @@ export default function EstoquePage() {
                   </span>
                 </div>
               ))}
-              {historico.length === 0 && (
+              {historicoVisivel.length === 0 && (
                 <p className="text-base font-medium text-theme-text-sub">
                   Nenhuma alteracao registrada ainda.
                 </p>
