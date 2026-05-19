@@ -59,25 +59,13 @@ export const logout = async () => {
   useAuthStore.getState().clearUser();
 
   try {
-    // Pega o token do cookie
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('access_token='))
-      ?.split('=')[1];
-
     const response = await apiFetch('/logout/', {
       method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Authorization': `Bearer ${token}`,  
-        'Content-Type': 'application/json',
-      },
     });
 
     return response;
   } catch (error) {
     console.error("Erro ao fazer logout:", error);
-    throw error;
   } finally {
     clearAuthCookies();
   }
