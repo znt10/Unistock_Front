@@ -10,8 +10,23 @@ import {
   useAuthStore,
 } from "@/stores/authStore";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const Icons = {
+  ChevronLeft: () => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  ),
   Filter: () => (
     <svg
       width="18"
@@ -129,6 +144,13 @@ function MeusPedidosContent() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
+          <Link
+            href={isGerente ? "/painel_unidade" : "/novopedido"}
+            className="group mb-6 inline-flex items-center gap-2 rounded-xl border border-theme-border bg-theme-card px-6 py-3 text-[11px] font-black uppercase tracking-widest text-theme-text-sub shadow-sm transition-all hover:bg-theme-hover hover:text-theme-text-title"
+          >
+            <Icons.ChevronLeft /> Voltar
+          </Link>
+
           <header className="mb-10">
             <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
               Histórico de Requisições

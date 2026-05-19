@@ -43,25 +43,27 @@ export default function CategoriaEstoque({
   const total = produtos.reduce((sum, produto) => sum + (itens[produto.id]?.qtd || 0), 0);
 
   return (
-    <section className="overflow-hidden rounded-lg border border-theme-border bg-theme-card shadow-sm">
+    <section className="overflow-hidden rounded-xl border border-theme-border bg-theme-card shadow-sm">
       <button
         type="button"
         onClick={() => setAberta((valor) => !valor)}
-        className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left"
+        className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6"
       >
-        <div className="flex items-center gap-3">
-          <span className={`rounded-md border px-2.5 py-1 text-xs font-black ${COR[cor]}`}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+          <span className={`rounded-lg border px-4 py-2 text-lg font-black uppercase tracking-[1px] ${COR[cor]}`}>
             {categoria}
           </span>
-          <span className="text-xs font-bold uppercase tracking-[1px] text-theme-text-sub">
+          <span className="text-sm font-bold uppercase tracking-[1px] text-theme-text-sub">
             {produtos.length} itens
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="rounded-md bg-theme-header px-3 py-1 text-xs font-black text-theme-text-title">
+          <span className="rounded-lg bg-theme-header px-4 py-2 text-sm font-black text-theme-text-title">
             Total {total}
           </span>
-          <span className="text-theme-text-sub">{aberta ? "-" : "+"}</span>
+          <span className="text-2xl font-black leading-none text-theme-text-sub">
+            {aberta ? "-" : "+"}
+          </span>
         </div>
       </button>
 
@@ -74,12 +76,12 @@ export default function CategoriaEstoque({
               <col className="w-[18%]" />
               <col className="w-[34%]" />
             </colgroup>
-            <thead className="bg-theme-header text-[11px] uppercase tracking-[1px] text-theme-text-sub">
+            <thead className="bg-theme-header text-xs uppercase tracking-[1px] text-theme-text-sub">
               <tr>
-                <th className="px-4 py-2">Produto</th>
-                <th className="px-4 py-2 text-center">Qtd</th>
-                <th className="px-4 py-2 text-center">Estado</th>
-                <th className="px-4 py-2 text-center">Ultima atualizacao</th>
+                <th className="px-5 py-3">Produto</th>
+                <th className="px-5 py-3 text-center">Qtd</th>
+                <th className="px-5 py-3 text-center">Estado</th>
+                <th className="px-5 py-3 text-center">Ultima atualizacao</th>
               </tr>
             </thead>
             <tbody className="[&>tr:nth-child(even)]:bg-theme-hover/60">

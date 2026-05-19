@@ -138,7 +138,14 @@ export default function PersonalizacaoPerfil() {
       <Sidebar />
 
       <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-14">
+        <Link
+          href="/configuracoes"
+          className="group mb-6 inline-flex items-center gap-2 rounded-xl border border-theme-border bg-theme-card px-6 py-3 text-[11px] font-black uppercase tracking-widest text-theme-text-sub shadow-sm transition-all hover:bg-theme-hover"
+        >
+          <Icons.ChevronLeft /> Voltar
+        </Link>
+
+        <div className="mb-14 flex flex-col items-start gap-6">
           <div>
             <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
               Interface do Sistema
@@ -148,12 +155,6 @@ export default function PersonalizacaoPerfil() {
             </h1>
           </div>
 
-          <Link
-            href="/configuracoes"
-            className="group bg-theme-card border border-theme-border px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest text-theme-text-sub hover:bg-theme-hover transition-all flex items-center gap-2 shadow-sm"
-          >
-            <Icons.ChevronLeft /> Voltar
-          </Link>
         </div>
 
         {/* Tema */}
