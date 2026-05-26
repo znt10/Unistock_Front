@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
-import CadastroUsuarioForm from "@/components/usuarios/CadastroUsuarioForm";
+import CadastroUsuarioModal from "@/components/usuarios/CadastroUsuarioModal";
 import { selectIsGerente, useAuthStore } from "@/stores/authStore";
 
 const Icons = {
@@ -11,12 +11,6 @@ const Icons = {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
-    </svg>
-  ),
-  Lock: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
   ),
   Shield: () => (
@@ -49,13 +43,9 @@ const Icons = {
       <path d="m21 21-4.3-4.3" />
     </svg>
   ),
-  X: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
-  ),
 };
+
+type CadastroTipo = "gerente" | "responsavel";
 
 type Secao =
   | {
@@ -72,7 +62,7 @@ type Secao =
       subtitulo: string;
       icon: React.ReactNode;
       tag: string;
-      action: "createResponsible";
+      action: CadastroTipo;
       adminOnly?: boolean;
       href?: never;
     };
@@ -109,7 +99,9 @@ function CardConteudo({ secao }: { secao: Secao }) {
 
 export default function Configuracoes() {
   const podeGerenciarAcessos = useAuthStore(selectIsGerente);
-  const [responsavelAberto, setResponsavelAberto] = useState(false);
+  const [cadastroAberto, setCadastroAberto] = useState<CadastroTipo | null>(
+    null,
+  );
 
   const secoes: Secao[] = [
     {
@@ -118,13 +110,6 @@ export default function Configuracoes() {
       icon: <Icons.User />,
       tag: "CONTA",
       href: "/configuracoes/conta",
-    },
-    {
-      titulo: "Privacidade e Seguranca",
-      subtitulo: "Controle seus dados e configuracoes de protecao.",
-      icon: <Icons.Lock />,
-      tag: "PROTECAO",
-      href: "/configuracoes/privacidade",
     },
     {
       titulo: "Personalizacao do Perfil",
@@ -142,10 +127,10 @@ export default function Configuracoes() {
     },
     {
       titulo: "Criar gerente",
-      subtitulo: "Abra a tela de registro para cadastrar outro gerente.",
+      subtitulo: "Cadastre outro gerente para administrar o sistema.",
       icon: <Icons.UserPlus />,
       tag: "ACESSO",
-      href: "/registrar",
+      action: "gerente",
       adminOnly: true,
     },
     {
@@ -153,7 +138,7 @@ export default function Configuracoes() {
       subtitulo: "Cadastre um responsavel e vincule a uma loja.",
       icon: <Icons.UserPlus />,
       tag: "ACESSO",
-      action: "createResponsible",
+      action: "responsavel",
       adminOnly: true,
     },
   ];
@@ -206,7 +191,7 @@ export default function Configuracoes() {
                 <button
                   type="button"
                   key={`${secao.action}-${index}`}
-                  onClick={() => setResponsavelAberto(true)}
+                  onClick={() => setCadastroAberto(secao.action)}
                   className={cardClass}
                 >
                   <CardConteudo secao={secao} />
@@ -225,39 +210,11 @@ export default function Configuracoes() {
         </div>
       </main>
 
-      {responsavelAberto && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-black/55 px-4 py-6 backdrop-blur-sm">
-          <div className="w-full max-w-2xl rounded-2xl border border-theme-border bg-theme-card p-6 text-theme-text-title shadow-2xl">
-            <div className="mb-6 flex items-start justify-between gap-4 rounded-lg border border-theme-border bg-theme-header/60 p-5">
-              <div>
-                <span className="text-[11px] font-black uppercase tracking-[3px] text-blue-500">
-                  Gestao de usuarios
-                </span>
-                <h2 className="mt-2 text-2xl font-black tracking-tight">
-                  Criar responsavel
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-theme-text-sub">
-                  Cadastre o responsavel e vincule a uma loja.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setResponsavelAberto(false)}
-                className="rounded-lg border border-theme-border bg-theme-header p-2 text-theme-text-sub transition hover:text-theme-text-title"
-                aria-label="Fechar formulario"
-              >
-                <Icons.X />
-              </button>
-            </div>
-
-            <CadastroUsuarioForm
-              tipo="responsavel"
-              showCancel
-              onCancel={() => setResponsavelAberto(false)}
-            />
-          </div>
-        </div>
+      {cadastroAberto && (
+        <CadastroUsuarioModal
+          tipo={cadastroAberto}
+          onClose={() => setCadastroAberto(null)}
+        />
       )}
     </div>
   );

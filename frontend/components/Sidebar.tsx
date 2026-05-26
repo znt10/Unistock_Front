@@ -3,7 +3,9 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { logout } from "@/services/auth";
+import { getNotificacoes } from "@/services/uni";
 import { useAuthStore } from "@/stores/authStore";
 
 const Icons = {
@@ -231,6 +233,8 @@ type IconKey = keyof typeof Icons;
 
 type MenuItem = { href: string; label: string; icon: IconKey };
 
+const NOTIFICACOES_QUERY_KEY = ["notificacoes"];
+
 const MENU_CONFIG: Record<string, MenuItem[]> = {
   Gerente: [
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
@@ -271,10 +275,18 @@ export default function Sidebar() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthStore((state) => state.hydrated);
+  const { data: notificacoes = [] } = useQuery({
+    queryKey: NOTIFICACOES_QUERY_KEY,
+    queryFn: getNotificacoes,
+    enabled: hydrated && Boolean(user),
+    refetchOnWindowFocus: true,
+    refetchInterval: 10000,
+  });
 
   // Pega o grupo do usuário e renderiza o menu correto
   const role = normalizeRole(user?.group);
   const menuItems = MENU_CONFIG[role] || [];
+  const temNotificacoes = notificacoes.length > 0;
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -424,10 +436,12 @@ export default function Sidebar() {
               >
                 <div className="relative shrink-0">
                   <Icons.Bell />
-                  <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                  </span>
+                  {temNotificacoes && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                  )}
                 </div>
                 {!isCollapsed && (
                   <span className="text-[14px]">Notificações</span>

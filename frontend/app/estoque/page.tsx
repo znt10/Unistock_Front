@@ -8,8 +8,8 @@ import CategoriaEstoque from "@/components/estoque/CategoriaEstoque";
 import TotalGeral from "@/components/estoque/TotalGeral";
 import { useEstoque } from "@/hooks/useEstoque";
 import { useLojas } from "@/hooks/useLoja";
-import { useProdutos } from "@/hooks/useProduto";
-import { getEstoques, patchEstoque, postEstoque } from "@/services/uni";
+import { PRODUTOS_QUERY_KEY, type Produto, useProdutos } from "@/hooks/useProduto";
+import { getEstoques, patchEstoque, patchProduto, postEstoque } from "@/services/uni";
 import { selectIsGerente, useAuthStore } from "@/stores/authStore";
 import type { EstadoProduto, EstoqueLocal } from "@/data/estruturaEstoque";
 
@@ -117,7 +117,19 @@ export default function EstoquePage() {
         "Selecione uma loja";
 
   const categorias = useMemo(() => {
-    const agrupadas = new Map<string, Map<string, string>>();
+    const agrupadas = new Map<
+      string,
+      Map<
+        string,
+        {
+          id: string;
+          nome: string;
+          unidade_medida?: string;
+          quantidade_por_embalagem?: number | null;
+          estoque_minimo_sugerido?: number;
+        }
+      >
+    >();
 
     produtos
       .filter((produto) => produto.ativo !== false)
@@ -125,9 +137,14 @@ export default function EstoquePage() {
         const categoriaCodigo = normalizarCategoria(produto.categoria);
         const config =
           CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
-        const produtosCategoria =
-          agrupadas.get(config.label) || new Map<string, string>();
-        produtosCategoria.set(produto.id, produto.nome_produto);
+        const produtosCategoria = agrupadas.get(config.label) || new Map();
+        produtosCategoria.set(produto.id, {
+          id: produto.id,
+          nome: produto.nome_produto,
+          unidade_medida: produto.unidade_medida,
+          quantidade_por_embalagem: produto.quantidade_por_embalagem,
+          estoque_minimo_sugerido: produto.estoque_minimo_sugerido,
+        });
         agrupadas.set(config.label, produtosCategoria);
       });
 
@@ -136,8 +153,7 @@ export default function EstoquePage() {
         categoria: config.label,
         cor: config.cor,
         temEstado: config.temEstado,
-        produtos: Array.from(agrupadas.get(config.label) || [])
-          .map(([id, nome]) => ({ id, nome }))
+        produtos: Array.from(agrupadas.get(config.label)?.values() || [])
           .sort((a, b) => a.nome.localeCompare(b.nome)),
       }))
       .filter((categoria) => categoria.produtos.length > 0);
@@ -175,6 +191,29 @@ export default function EstoquePage() {
 
     return mapa;
   }, [produtos]);
+
+  const produtoPorId = useMemo(() => {
+    const mapa = new Map<string, Produto>();
+
+    produtos.forEach((produto) => {
+      mapa.set(produto.id, produto);
+    });
+
+    return mapa;
+  }, [produtos]);
+
+  const minimoPorEstoque = useMemo(() => {
+    const mapa: Record<string, Record<string, number>> = {};
+
+    estoquesApi.forEach((item) => {
+      mapa[item.loja] = {
+        ...mapa[item.loja],
+        [item.produto]: item.quantidade_minima,
+      };
+    });
+
+    return mapa;
+  }, [estoquesApi]);
 
   const estoqueVisivel = useMemo(() => {
     const base: EstoqueLocal = { ...estoque };
@@ -220,8 +259,9 @@ export default function EstoquePage() {
   const salvarEstoqueApi = useCallback(async (
     loja: string,
     produto: string,
-    data: { qtd?: number; estado?: EstadoProduto },
+    data: { qtd?: number; minimo?: number; estado?: EstadoProduto },
   ) => {
+    const produtoDados = produtoPorId.get(produto);
     const itemAtual =
       estoqueVisivel[loja]?.[categoriaPorProduto.get(produto) || "MERCADO"]?.[
         produto
@@ -230,11 +270,17 @@ export default function EstoquePage() {
       (item) => item.loja === loja && item.produto === produto,
     );
     const quantidadeAtual = data.qtd ?? itemAtual?.qtd ?? 0;
+    const quantidadeMinima =
+      data.minimo ??
+      registro?.quantidade_minima ??
+      produtoDados?.estoque_minimo_sugerido ??
+      1;
     const estadoAtual = estadoParaApi(data.estado ?? itemAtual?.estado);
 
     if (registro) {
       await patchEstoque(registro.id, {
         quantidade_atual: quantidadeAtual,
+        quantidade_minima: quantidadeMinima,
         estado: estadoAtual,
       });
     } else {
@@ -242,13 +288,40 @@ export default function EstoquePage() {
         loja,
         produto,
         quantidade_atual: quantidadeAtual,
-        quantidade_minima: 0,
+        quantidade_minima: quantidadeMinima,
         estado: estadoAtual,
       });
     }
 
     await queryClient.invalidateQueries({ queryKey: ["estoque"] });
-  }, [categoriaPorProduto, estoqueVisivel, estoquesApi, queryClient]);
+    await queryClient.invalidateQueries({ queryKey: ["notificacoes"] });
+  }, [categoriaPorProduto, estoqueVisivel, estoquesApi, produtoPorId, queryClient]);
+
+  const salvarProdutoApi = useCallback(async (
+    produto: string,
+    data: {
+      unidade_medida?: string;
+      quantidade_por_embalagem?: number | null;
+    },
+  ) => {
+    const produtoAtual = produtoPorId.get(produto);
+    if (!produtoAtual) return;
+
+    const produtoAtualizado = await patchProduto(produto, data);
+
+    queryClient.setQueryData<Produto[] | undefined>(
+      PRODUTOS_QUERY_KEY,
+      (produtosAtuais) =>
+        produtosAtuais?.map((item) =>
+          item.id === produto ? { ...item, ...produtoAtualizado } : item,
+        ),
+    );
+
+    await queryClient.invalidateQueries({
+      queryKey: PRODUTOS_QUERY_KEY,
+      refetchType: "inactive",
+    });
+  }, [produtoPorId, queryClient]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -354,15 +427,28 @@ export default function EstoquePage() {
                 produtos={config.produtos}
                 temEstado={config.temEstado}
                 itens={estoqueVisivel[lojaAtiva]?.[config.categoria] || {}}
+                minimos={minimoPorEstoque[lojaAtiva] || {}}
                 alterados={alterados}
                 agora={agora}
+                podeEditarProduto={isGerente}
                 onUpdate={(loja, categoria, produto, data) => {
-                  atualizarItem(loja, categoria, produto, data);
+                  if (data.qtd !== undefined || data.estado !== undefined) {
+                    atualizarItem(loja, categoria, produto, data);
+                  }
                   salvarEstoqueApi(loja, produto, data).catch((error) => {
                     alert(
                       error instanceof Error
                         ? error.message
                         : "Erro ao salvar estoque.",
+                    );
+                  });
+                }}
+                onProdutoUpdate={(produto, data) => {
+                  salvarProdutoApi(produto, data).catch((error) => {
+                    alert(
+                      error instanceof Error
+                        ? error.message
+                        : "Erro ao atualizar produto.",
                     );
                   });
                 }}

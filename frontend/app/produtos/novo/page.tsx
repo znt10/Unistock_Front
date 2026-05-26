@@ -1,11 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Sidebar from "@/components/Sidebar";
-import { PRODUTOS_QUERY_KEY, type Produto } from "@/hooks/useProduto";
+import {
+  PRODUTOS_QUERY_KEY,
+  type Produto,
+  useProdutos,
+} from "@/hooks/useProduto";
 import { postProduto } from "@/services/uni";
 
 const Icons = {
@@ -59,18 +63,59 @@ const Icons = {
   ),
 };
 
+const CATEGORIA_LABELS: Record<string, string> = {
+  SALGADOS_GDE: "Salgados grande",
+  SALGADOS_MINI: "Salgados mini",
+  ESFIHAS_GDE: "Esfihas grande",
+  ESFIHAS_MINI: "Esfihas mini",
+  FOGAZZAS_GDE: "Fogazzas grande",
+  FOGAZZAS_MINI: "Fogazzas mini",
+  RECHEIOS: "Recheios",
+  MERCADO: "Mercado",
+};
+
+const UNIDADES_MEDIDA = [
+  { valor: "UNIDADE", label: "Unidade" },
+  { valor: "CAIXA", label: "Caixa" },
+  { valor: "PACOTE", label: "Pacote" },
+  { valor: "QUILO", label: "Quilo" },
+  { valor: "LITRO", label: "Litro" },
+] as const;
+
+function normalizarTexto(valor?: string) {
+  return (valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
 export default function NovoProduto() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { data: produtosExistentes = [] } = useProdutos();
 
   const [nomeProduto, setNomeProduto] = useState("");
   const [codigo, setCodigo] = useState("");
-  const [unidadeMedida, setUnidadeMedida] = useState("un");
-  const [categoria, setCategoria] = useState("MERCADO");
+  const [unidadeMedida, setUnidadeMedida] = useState("UNIDADE");
+  const [quantidadePorEmbalagem, setQuantidadePorEmbalagem] = useState("");
+  const [estoqueMinimo, setEstoqueMinimo] = useState("1");
+  const [categoria, setCategoria] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const produtosComNomeParecido = useMemo(() => {
+    const nomeNormalizado = normalizarTexto(nomeProduto);
+
+    if (!nomeNormalizado) return [];
+
+    return produtosExistentes.filter(
+      (produto) => normalizarTexto(produto.nome_produto) === nomeNormalizado,
+    );
+  }, [nomeProduto, produtosExistentes]);
+  const unidadeUsaEmbalagem =
+    unidadeMedida === "CAIXA" || unidadeMedida === "PACOTE";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +132,16 @@ export default function NovoProduto() {
       return;
     }
 
+    if (!categoria) {
+      setError("Selecione a categoria do produto.");
+      return;
+    }
+
+    if (!estoqueMinimo || Number(estoqueMinimo) < 0) {
+      setError("Informe o estoque minimo sugerido.");
+      return;
+    }
+
     try {
       setLoading(true);
       const produtoCriado = await postProduto(
@@ -95,6 +150,10 @@ export default function NovoProduto() {
         unidadeMedida.trim(),
         categoria,
         ativo,
+        unidadeUsaEmbalagem && quantidadePorEmbalagem
+          ? Number(quantidadePorEmbalagem)
+          : null,
+        Number(estoqueMinimo),
       );
       queryClient.setQueryData<Produto[] | undefined>(
         PRODUTOS_QUERY_KEY,
@@ -119,8 +178,10 @@ export default function NovoProduto() {
       setSuccess("Produto cadastrado com sucesso.");
       setNomeProduto("");
       setCodigo("");
-      setUnidadeMedida("un");
-      setCategoria("MERCADO");
+      setUnidadeMedida("UNIDADE");
+      setQuantidadePorEmbalagem("");
+      setEstoqueMinimo("1");
+      setCategoria("");
       setAtivo(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Erro ao cadastrar produto.");
@@ -181,6 +242,40 @@ export default function NovoProduto() {
                 </div>
               </div>
 
+              {produtosComNomeParecido.length > 0 && (
+                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-sm text-amber-200">
+                  <p className="font-black uppercase tracking-[1px]">
+                    Ja existem produtos com esse nome
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {produtosComNomeParecido.map((produto) => (
+                      <div
+                        key={produto.id}
+                        className="rounded-xl bg-theme-header px-4 py-3"
+                      >
+                        <span className="font-black text-theme-text-title">
+                          {produto.nome_produto}
+                        </span>
+                        <span className="font-bold text-theme-text-sub">
+                          {" "}
+                          -{" "}
+                          {CATEGORIA_LABELS[produto.categoria || ""] ||
+                            produto.categoria ||
+                            "Sem categoria"}
+                        </span>
+                        {(produto.codigo || produto.unidade_medida) && (
+                          <span className="mt-1 block text-xs font-medium text-theme-text-sub/70">
+                            {[produto.codigo && `Codigo: ${produto.codigo}`, produto.unidade_medida && `Unidade: ${produto.unidade_medida}`]
+                              .filter(Boolean)
+                              .join(" | ")}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label
@@ -215,17 +310,64 @@ export default function NovoProduto() {
                   <select
                     id="unidade-medida"
                     value={unidadeMedida}
-                    onChange={(e) => setUnidadeMedida(e.target.value)}
+                    onChange={(e) => {
+                      setUnidadeMedida(e.target.value);
+                      if (!["CAIXA", "PACOTE"].includes(e.target.value)) {
+                        setQuantidadePorEmbalagem("");
+                      }
+                    }}
                     className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 px-5 text-theme-text-title focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm"
                   >
-                    <option value="un">Unidade</option>
-                    <option value="kg">Quilo</option>
-                    <option value="g">Grama</option>
-                    <option value="l">Litro</option>
-                    <option value="ml">Mililitro</option>
-                    <option value="cx">Caixa</option>
-                    <option value="pct">Pacote</option>
+                    {UNIDADES_MEDIDA.map((unidade) => (
+                      <option key={unidade.valor} value={unidade.valor}>
+                        {unidade.label}
+                      </option>
+                    ))}
                   </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="quantidade-embalagem"
+                    className="text-[11px] font-black text-theme-text-sub/50 uppercase tracking-[2px] ml-1"
+                  >
+                    Quantidade interna
+                  </label>
+                  <input
+                    id="quantidade-embalagem"
+                    type="number"
+                    min={1}
+                    disabled={!unidadeUsaEmbalagem}
+                    value={quantidadePorEmbalagem}
+                    onChange={(e) => setQuantidadePorEmbalagem(e.target.value)}
+                    placeholder={
+                      unidadeUsaEmbalagem
+                        ? "EX: 50 unidades por caixa"
+                        : "Disponivel para caixa/pacote"
+                    }
+                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 px-5 text-theme-text-title placeholder:text-theme-text-sub/25 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="estoque-minimo"
+                    className="text-[11px] font-black text-theme-text-sub/50 uppercase tracking-[2px] ml-1"
+                  >
+                    Estoque minimo sugerido
+                  </label>
+                  <input
+                    id="estoque-minimo"
+                    type="number"
+                    min={0}
+                    value={estoqueMinimo}
+                    onChange={(e) => setEstoqueMinimo(e.target.value)}
+                    placeholder="EX: 2 caixas"
+                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 px-5 text-theme-text-title placeholder:text-theme-text-sub/25 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm"
+                    required
+                  />
                 </div>
               </div>
 
@@ -241,7 +383,9 @@ export default function NovoProduto() {
                   value={categoria}
                   onChange={(e) => setCategoria(e.target.value)}
                   className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 px-5 text-theme-text-title focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm"
+                  required
                 >
+                  <option value="">Selecione uma categoria</option>
                   <option value="SALGADOS_GDE">Salgados grande</option>
                   <option value="SALGADOS_MINI">Salgados mini</option>
                   <option value="ESFIHAS_GDE">Esfihas grande</option>

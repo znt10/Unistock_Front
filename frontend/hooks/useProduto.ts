@@ -9,6 +9,8 @@ export interface Produto {
   nome_produto: string;
   codigo?: string;
   unidade_medida?: string;
+  quantidade_por_embalagem?: number | null;
+  estoque_minimo_sugerido?: number;
   categoria?: string;
   ativo?: boolean;
 }

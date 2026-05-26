@@ -15,16 +15,31 @@ type Props = {
   loja: string;
   categoria: string;
   cor: keyof typeof COR;
-  produtos: readonly { id: string; nome: string }[];
+  produtos: readonly {
+    id: string;
+    nome: string;
+    unidade_medida?: string;
+    quantidade_por_embalagem?: number | null;
+    estoque_minimo_sugerido?: number;
+  }[];
   temEstado?: boolean;
   itens: Record<string, ItemEstoqueData>;
+  minimos: Record<string, number>;
   alterados: Record<string, number>;
   agora: number;
+  podeEditarProduto?: boolean;
   onUpdate: (
     loja: string,
     categoria: string,
     produto: string,
-    data: { qtd?: number; estado?: EstadoProduto },
+    data: { qtd?: number; minimo?: number; estado?: EstadoProduto },
+  ) => void;
+  onProdutoUpdate?: (
+    produto: string,
+    data: {
+      unidade_medida?: string;
+      quantidade_por_embalagem?: number | null;
+    },
   ) => void;
 };
 
@@ -35,9 +50,12 @@ export default function CategoriaEstoque({
   produtos,
   temEstado,
   itens,
+  minimos,
   alterados,
   agora,
+  podeEditarProduto,
   onUpdate,
+  onProdutoUpdate,
 }: Props) {
   const [aberta, setAberta] = useState(true);
   const total = produtos.reduce((sum, produto) => sum + (itens[produto.id]?.qtd || 0), 0);
@@ -71,15 +89,17 @@ export default function CategoriaEstoque({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] table-fixed text-left">
             <colgroup>
-              <col className="w-[30%]" />
-              <col className="w-[18%]" />
-              <col className="w-[18%]" />
-              <col className="w-[34%]" />
+              <col className="w-[36%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
+              <col className="w-[22%]" />
             </colgroup>
             <thead className="bg-theme-header text-xs uppercase tracking-[1px] text-theme-text-sub">
               <tr>
                 <th className="px-5 py-3">Produto</th>
-                <th className="px-5 py-3 text-center">Qtd</th>
+                <th className="px-5 py-3 text-center">Minimo</th>
+                <th className="px-5 py-3 text-center">Qtd atual</th>
                 <th className="px-5 py-3 text-center">Estado</th>
                 <th className="px-5 py-3 text-center">Ultima atualizacao</th>
               </tr>
@@ -95,12 +115,17 @@ export default function CategoriaEstoque({
                 return (
                   <ItemEstoque
                     key={produto.id}
-                    produto={produto.nome}
+                    produto={produto}
                     item={item}
+                    quantidadeMinima={
+                      minimos[produto.id] ?? produto.estoque_minimo_sugerido ?? 1
+                    }
                     temEstado={temEstado}
+                    podeEditarProduto={podeEditarProduto}
                     alterado={Boolean(alterados[chave])}
                     recente={recente}
                     onUpdate={(data) => onUpdate(loja, categoria, produto.id, data)}
+                    onProdutoUpdate={(data) => onProdutoUpdate?.(produto.id, data)}
                   />
                 );
               })}
