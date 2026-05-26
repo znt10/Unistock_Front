@@ -81,8 +81,8 @@ export default function EstoquePage() {
   const { data: estoquesApi = [], isLoading: carregandoEstoques } = useQuery({
     queryKey: ["estoque"],
     queryFn: getEstoques,
-    staleTime: 30 * 1000,
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
   const lojas = useMemo(() => {
     const todas = Array.isArray(lojasQuery) ? lojasQuery : [];

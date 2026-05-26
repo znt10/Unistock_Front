@@ -315,6 +315,7 @@ export default function Sidebar() {
         {/* Logo */}
         <Link
           href="/lojas"
+          prefetch={false}
           className="flex items-center gap-3 border-b border-slate-800/50 p-5 overflow-hidden whitespace-nowrap"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#1d4ed8] text-white">
@@ -355,28 +356,41 @@ export default function Sidebar() {
               // Chama o ícone correspondente de forma dinâmica
               const IconComponent = Icons[item.icon];
               const isActive = pathname === item.href;
+              const itemClassName = `flex items-center gap-3 rounded-lg py-3 transition-all ${
+                isCollapsed ? "justify-center" : "px-4"
+              } ${
+                isActive
+                  ? "bg-[#1d4ed8] text-white shadow-lg"
+                  : "text-slate-400 hover:bg-slate-800/40 hover:text-white"
+              }`;
+              const itemContent = (
+                <>
+                  <div className="shrink-0">
+                    <IconComponent />
+                  </div>
+                  {!isCollapsed && (
+                    <span className="text-[15px] font-medium whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  )}
+                </>
+              );
 
               return (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`flex items-center gap-3 rounded-lg py-3 transition-all ${
-                      isCollapsed ? "justify-center" : "px-4"
-                    } ${
-                      isActive
-                        ? "bg-[#1d4ed8] text-white shadow-lg"
-                        : "text-slate-400 hover:bg-slate-800/40 hover:text-white"
-                    }`}
-                  >
-                    <div className="shrink-0">
-                      <IconComponent />
+                  {isActive ? (
+                    <div className={itemClassName} aria-current="page">
+                      {itemContent}
                     </div>
-                    {!isCollapsed && (
-                      <span className="text-[15px] font-medium whitespace-nowrap">
-                        {item.label}
-                      </span>
-                    )}
-                  </Link>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      prefetch={false}
+                      className={itemClassName}
+                    >
+                      {itemContent}
+                    </Link>
+                  )}
                 </li>
               );
             })}
@@ -399,6 +413,7 @@ export default function Sidebar() {
             <li>
               <Link
                 href="/notificacoes"
+                prefetch={false}
                 className={`flex items-center gap-3 rounded-lg py-2.5 transition-all ${
                   isCollapsed ? "justify-center" : "px-3"
                 } ${
@@ -424,6 +439,7 @@ export default function Sidebar() {
             <li>
               <Link
                 href="/configuracoes"
+                prefetch={false}
                 className={`flex items-center gap-3 rounded-lg py-2.5 transition-all ${
                   isCollapsed ? "justify-center" : "px-3"
                 } ${

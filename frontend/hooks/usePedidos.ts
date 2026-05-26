@@ -51,6 +51,7 @@ export function usePedidos(filters?: PedidoFilters) {
       return normalizarPedidos(data);
     },
 
-    staleTime: 0,
+    staleTime: 1000 * 60,
+    refetchOnWindowFocus: false,
   });
 }
