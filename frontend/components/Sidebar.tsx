@@ -26,6 +26,39 @@ const Icons = {
       />
     </svg>
   ),
+  Tag: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+      <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  ShoppingCart: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="8" cy="21" r="1" />
+      <circle cx="19" cy="21" r="1" />
+      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+    </svg>
+  ),
   Store: () => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -281,6 +314,23 @@ const Icons = {
       <line x1="3" x2="3.01" y1="18" y2="18" />
     </svg>
   ),
+  History: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M12 7v5l4 2" />
+    </svg>
+  ),
 };
 
 type IconKey = keyof typeof Icons;
@@ -294,17 +344,17 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
-    { href: "/produtos/novo", label: "Cadastrar Produto", icon: "Plus" },
-    { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
+    { href: "/produtos/novo", label: "Cadastrar Produto", icon: "Tag" },
+    { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
-    { href: "/historico", label: "Historico", icon: "List" },
+    { href: "/historico", label: "Historico", icon: "History" },
   ],
   Responsavel: [
-    { href: "/novopedido", label: "Novo Pedido", icon: "Plus" },
+    { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
-    { href: "/historico", label: "Historico", icon: "List" },
+    { href: "/historico", label: "Historico", icon: "History" },
   ],
 };
 
@@ -371,7 +421,7 @@ export default function Sidebar() {
       {/* Botão Mobile */}
       <button
         onClick={() => setIsOpenMobile(!isOpenMobile)}
-        className="fixed top-4 left-4 z-50 rounded-lg bg-[#1d4ed8] p-2 text-white shadow-lg lg:hidden"
+        className="fixed top-4 left-4 z-50 rounded-xl bg-blue-600 p-2.5 text-white shadow-lg shadow-blue-900/40 lg:hidden"
       >
         {isOpenMobile ? <Icons.X /> : <Icons.Menu />}
       </button>
@@ -379,26 +429,30 @@ export default function Sidebar() {
       {/* Overlay Mobile */}
       {isOpenMobile && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpenMobile(false)}
         />
       )}
 
       <aside
         className={`
-        fixed left-0 top-0 z-40 h-screen bg-[#080b11] text-white shadow-xl transition-all duration-300 ease-in-out
-        ${isOpenMobile ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} 
-        ${isCollapsed ? "lg:w-20" : "lg:w-64"} 
-        w-64 flex flex-col
+        fixed left-0 top-0 z-40 h-screen flex flex-col
+        bg-[#0c1120] text-white
+        border-r border-slate-800/60
+        shadow-2xl shadow-black/40
+        transition-all duration-300 ease-in-out
+        ${isOpenMobile ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        ${isCollapsed ? "lg:w-[72px]" : "lg:w-60"}
+        w-60
       `}
       >
         {/* Banner Modo Visitante */}
         {visitorRole && (
-          <div className="flex items-center justify-between gap-2 bg-amber-500/20 border-b border-amber-500/30 px-4 py-2">
+          <div className="flex items-center justify-between gap-2 bg-amber-500/15 border-b border-amber-500/25 px-4 py-2">
             <div className="flex items-center gap-2 min-w-0">
               <Icons.Eye />
               {!isCollapsed && (
-                <span className="text-[12px] font-semibold text-amber-400 whitespace-nowrap truncate">
+                <span className="text-[11px] font-semibold text-amber-400 whitespace-nowrap truncate">
                   Visitante: {visitorRole}
                 </span>
               )}
@@ -417,110 +471,112 @@ export default function Sidebar() {
         <Link
           href="/lojas"
           prefetch={false}
-          className="flex items-center gap-3 border-b border-slate-800/50 p-5 overflow-hidden whitespace-nowrap"
+          className={`flex items-center gap-3 px-4 py-5 overflow-hidden whitespace-nowrap border-b border-slate-800/60 ${
+            isCollapsed ? "justify-center" : ""
+          }`}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#1d4ed8] text-white">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-900/50">
             <Icons.Package />
           </div>
           {!isCollapsed && (
-            <span className="text-2xl font-bold tracking-tight">UniStock</span>
+            <span className="text-[18px] font-bold tracking-tight text-white">
+              UniStock
+            </span>
           )}
         </Link>
 
         {/* Perfil */}
-        <Link href="">
+        <Link href="/configuracoes/conta">
           <div
-            className={`flex items-center gap-3 px-6 py-6 text-slate-300 overflow-hidden ${
+            className={`flex items-center gap-3 px-4 py-4 overflow-hidden hover:bg-slate-800/30 transition-colors ${
               isCollapsed ? "justify-center px-0" : ""
             }`}
           >
-            <div className="shrink-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-700/60 text-slate-300">
               <Icons.UserCircle />
             </div>
             {!isCollapsed && (
-              <span className="text-[17px] font-semibold text-white whitespace-nowrap">
-                {user?.first_name || "Usuario"}
-              </span>
+              <div className="min-w-0">
+                <span className="block text-[14px] font-semibold text-white truncate">
+                  {user?.first_name || "Usuário"}
+                </span>
+                <span className="block text-[11px] text-slate-500 truncate">
+                  {effectiveGroup || ""}
+                </span>
+              </div>
             )}
           </div>
         </Link>
 
-        {/* NAVEGAÇÃO DINÂMICA (Baseada no cargo: Gerente / Responsavel) */}
-        <nav className="flex-1 px-3">
+        {/* Divisor */}
+        <div className="mx-4 border-t border-slate-800/60" />
+
+        {/* NAVEGAÇÃO */}
+        <nav className="flex-1 overflow-y-auto px-3 py-3">
           {!isCollapsed && (
-            <p className="mb-3 px-3 text-[11px] font-bold tracking-[0.1em] text-slate-500 uppercase">
-              Menu
+            <p className="mb-2 px-2 text-[10px] font-bold tracking-[0.12em] text-slate-600 uppercase">
+              Navegação
             </p>
           )}
-          <ul className="space-y-2">
+          <ul className="space-y-0.5">
             {menuItems.map((item) => {
-              // Chama o ícone correspondente de forma dinâmica
               const IconComponent = Icons[item.icon];
               const isActive = pathname === item.href;
-              const itemClassName = `flex items-center gap-3 rounded-lg py-3 transition-all ${
-                isCollapsed ? "justify-center" : "px-4"
-              } ${
-                isActive
-                  ? "bg-[#1d4ed8] text-white shadow-lg"
-                  : "text-slate-400 hover:bg-slate-800/40 hover:text-white"
-              }`;
-              const itemContent = (
-                <>
-                  <div className="shrink-0">
-                    <IconComponent />
-                  </div>
-                  {!isCollapsed && (
-                    <span className="text-[15px] font-medium whitespace-nowrap">
-                      {item.label}
-                    </span>
-                  )}
-                </>
-              );
-
               return (
                 <li key={item.href}>
-                  {isActive ? (
-                    <div className={itemClassName} aria-current="page">
-                      {itemContent}
+                  <Link
+                    href={item.href}
+                    prefetch={false}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`relative flex items-center gap-3 rounded-lg py-2.5 transition-all duration-150 ${
+                      isCollapsed ? "justify-center px-0" : "px-3"
+                    } ${
+                      isActive
+                        ? "bg-blue-600/20 text-blue-400"
+                        : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-100"
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-blue-500" />
+                    )}
+                    <div className="shrink-0">
+                      <IconComponent />
                     </div>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      prefetch={false}
-                      className={itemClassName}
-                    >
-                      {itemContent}
-                    </Link>
-                  )}
+                    {!isCollapsed && (
+                      <span className="text-[13.5px] font-medium whitespace-nowrap">
+                        {item.label}
+                      </span>
+                    )}
+                  </Link>
                 </li>
               );
             })}
             {menuItems.length === 0 && !isCollapsed && (
-              <li className="px-4 py-3 text-[13px] font-medium text-slate-500">
-                {hydrated ? "Carregando menu..." : "Carregando..."}
+              <li className="px-3 py-3 text-[12px] text-slate-600">
+                {hydrated ? "Nenhum item no menu" : "Carregando..."}
               </li>
             )}
           </ul>
         </nav>
 
-        {/* RODAPÉ FIXO (Notificações, Configurações e Sair - INTACTOS) */}
-        <div className="w-full border-t border-slate-800/50 p-4 bg-[#080b11]">
+        {/* RODAPÉ */}
+        <div className="border-t border-slate-800/60 p-3">
           <ul
-            className={`mb-4 space-y-1 ${
+            className={`mb-3 space-y-0.5 ${
               isCollapsed ? "flex flex-col items-center" : ""
             }`}
           >
-            {/* ITEM NOTIFICAÇÕES */}
+            {/* Notificações */}
             <li>
               <Link
                 href="/notificacoes"
                 prefetch={false}
-                className={`flex items-center gap-3 rounded-lg py-2.5 transition-all ${
-                  isCollapsed ? "justify-center" : "px-3"
+                className={`flex items-center gap-3 rounded-lg py-2 transition-all ${
+                  isCollapsed ? "justify-center px-0" : "px-3"
                 } ${
                   pathname === "/notificacoes"
-                    ? "text-white bg-blue-600/10"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/40"
+                    ? "text-blue-400 bg-blue-600/10"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
                 }`}
               >
                 <div className="relative shrink-0">
@@ -533,7 +589,7 @@ export default function Sidebar() {
                   )}
                 </div>
                 {!isCollapsed && (
-                  <span className="text-[14px]">Notificações</span>
+                  <span className="text-[13px]">Notificações</span>
                 )}
               </Link>
             </li>
@@ -543,19 +599,19 @@ export default function Sidebar() {
               <Link
                 href="/configuracoes"
                 prefetch={false}
-                className={`flex items-center gap-3 rounded-lg py-2.5 transition-all ${
-                  isCollapsed ? "justify-center" : "px-3"
+                className={`flex items-center gap-3 rounded-lg py-2 transition-all ${
+                  isCollapsed ? "justify-center px-0" : "px-3"
                 } ${
                   pathname === "/configuracoes"
-                    ? "text-white bg-blue-600/10 shadow-sm"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/40"
+                    ? "text-blue-400 bg-blue-600/10"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
                 }`}
               >
                 <div className="shrink-0">
                   <Icons.Settings />
                 </div>
                 {!isCollapsed && (
-                  <span className="text-[14px] font-medium">Configurações</span>
+                  <span className="text-[13px] font-medium">Configurações</span>
                 )}
               </Link>
             </li>
@@ -566,33 +622,33 @@ export default function Sidebar() {
                 {visitorRole ? (
                   <button
                     onClick={() => { exitVisitorMode(); router.push("/lojas"); }}
-                    className={`flex w-full items-center gap-3 rounded-lg py-2.5 transition-all text-amber-400 hover:text-amber-200 hover:bg-amber-500/10 ${
-                      isCollapsed ? "justify-center" : "px-3"
+                    className={`flex w-full items-center gap-3 rounded-lg py-2 transition-all text-amber-400 hover:text-amber-200 hover:bg-amber-500/10 ${
+                      isCollapsed ? "justify-center px-0" : "px-3"
                     }`}
                     title="Sair do modo visitante"
                   >
                     <Icons.EyeOff />
                     {!isCollapsed && (
-                      <span className="text-[14px]">Sair do modo visitante</span>
+                      <span className="text-[13px]">Sair do modo visitante</span>
                     )}
                   </button>
                 ) : (
                   <>
                     <button
                       onClick={() => setVisitorDropdownOpen((v) => !v)}
-                      className={`flex w-full items-center gap-3 rounded-lg py-2.5 transition-all text-slate-300 hover:text-white hover:bg-slate-800/40 ${
-                        isCollapsed ? "justify-center" : "px-3"
+                      className={`flex w-full items-center gap-3 rounded-lg py-2 transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 ${
+                        isCollapsed ? "justify-center px-0" : "px-3"
                       }`}
                       title="Entrar como visitante"
                     >
                       <Icons.Eye />
                       {!isCollapsed && (
-                        <span className="text-[14px]">Modo visitante</span>
+                        <span className="text-[13px]">Modo visitante</span>
                       )}
                     </button>
                     {visitorDropdownOpen && !isCollapsed && (
-                      <div className="absolute bottom-full left-0 mb-1 w-full rounded-lg border border-slate-700 bg-[#0f1623] shadow-xl overflow-hidden z-50">
-                        <p className="px-3 py-2 text-[11px] font-bold tracking-widest text-slate-500 uppercase">
+                      <div className="absolute bottom-full left-0 mb-1 w-full rounded-xl border border-slate-700/60 bg-[#0f1623] shadow-2xl overflow-hidden z-50">
+                        <p className="px-3 pt-2.5 pb-1.5 text-[10px] font-bold tracking-widest text-slate-600 uppercase">
                           Visualizar como
                         </p>
                         {VISITOR_ROLES.map((r) => (
@@ -603,7 +659,7 @@ export default function Sidebar() {
                               setVisitorDropdownOpen(false);
                               router.push("/lojas");
                             }}
-                            className="flex w-full items-center gap-2 px-3 py-2.5 text-[14px] text-slate-300 hover:bg-slate-800/60 hover:text-white transition-colors"
+                            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-[13px] text-slate-300 hover:bg-slate-800/60 hover:text-white transition-colors"
                           >
                             <Icons.Eye />
                             {r.label}
@@ -621,11 +677,11 @@ export default function Sidebar() {
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className={`flex w-full items-center gap-3 cursor-pointer text-[14px] text-slate-400 hover:text-white transition-colors px-3 py-2.5 rounded-lg hover:bg-red-500/10 ${
-                  isCollapsed ? "justify-center" : ""
-                } disabled:cursor-not-allowed disabled:opacity-60`}
+                className={`flex w-full items-center gap-3 cursor-pointer text-[13px] text-slate-500 hover:text-red-400 transition-colors px-3 py-2 rounded-lg hover:bg-red-500/8 ${
+                  isCollapsed ? "justify-center px-0" : ""
+                } disabled:cursor-not-allowed disabled:opacity-50`}
               >
-                <Icons.LogOut />{" "}
+                <Icons.LogOut />
                 {!isCollapsed && (isLoggingOut ? "Saindo..." : "Sair")}
               </button>
             </li>
@@ -633,13 +689,14 @@ export default function Sidebar() {
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:flex w-full items-center justify-center gap-3 rounded-lg border border-slate-800 bg-transparent py-2.5 text-[12px] font-medium text-slate-400 transition hover:bg-slate-800/40 uppercase tracking-tighter"
+            className="hidden lg:flex w-full items-center justify-center gap-2 rounded-lg border border-slate-800/80 bg-transparent py-2 text-[11px] font-medium text-slate-600 transition hover:bg-slate-800/40 hover:text-slate-400 uppercase tracking-widest"
           >
             {isCollapsed ? (
               <Icons.ChevronRight />
             ) : (
               <>
-                <Icons.ChevronLeft /> Recolher
+                <Icons.ChevronLeft />
+                <span>Recolher</span>
               </>
             )}
           </button>
