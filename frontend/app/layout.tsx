@@ -12,15 +12,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Unistock",
   description: "Sistema de controle de estoque e pedidos Unistock",
-  icons: {
-    icon: [
-      {
-        url: "/favicon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    shortcut: "/favicon.svg",
-  },
 };
 
 export default function RootLayout({

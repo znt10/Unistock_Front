@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { logout } from "@/services/auth";
 import { getNotificacoes } from "@/services/uni";
-import { useAuthStore, selectIsAdmin } from "@/stores/authStore";
+import { useAuthStore } from "@/stores/authStore";
 
 const Icons = {
   // Ícone ESTILO HERO UI (Cubo Isométrico)
@@ -229,40 +229,6 @@ const Icons = {
       <path d="m15 18-6-6 6-6" />
     </svg>
   ),
-  Eye: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  ),
-  EyeOff: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-      <line x1="2" x2="22" y1="2" y2="22" />
-    </svg>
-  ),
   ChevronRight: () => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -379,15 +345,10 @@ export default function Sidebar() {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [visitorDropdownOpen, setVisitorDropdownOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthStore((state) => state.hydrated);
-  const visitorRole = useAuthStore((state) => state.visitorRole);
-  const enterVisitorMode = useAuthStore((state) => state.enterVisitorMode);
-  const exitVisitorMode = useAuthStore((state) => state.exitVisitorMode);
-  const isAdmin = useAuthStore(selectIsAdmin);
   const { data: notificacoes = [] } = useQuery({
     queryKey: NOTIFICACOES_QUERY_KEY,
     queryFn: getNotificacoes,
@@ -396,15 +357,10 @@ export default function Sidebar() {
     refetchInterval: 10000,
   });
 
-  const effectiveGroup = visitorRole ?? user?.group;
-  const role = normalizeRole(effectiveGroup);
+  // Pega o grupo do usuário e renderiza o menu correto
+  const role = normalizeRole(user?.group);
   const menuItems = MENU_CONFIG[role] || [];
   const temNotificacoes = notificacoes.length > 0;
-
-  const VISITOR_ROLES = [
-    { key: "Gerente", label: "Gerente" },
-    { key: "Responsavel", label: "Responsável" },
-  ];
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -446,27 +402,6 @@ export default function Sidebar() {
         w-60
       `}
       >
-        {/* Banner Modo Visitante */}
-        {visitorRole && (
-          <div className="flex items-center justify-between gap-2 bg-amber-500/15 border-b border-amber-500/25 px-4 py-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <Icons.Eye />
-              {!isCollapsed && (
-                <span className="text-[11px] font-semibold text-amber-400 whitespace-nowrap truncate">
-                  Visitante: {visitorRole}
-                </span>
-              )}
-            </div>
-            <button
-              onClick={() => { exitVisitorMode(); router.push("/lojas"); }}
-              className="shrink-0 text-amber-400 hover:text-amber-200 transition-colors"
-              title="Sair do modo visitante"
-            >
-              <Icons.X />
-            </button>
-          </div>
-        )}
-
         {/* Logo */}
         <Link
           href="/lojas"
@@ -501,7 +436,7 @@ export default function Sidebar() {
                   {user?.first_name || "Usuário"}
                 </span>
                 <span className="block text-[11px] text-slate-500 truncate">
-                  {effectiveGroup || ""}
+                  {user?.group || ""}
                 </span>
               </div>
             )}
@@ -615,62 +550,6 @@ export default function Sidebar() {
                 )}
               </Link>
             </li>
-
-            {/* Modo Visitante (apenas admin) */}
-            {isAdmin && (
-              <li className="relative">
-                {visitorRole ? (
-                  <button
-                    onClick={() => { exitVisitorMode(); router.push("/lojas"); }}
-                    className={`flex w-full items-center gap-3 rounded-lg py-2 transition-all text-amber-400 hover:text-amber-200 hover:bg-amber-500/10 ${
-                      isCollapsed ? "justify-center px-0" : "px-3"
-                    }`}
-                    title="Sair do modo visitante"
-                  >
-                    <Icons.EyeOff />
-                    {!isCollapsed && (
-                      <span className="text-[13px]">Sair do modo visitante</span>
-                    )}
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => setVisitorDropdownOpen((v) => !v)}
-                      className={`flex w-full items-center gap-3 rounded-lg py-2 transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 ${
-                        isCollapsed ? "justify-center px-0" : "px-3"
-                      }`}
-                      title="Entrar como visitante"
-                    >
-                      <Icons.Eye />
-                      {!isCollapsed && (
-                        <span className="text-[13px]">Modo visitante</span>
-                      )}
-                    </button>
-                    {visitorDropdownOpen && !isCollapsed && (
-                      <div className="absolute bottom-full left-0 mb-1 w-full rounded-xl border border-slate-700/60 bg-[#0f1623] shadow-2xl overflow-hidden z-50">
-                        <p className="px-3 pt-2.5 pb-1.5 text-[10px] font-bold tracking-widest text-slate-600 uppercase">
-                          Visualizar como
-                        </p>
-                        {VISITOR_ROLES.map((r) => (
-                          <button
-                            key={r.key}
-                            onClick={() => {
-                              enterVisitorMode(r.key);
-                              setVisitorDropdownOpen(false);
-                              router.push("/lojas");
-                            }}
-                            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-[13px] text-slate-300 hover:bg-slate-800/60 hover:text-white transition-colors"
-                          >
-                            <Icons.Eye />
-                            {r.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-              </li>
-            )}
 
             {/* Sair */}
             <li>
