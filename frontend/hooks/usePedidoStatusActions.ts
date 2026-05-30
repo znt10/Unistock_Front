@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { patchPedidoStatus } from "@/services/uni";
 
 export type PedidoStatus = "PENDENTE" | "ENTREGUE" | "CANCELADO";
@@ -37,14 +38,14 @@ export function usePedidoStatusActions() {
       await invalidarPedidos();
 
       if (mostrarAlerta) {
-        alert(
+        toast.success(
           statusNovo === "ENTREGUE"
             ? "Pedido entregue. Estoque da loja atualizado."
             : "Status atualizado com sucesso.",
         );
       }
     } catch (error: unknown) {
-      alert(
+      toast.error(
         error instanceof Error ? error.message : "Erro ao atualizar status.",
       );
       throw error;
@@ -67,13 +68,13 @@ export function usePedidoStatusActions() {
       }
 
       await invalidarPedidos();
-      alert(
+      toast.success(
         statusNovo === "ENTREGUE"
           ? "Pedidos entregues. Estoque das lojas atualizado."
           : "Pedidos atualizados com sucesso.",
       );
     } catch (error: unknown) {
-      alert(
+      toast.error(
         error instanceof Error ? error.message : "Erro ao atualizar pedidos.",
       );
       throw error;

@@ -7,12 +7,10 @@ export const PRODUTOS_QUERY_KEY = ["produtos", "v3"] as const;
 export interface Produto {
   id: string;
   nome_produto: string;
-  codigo?: string;
   unidade_medida?: string;
   quantidade_por_embalagem?: number | null;
   estoque_minimo_sugerido?: number;
   categoria?: string;
-  ativo?: boolean;
 }
 
 function normalizarProdutos(data: unknown): Produto[] {

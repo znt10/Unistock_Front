@@ -88,6 +88,7 @@ function MeusPedidosContent() {
 
   const [status, setStatus] = useState(statusParam);
   const [data, setData] = useState(dataParam);
+  const [modalConfirm, setModalConfirm] = useState(false);
 
   const { data: pedidosData = [], isLoading } = usePedidos({
     status,
@@ -111,14 +112,13 @@ function MeusPedidosContent() {
     setStatus("PENDENTE");
   };
 
-  const entregarTodosVisiveis = async () => {
+  const entregarTodosVisiveis = () => {
     if (pedidosPendentesVisiveis.length === 0) return;
+    setModalConfirm(true);
+  };
 
-    const ok = window.confirm(
-      `Marcar ${pedidosPendentesVisiveis.length} pedido(s) pendente(s) como ENTREGUE?`,
-    );
-    if (!ok) return;
-
+  const confirmarEntregarTodos = async () => {
+    setModalConfirm(false);
     await atualizarStatusPedidos(
       pedidosPendentesVisiveis.map((pedido) => pedido.id),
       "ENTREGUE",
@@ -401,6 +401,39 @@ function MeusPedidosContent() {
           </div>
         </div>
       </main>
+
+      {modalConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-3xl border border-theme-border bg-theme-card p-8 shadow-2xl">
+            <h2 className="mb-2 text-lg font-black uppercase tracking-tighter text-theme-text-title">
+              Confirmar entrega
+            </h2>
+            <p className="mb-8 text-sm text-theme-text-sub/70">
+              Marcar{" "}
+              <span className="font-black text-theme-text-title">
+                {pedidosPendentesVisiveis.length}
+              </span>{" "}
+              pedido(s) pendente(s) como <span className="font-black text-green-500">ENTREGUE</span>?
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setModalConfirm(false)}
+                className="flex-1 rounded-2xl border border-theme-border bg-theme-header py-3 text-[11px] font-black uppercase tracking-widest text-theme-text-sub transition hover:bg-theme-hover"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmarEntregarTodos}
+                className="flex-1 rounded-2xl bg-green-600 py-3 text-[11px] font-black uppercase tracking-widest text-white transition hover:bg-green-700"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

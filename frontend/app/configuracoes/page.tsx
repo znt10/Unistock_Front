@@ -186,17 +186,21 @@ export default function Configuracoes() {
           </div>
 
           <div className="grid gap-5">
-            {secoesVisiveis.map((secao, index) =>
-              "action" in secao ? (
-                <button
-                  type="button"
-                  key={`${secao.action}-${index}`}
-                  onClick={() => setCadastroAberto(secao.action)}
-                  className={cardClass}
-                >
-                  <CardConteudo secao={secao} />
-                </button>
-              ) : (
+            {secoesVisiveis.map((secao, index) => {
+              if (secao.action) {
+                return (
+                  <button
+                    type="button"
+                    key={`${secao.action}-${index}`}
+                    onClick={() => setCadastroAberto(secao.action)}
+                    className={cardClass}
+                  >
+                    <CardConteudo secao={secao} />
+                  </button>
+                );
+              }
+
+              return (
                 <Link
                   key={`${secao.href}-${index}`}
                   href={secao.href}
@@ -204,8 +208,8 @@ export default function Configuracoes() {
                 >
                   <CardConteudo secao={secao} />
                 </Link>
-              ),
-            )}
+              );
+            })}
           </div>
         </div>
       </main>

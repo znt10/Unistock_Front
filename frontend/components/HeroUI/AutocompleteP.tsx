@@ -5,7 +5,6 @@ import { useState } from "react";
 type Produto = {
   id: string;
   nome_produto: string;
-  codigo?: string;
   unidade_medida?: string;
   categoria?: string;
 };
@@ -52,7 +51,6 @@ export default function AutocompleteProduto({ produtos, onSelect }: Props) {
   const filtrados = listaProdutos.filter((p) => {
     const termos = [
       p.nome_produto,
-      p.codigo,
       p.unidade_medida,
       p.categoria,
       categoriaLabel(p.categoria),
@@ -87,7 +85,7 @@ export default function AutocompleteProduto({ produtos, onSelect }: Props) {
         onFocus={() => setAberto(true)}
         onBlur={() => setTimeout(() => setAberto(false), 150)}
         placeholder="Digite ou selecione um produto"
-        className="w-full rounded-2xl border border-theme-border bg-theme-base py-4 px-4 text-theme-text-title outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all"
+        className="w-full rounded-2xl border border-theme-border bg-theme-header py-4 px-5 text-sm font-bold text-theme-text-title placeholder:text-theme-text-sub/25 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all"
       />
 
       {aberto && temMesmoNomeEmCategoriasDiferentes && (
@@ -124,9 +122,9 @@ export default function AutocompleteProduto({ produtos, onSelect }: Props) {
                   </span>
                 </span>
                 <span className="text-xs font-medium text-theme-text-sub/70">
-                  {[p.codigo && `Codigo: ${p.codigo}`, p.unidade_medida && `Unidade: ${p.unidade_medida}`]
+                  {[p.unidade_medida && `Unidade: ${p.unidade_medida}`]
                     .filter(Boolean)
-                    .join(" | ") || "Sem codigo adicional"}
+                    .join(" | ") || "Sem detalhe adicional"}
                 </span>
               </div>
             </li>

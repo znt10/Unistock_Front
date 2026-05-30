@@ -27,24 +27,24 @@ body {
 /* 2. Definimos as cores do Tema Claro (usando HEX, que o v4 aceita nativamente) */
 :root,
 [data-theme="light"] {
-  --base: #eef2f7;
-  --card: #f8fafc;
-  --header: #e5edf7;
-  --border: #d4dce8;
-  --hover: #e9eff6;
-  --text-title: #172033;
-  --text-sub: #5d6678;
+  --base: #e8edf5;
+  --card: #ffffff;
+  --header: #dde5f0;
+  --border: #c8d3e3;
+  --hover: #eaf0f8;
+  --text-title: #0f1a2e;
+  --text-sub: #526070;
 }
 
 /* 3. Definimos as cores do Tema Dark Blue */
 [data-theme="dark-blue"] {
-  --base: #0a0f1c;
-  --card: #121826;
-  --header: #0f1629;
-  --border: #1f2a44;
-  --hover: #1a2238;
-  --text-title: #ffffff;
-  --text-sub: #9ca3af;
+  --base: #070c18;
+  --card: #0e1628;
+  --header: #0b1220;
+  --border: #1e304f;
+  --hover: #152038;
+  --text-title: #e8edf8;
+  --text-sub: #8a97b0;
 }
 
 /* ========================================= */

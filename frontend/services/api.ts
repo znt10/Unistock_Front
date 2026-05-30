@@ -27,6 +27,34 @@ const setClientCookie = (name: string, value: string, maxAge: number) => {
   document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
 };
 
+const extractApiErrorMessage = (data: unknown): string | null => {
+  if (!data) return null;
+  if (typeof data === "string") return data;
+
+  if (Array.isArray(data)) {
+    return data.map(extractApiErrorMessage).filter(Boolean).join(" ");
+  }
+
+  if (typeof data === "object") {
+    const record = data as Record<string, unknown>;
+    const directMessage = record.error || record.detail;
+
+    if (typeof directMessage === "string") {
+      return directMessage;
+    }
+
+    return Object.entries(record)
+      .map(([key, value]) => {
+        const message = extractApiErrorMessage(value);
+        return message ? `${key}: ${message}` : null;
+      })
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  return null;
+};
+
 export const apiFetch = async (
   endpoint: string,
   options: RequestInit = {},
@@ -97,7 +125,7 @@ export const apiFetch = async (
 
     try {
       const data = await response.clone().json();
-      message = data?.error || data?.detail || message;
+      message = extractApiErrorMessage(data) || message;
     } catch {
       const errorText = await response.clone().text();
       message = errorText || message;
