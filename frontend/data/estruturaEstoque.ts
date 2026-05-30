@@ -1,4 +1,4 @@
-export const ESTADOS_PRODUTO = ["Normal", "Congelado", "Resfriado"] as const;
+export const ESTADOS_PRODUTO = ["Normal", "Congelado"] as const;
 
 export type EstadoProduto = (typeof ESTADOS_PRODUTO)[number];
 

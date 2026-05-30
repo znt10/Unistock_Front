@@ -63,6 +63,16 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
             0,
           );
 
+          const totalPorLoja = lojas.map((loja) => ({
+            lojaId: loja.id,
+            qtd: secao.linhas.reduce(
+              (sum, linha) =>
+                sum +
+                (linha.quantidades.find((q) => q.lojaId === loja.id)?.qtd ?? 0),
+              0,
+            ),
+          }));
+
           return (
             <div
               key={secao.categoria}
@@ -102,7 +112,7 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
 
               {aberta && (
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[920px] text-left">
+                  <table className="w-full min-w-230 text-left">
                     <thead className="bg-theme-header text-[11px] uppercase tracking-[1px] text-theme-text-sub">
                       <tr>
                         <th className="px-4 py-2">Produto</th>
@@ -151,6 +161,28 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
                         </tr>
                       ))}
                     </tbody>
+                    <tfoot className="border-t-2 border-theme-border bg-theme-header text-[11px] uppercase tracking-[1px] text-theme-text-sub">
+                      <tr>
+                        <td className="px-4 py-2.5 font-black text-theme-text-title">
+                          Total
+                        </td>
+                        {totalPorLoja.map((item) => (
+                          <td
+                            key={item.lojaId}
+                            className="px-4 py-2.5 text-center"
+                          >
+                            <span className="text-sm font-black text-theme-text-title">
+                              {item.qtd || ""}
+                            </span>
+                          </td>
+                        ))}
+                        <td className="px-4 py-2.5 text-center">
+                          <span className="inline-flex min-w-14 justify-center rounded-lg bg-emerald-50 px-3 py-1.5 text-sm font-black text-emerald-700 ring-1 ring-emerald-200">
+                            {totalCategoria}
+                          </span>
+                        </td>
+                      </tr>
+                    </tfoot>
                   </table>
                 </div>
               )}

@@ -174,6 +174,7 @@ export default function NovoPedidoPage() {
                   e.target.value === "" ? "" : Number(e.target.value),
                 )
               }
+              onWheel={(event) => event.currentTarget.blur()}
               placeholder="0"
               className="mt-2 w-full rounded-2xl border border-theme-border bg-theme-base p-4 text-theme-text-title"
             />

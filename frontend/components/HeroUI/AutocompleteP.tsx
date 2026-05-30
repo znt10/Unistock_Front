@@ -5,7 +5,6 @@ import { useState } from "react";
 type Produto = {
   id: string;
   nome_produto: string;
-  codigo?: string;
   unidade_medida?: string;
   categoria?: string;
 };
@@ -52,7 +51,6 @@ export default function AutocompleteProduto({ produtos, onSelect }: Props) {
   const filtrados = listaProdutos.filter((p) => {
     const termos = [
       p.nome_produto,
-      p.codigo,
       p.unidade_medida,
       p.categoria,
       categoriaLabel(p.categoria),
@@ -124,9 +122,9 @@ export default function AutocompleteProduto({ produtos, onSelect }: Props) {
                   </span>
                 </span>
                 <span className="text-xs font-medium text-theme-text-sub/70">
-                  {[p.codigo && `Codigo: ${p.codigo}`, p.unidade_medida && `Unidade: ${p.unidade_medida}`]
+                  {[p.unidade_medida && `Unidade: ${p.unidade_medida}`]
                     .filter(Boolean)
-                    .join(" | ") || "Sem codigo adicional"}
+                    .join(" | ") || "Sem detalhe adicional"}
                 </span>
               </div>
             </li>
