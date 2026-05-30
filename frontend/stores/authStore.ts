@@ -13,9 +13,12 @@ interface User {
 interface AuthState {
   user: User | null;
   hydrated: boolean;
+  visitorRole: string | null;
   setUser: (user: User) => void;
   clearUser: () => void;
   setHydrated: (value: boolean) => void;
+  enterVisitorMode: (role: string) => void;
+  exitVisitorMode: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -23,11 +26,13 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       hydrated: false,
+      visitorRole: null,
 
       setUser: (user) => set({ user }),
       clearUser: () => set({ user: null }),
-
       setHydrated: (value) => set({ hydrated: value }),
+      enterVisitorMode: (role) => set({ visitorRole: role }),
+      exitVisitorMode: () => set({ visitorRole: null }),
     }),
     {
       name: "auth-storage",
@@ -43,7 +48,13 @@ export const useAuthStore = create<AuthState>()(
 );
 
 export const GERENTE_GROUPS = ["Gerente", "Administrador", "Admin"] as const;
+export const ADMIN_GROUPS = ["Admin", "Administrador"] as const;
 export const RESPONSAVEL_GROUPS = ["Responsavel", "Responsável"] as const;
+
+export const selectIsAdmin = (state: AuthState) =>
+  state.user?.group
+    ? ADMIN_GROUPS.includes(state.user.group as (typeof ADMIN_GROUPS)[number])
+    : false;
 
 export const selectIsGerente = (state: AuthState) =>
   state.user?.group

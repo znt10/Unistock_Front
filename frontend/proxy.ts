@@ -12,6 +12,8 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/configuracoes",
     "/estoque",
     "/produtos",
+    "/caixa",
+    "/historico"
   ],
   Responsavel: [
     "/novopedido",
@@ -19,6 +21,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/estoque",
     "/notificacoes",
     "/configuracoes",
+    "/caixa"
   ],
 };
 

@@ -97,123 +97,127 @@ export default function NovoPedidoPage() {
     }
   };
 
+  const inputClass =
+    "w-full rounded-2xl border border-theme-border bg-theme-header py-4 px-5 text-sm font-bold text-theme-text-title placeholder:text-theme-text-sub/25 transition-all focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/5";
+  const labelClass =
+    "ml-1 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub/50";
+
   return (
-    <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub">
+    <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex min-w-0 flex-1 flex-col items-center justify-center p-5 pt-20 sm:p-6 lg:ml-64 lg:pt-6">
-        <section className="w-full max-w-2xl rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl sm:p-8">
-          <header className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-theme-text-title">
+      <main className="flex min-w-0 flex-1 items-center justify-center p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-60 lg:min-h-screen lg:pt-12">
+        <div className="mx-auto w-full max-w-3xl">
+
+          <div className="mb-10 text-center">
+            <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">
               Novo Pedido
             </h1>
-            <p className="mt-2 text-theme-text-sub/60">
-              Preencha os dados abaixo
+            <p className="mt-3 font-medium text-theme-text-sub/60">
+              Preencha os dados abaixo para registrar um pedido.
             </p>
-          </header>
+          </div>
 
-          {/* ── Banner de sucesso ── */}
-          {sucesso && (
-            <div className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-              <span className="text-xl">✓</span>
-              <div>
-                <p className="text-sm font-bold text-emerald-700">
-                  Pedido enviado com sucesso!
-                </p>
-                <p className="text-xs text-emerald-600">
-                  O formulário foi limpo. Você pode fazer outro pedido.
-                </p>
+          <div className="mx-auto w-full max-w-2xl">
+            <div className="rounded-4xl border border-theme-border bg-theme-card p-5 shadow-xl sm:p-8">
+              <div className="space-y-7">
+
+                {/* ── Banner de sucesso ── */}
+                {sucesso && (
+                  <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Pedido enviado com sucesso! Formulário limpo.
+                  </div>
+                )}
+
+                {/* ── Banner de erro ── */}
+                {erroMsg && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                    {erroMsg}
+                  </div>
+                )}
+
+                {/* ── LOJA (só Gerente) ── */}
+                {isGerente && (
+                  <div className="space-y-2">
+                    <label className={labelClass}>Loja</label>
+                    <AutocompleteLoja
+                      key={`loja-${resetKey}`}
+                      lojas={lojas}
+                      onSelect={(id) => setLojaSelecionada(id)}
+                    />
+                  </div>
+                )}
+
+                {/* ── PRODUTO ── */}
+                <div className="space-y-2">
+                  <label className={labelClass}>Produto</label>
+                  <AutocompleteProduto
+                    key={`produto-${resetKey}`}
+                    produtos={produtos}
+                    onSelect={(id) => setProdutoSelecionado(id)}
+                  />
+                </div>
+
+                {/* ── QUANTIDADE ── */}
+                <div className="space-y-2">
+                  <label className={labelClass}>Quantidade</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={quantidade}
+                    onChange={(e) =>
+                      setQuantidade(
+                        e.target.value === "" ? "" : Number(e.target.value),
+                      )
+                    }
+                    onWheel={(event) => event.currentTarget.blur()}
+                    placeholder="0"
+                    className={inputClass}
+                  />
+                </div>
+
+                {/* ── DESCRIÇÃO ── */}
+                <div className="space-y-2">
+                  <label className={labelClass}>
+                    Descrição
+                    <span className="ml-2 normal-case tracking-normal font-medium text-theme-text-sub/40">
+                      (opcional)
+                    </span>
+                  </label>
+                  <textarea
+                    value={descricao}
+                    onChange={(e) => setDescricao(e.target.value)}
+                    placeholder="Observações..."
+                    rows={3}
+                    className={`${inputClass} resize-none`}
+                  />
+                </div>
+
+                {/* ── BOTÕES ── */}
+                <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={limparFormulario}
+                    className="flex items-center justify-center rounded-2xl border border-red-500/20 py-4 text-[12px] font-black uppercase tracking-widest text-red-500/70 transition-all hover:border-red-500/40 hover:bg-red-500/10 active:scale-95"
+                  >
+                    Limpar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="rounded-2xl border-none bg-blue-600 py-4 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-900/20 transition-all hover:bg-blue-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {loading ? "Enviando..." : "Confirmar Pedido"}
+                  </button>
+                </div>
+
               </div>
             </div>
-          )}
-
-          {/* ── Banner de erro ── */}
-          {erroMsg && (
-            <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
-              <p className="text-sm font-bold text-red-700">{erroMsg}</p>
-            </div>
-          )}
-
-          {/* ── LOJA (só Gerente) ── */}
-          {isGerente && (
-            <div className="mb-6">
-              <label className="mb-2 block text-sm font-bold text-theme-text-title">
-                Loja
-              </label>
-              <AutocompleteLoja
-                key={`loja-${resetKey}`}
-                lojas={lojas}
-                onSelect={(id) => setLojaSelecionada(id)}
-              />
-            </div>
-          )}
-
-          {/* ── PRODUTO ── */}
-          <div className="mb-6">
-            <label className="mb-2 block text-sm font-bold text-theme-text-title">
-              Produto
-            </label>
-            <AutocompleteProduto
-              key={`produto-${resetKey}`}
-              produtos={produtos}
-              onSelect={(id) => setProdutoSelecionado(id)}
-            />
           </div>
 
-          {/* ── QUANTIDADE ── */}
-          <div className="mb-6">
-            <label className="mb-2 block text-sm font-bold text-theme-text-title">
-              Quantidade
-            </label>
-            <input
-              type="number"
-              min={1}
-              value={quantidade}
-              onChange={(e) =>
-                setQuantidade(
-                  e.target.value === "" ? "" : Number(e.target.value),
-                )
-              }
-              placeholder="0"
-              className="mt-2 w-full rounded-2xl border border-theme-border bg-theme-base p-4 text-theme-text-title"
-            />
-          </div>
-
-          {/* ── DESCRIÇÃO ── */}
-          <div className="mb-6">
-            <label className="mb-2 block text-sm font-bold text-theme-text-title">
-              Descrição
-            </label>
-            <textarea
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              placeholder="Observações..."
-              className="mt-2 min-h-[100px] w-full rounded-2xl border border-theme-border bg-theme-base p-4 text-theme-text-title"
-            />
-          </div>
-
-          {/* ── BOTÕES ── */}
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <button
-              type="button"
-              onClick={limparFormulario}
-              className="w-full rounded-2xl border border-theme-border bg-theme-header p-4 transition hover:bg-theme-border sm:w-1/2"
-            >
-              Limpar
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className={`w-full rounded-2xl bg-blue-600 p-4 font-bold text-white transition sm:w-1/2 ${
-                loading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-500"
-              }`}
-            >
-              {loading ? "Enviando..." : "Confirmar Pedido"}
-            </button>
-          </div>
-        </section>
+        </div>
       </main>
     </div>
   );

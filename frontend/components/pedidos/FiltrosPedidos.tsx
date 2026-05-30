@@ -24,7 +24,7 @@ const STATUS_OPTIONS = [
   { value: "cancelado", label: "Cancelado" },
 ];
 
-const GERENTE_GROUPS = ["Gerente", "Administrador"]; // ajuste para os valores reais do seu `group`
+const GERENTE_GROUPS = ["Gerente", "Administrador", "Admin"];
 
 export function FiltrosPedidos({ filters, onChange }: FiltrosPedidosProps) {
   const user = useAuthStore((state) => state.user);

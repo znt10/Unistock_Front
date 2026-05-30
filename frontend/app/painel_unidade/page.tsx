@@ -350,6 +350,7 @@ export default function GerenciaPedidos() {
                 <div className="relative z-10 grid gap-3">
                   <Link
                     href={`/meuspedidos?loja=${loja.id}`}
+                    prefetch={false}
                     className="flex w-full items-center justify-center gap-2 rounded-2xl bg-theme-text-title py-4 text-xs font-black uppercase tracking-[2px] text-theme-base shadow-lg transition-all hover:opacity-90 active:scale-[0.98]"
                   >
                     Ver todos os pedidos
@@ -357,12 +358,14 @@ export default function GerenciaPedidos() {
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <Link
                       href={`/meuspedidos?loja=${loja.id}&data=${hojeISO()}`}
+                      prefetch={false}
                       className="rounded-2xl border border-theme-border bg-theme-header px-4 py-3 text-center text-[10px] font-black uppercase tracking-[1px] text-theme-text-title transition hover:border-blue-500/40 hover:text-blue-500"
                     >
                       Pedidos de hoje
                     </Link>
                     <Link
                       href={`/meuspedidos?loja=${loja.id}&status=PENDENTE`}
+                      prefetch={false}
                       className="rounded-2xl border border-orange-500/20 bg-orange-500/5 px-4 py-3 text-center text-[10px] font-black uppercase tracking-[1px] text-orange-500 transition hover:bg-orange-500/10"
                     >
                       Pendentes
