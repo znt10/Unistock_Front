@@ -23,6 +23,26 @@ function formatarUnidade(unidade?: string) {
   return unidade?.replaceAll("_", " ").toLowerCase() || "unidade";
 }
 
+const CATEGORIAS_EXCLUIDAS = ["RECHEIOS", "MERCADO"];
+
+const CATEGORIA_ORDEM: Record<string, number> = {
+  SALGADOS_GDE: 0,
+  ESFIHAS_GDE: 1,
+  FOGAZZAS_GDE: 2,
+  SALGADOS_MINI: 3,
+  ESFIHAS_MINI: 4,
+  FOGAZZAS_MINI: 5,
+};
+
+const CATEGORIA_LABEL: Record<string, string> = {
+  SALGADOS_GDE: "Salgados Grande",
+  SALGADOS_MINI: "Salgados Mini",
+  ESFIHAS_GDE: "Esfihas Grande",
+  ESFIHAS_MINI: "Esfihas Mini",
+  FOGAZZAS_GDE: "Fogazzas Grande",
+  FOGAZZAS_MINI: "Fogazzas Mini",
+};
+
 export default function CaixaPDV() {
   const queryClient = useQueryClient();
   const usuario = useAuthStore((state) => state.user);
@@ -63,13 +83,14 @@ export default function CaixaPDV() {
   const produtosDisponiveis = useMemo<PdvProdutoDisponivel[]>(() => {
     if (!lojaAtiva) return [];
 
-    const produtosPorId = new Map(produtos.map((produto) => [produto.id, produto]));
+    const produtosPorId = new Map(
+      produtos.map((produto) => [produto.id, produto]),
+    );
     const disponiveisPorProduto = new Map<string, PdvProdutoDisponivel>();
 
     estoques
       .filter(
-        (estoque) =>
-          estoque.loja === lojaAtiva && estoque.quantidade_atual > 0,
+        (estoque) => estoque.loja === lojaAtiva && estoque.quantidade_atual > 0,
       )
       .map((estoque) => {
         const produto = produtosPorId.get(estoque.produto);
@@ -104,15 +125,25 @@ export default function CaixaPDV() {
       });
 
     return Array.from(disponiveisPorProduto.values())
-      .sort((a, b) => a.nome_produto.localeCompare(b.nome_produto));
+      .filter((p) => !CATEGORIAS_EXCLUIDAS.includes(p.categoria ?? ""))
+      .sort((a, b) => {
+        const ordemA = CATEGORIA_ORDEM[a.categoria ?? ""] ?? 99;
+        const ordemB = CATEGORIA_ORDEM[b.categoria ?? ""] ?? 99;
+        if (ordemA !== ordemB) return ordemA - ordemB;
+        return a.nome_produto.localeCompare(b.nome_produto);
+      });
   }, [estoques, lojaAtiva, produtos]);
 
   const produtoAtual = produtosDisponiveis.find(
     (produto) => produto.id === produtoSelecionado,
   );
 
-  const totalItens = carrinho.reduce((total, item) => total + item.quantidade, 0);
-  const carregando = carregandoLojas || carregandoProdutos || carregandoEstoques;
+  const totalItens = carrinho.reduce(
+    (total, item) => total + item.quantidade,
+    0,
+  );
+  const carregando =
+    carregandoLojas || carregandoProdutos || carregandoEstoques;
 
   const mutation = useMutation({
     mutationFn: finalizarVenda,
@@ -126,7 +157,9 @@ export default function CaixaPDV() {
     },
     onError: (error) => {
       setMensagem(
-        error instanceof Error ? error.message : "Nao foi possivel finalizar a venda.",
+        error instanceof Error
+          ? error.message
+          : "Nao foi possivel finalizar a venda.",
       );
     },
   });
@@ -142,7 +175,8 @@ export default function CaixaPDV() {
     }
 
     const quantidadeNoCarrinho =
-      carrinho.find((item) => item.produto.id === produtoAtual.id)?.quantidade ?? 0;
+      carrinho.find((item) => item.produto.id === produtoAtual.id)
+        ?.quantidade ?? 0;
     const novaQuantidade = quantidadeNoCarrinho + quantidadeVenda;
 
     if (novaQuantidade > produtoAtual.quantidade_atual) {
@@ -171,7 +205,9 @@ export default function CaixaPDV() {
   };
 
   const removerProduto = (produtoId: string) => {
-    setCarrinho((itens) => itens.filter((item) => item.produto.id !== produtoId));
+    setCarrinho((itens) =>
+      itens.filter((item) => item.produto.id !== produtoId),
+    );
   };
 
   const finalizar = () => {
@@ -247,13 +283,16 @@ export default function CaixaPDV() {
                   </span>
                   <select
                     value={produtoSelecionado}
-                    onChange={(event) => setProdutoSelecionado(event.target.value)}
+                    onChange={(event) =>
+                      setProdutoSelecionado(event.target.value)
+                    }
                     className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-3 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500"
                   >
                     <option value="">Selecione</option>
                     {produtosDisponiveis.map((produto) => (
                       <option key={produto.id} value={produto.id}>
-                        {produto.nome_produto} - {produto.quantidade_atual} em estoque
+                        {produto.nome_produto} - {produto.quantidade_atual} em
+                        estoque
                       </option>
                     ))}
                   </select>
@@ -280,7 +319,9 @@ export default function CaixaPDV() {
                 <button
                   type="button"
                   onClick={adicionarProduto}
-                  disabled={!produtoAtual || !quantidade || Number(quantidade) < 1}
+                  disabled={
+                    !produtoAtual || !quantidade || Number(quantidade) < 1
+                  }
                   className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-xs font-black uppercase tracking-[1px] text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Plus size={17} /> Adicionar
@@ -296,29 +337,52 @@ export default function CaixaPDV() {
                   Nenhum produto disponivel para venda nesta loja.
                 </div>
               ) : (
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  {produtosDisponiveis.map((produto) => (
-                    <button
-                      key={produto.id}
-                      type="button"
-                      onClick={() => setProdutoSelecionado(produto.id)}
-                      className={`rounded-lg border p-4 text-left transition hover:border-blue-500 ${
-                        produtoSelecionado === produto.id
-                          ? "border-blue-500 bg-blue-500/5"
-                          : "border-theme-border bg-theme-header"
-                      }`}
-                    >
-                      <h3 className="font-black uppercase text-theme-text-title">
-                        {produto.nome_produto}
-                      </h3>
-                      <p className="mt-2 text-sm font-medium text-theme-text-sub">
-                        {produto.quantidade_atual} {formatarUnidade(produto.unidade_medida)}
-                      </p>
-                      <p className="mt-1 text-xs font-bold uppercase tracking-[1px] text-theme-text-sub/70">
-                        Minimo: {produto.quantidade_minima}
-                      </p>
-                    </button>
-                  ))}
+                <div className="space-y-6">
+                  {(() => {
+                    const grupos = produtosDisponiveis.reduce<
+                      Record<string, typeof produtosDisponiveis>
+                    >((acc, produto) => {
+                      const cat = produto.categoria ?? "OUTROS";
+                      if (!acc[cat]) acc[cat] = [];
+                      acc[cat].push(produto);
+                      return acc;
+                    }, {});
+
+                    return Object.entries(grupos).map(([cat, itens]) => (
+                      <div key={cat}>
+                        <h3 className="mb-3 flex items-center gap-3 text-sm font-black uppercase tracking-[2px] text-slate-200">
+                          <span className="h-px flex-1 bg-theme-border" />
+                          {CATEGORIA_LABEL[cat] ?? cat}
+                          <span className="h-px flex-1 bg-theme-border" />
+                        </h3>
+                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                          {itens.map((produto) => (
+                            <button
+                              key={produto.id}
+                              type="button"
+                              onClick={() => setProdutoSelecionado(produto.id)}
+                              className={`rounded-lg border p-4 text-left transition hover:border-blue-500 ${
+                                produtoSelecionado === produto.id
+                                  ? "border-blue-500 bg-blue-500/5"
+                                  : "border-theme-border bg-theme-header"
+                              }`}
+                            >
+                              <h3 className="font-black uppercase text-slate-400">
+                                {produto.nome_produto}
+                              </h3>
+                              <p className="mt-2 text-sm font-medium text-theme-text-sub">
+                                {produto.quantidade_atual}{" "}
+                                {formatarUnidade(produto.unidade_medida)}
+                              </p>
+                              <p className="mt-1 text-xs font-bold uppercase tracking-[1px] text-theme-text-sub/70">
+                                Minimo: {produto.quantidade_minima}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ));
+                  })()}
                 </div>
               )}
             </section>
