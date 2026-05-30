@@ -63,6 +63,16 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
             0,
           );
 
+          const totalPorLoja = lojas.map((loja) => ({
+            lojaId: loja.id,
+            qtd: secao.linhas.reduce(
+              (sum, linha) =>
+                sum +
+                (linha.quantidades.find((q) => q.lojaId === loja.id)?.qtd ?? 0),
+              0,
+            ),
+          }));
+
           return (
             <div
               key={secao.categoria}
@@ -76,25 +86,25 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
                     [secao.categoria]: !aberta,
                   }))
                 }
-                className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left"
+                className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6"
               >
                 <div className="flex items-center gap-3">
                   <span
-                    className={`rounded-md border px-2.5 py-1 text-xs font-black ${
+                    className={`rounded-lg border px-4 py-2 text-lg font-black uppercase tracking-[1px] ${
                       COR[secao.cor || "blue"]
                     }`}
                   >
                     {secao.categoria}
                   </span>
-                  <span className="text-xs font-bold uppercase tracking-[1px] text-theme-text-sub">
+                  <span className="text-sm font-black uppercase tracking-[1px] text-theme-text-sub">
                     {secao.produtos.length} itens
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="rounded-md bg-theme-header px-3 py-1 text-xs font-black text-theme-text-title">
+                  <span className="rounded-lg bg-theme-header px-4 py-2 text-sm font-black text-theme-text-title">
                     Total {totalCategoria}
                   </span>
-                  <span className="text-theme-text-sub">
+                  <span className="text-xl font-black leading-none text-theme-text-sub">
                     {aberta ? "-" : "+"}
                   </span>
                 </div>
@@ -102,16 +112,16 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
 
               {aberta && (
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[920px] text-left">
-                    <thead className="bg-theme-header text-[11px] uppercase tracking-[1px] text-theme-text-sub">
+                  <table className="w-full min-w-230 text-left">
+                    <thead className="bg-theme-header text-xs uppercase tracking-[1px] text-theme-text-sub">
                       <tr>
-                        <th className="px-4 py-2">Produto</th>
+                        <th className="px-5 py-3">Produto</th>
                         {lojas.map((loja) => (
-                          <th key={loja.id} className="px-4 py-2 text-center">
+                          <th key={loja.id} className="px-4 py-3 text-center">
                             {loja.nome_loja}
                           </th>
                         ))}
-                        <th className="px-4 py-2 text-center">Total</th>
+                        <th className="px-4 py-3 text-center">Total</th>
                       </tr>
                     </thead>
                     <tbody className="[&>tr:nth-child(even)]:bg-theme-hover/60">
@@ -120,16 +130,16 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
                           key={`${secao.categoria}-${linha.produto.id}`}
                           className="border-b border-theme-border"
                         >
-                          <td className="px-4 py-3 text-sm font-semibold text-theme-text-title">
+                          <td className="px-5 py-4 text-lg font-black text-theme-text-title">
                             {linha.produto.nome}
                           </td>
                           {linha.quantidades.map((item) => (
                             <td
                               key={item.lojaId}
-                              className="px-4 py-3 text-center"
+                              className="px-4 py-4 text-center"
                             >
                               <span
-                                className={`text-sm font-black ${statusClasses(
+                                className={`text-base font-black ${statusClasses(
                                   item.qtd,
                                 )}`}
                               >
@@ -137,9 +147,9 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
                               </span>
                             </td>
                           ))}
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-4 py-4 text-center">
                             <span
-                              className={`inline-flex min-w-14 justify-center rounded-lg px-3 py-1.5 text-sm font-black ring-1 ${
+                              className={`inline-flex min-w-14 justify-center rounded-lg px-3 py-1.5 text-base font-black ring-1 ${
                                 linha.total <= 0
                                   ? "bg-red-50 text-red-700 ring-red-200"
                                   : "bg-emerald-50 text-emerald-700 ring-emerald-200"
@@ -151,6 +161,28 @@ export default function TotalGeral({ estoque, lojas, categorias }: Props) {
                         </tr>
                       ))}
                     </tbody>
+                    <tfoot className="border-t-2 border-theme-border bg-theme-header text-xs uppercase tracking-[1px] text-theme-text-sub">
+                      <tr>
+                        <td className="px-5 py-3 font-black text-theme-text-title">
+                          Total
+                        </td>
+                        {totalPorLoja.map((item) => (
+                          <td
+                            key={item.lojaId}
+                            className="px-4 py-3 text-center"
+                          >
+                            <span className="text-base font-black text-theme-text-title">
+                              {item.qtd || ""}
+                            </span>
+                          </td>
+                        ))}
+                        <td className="px-4 py-3 text-center">
+                          <span className="inline-flex min-w-14 justify-center rounded-lg bg-emerald-50 px-3 py-1.5 text-base font-black text-emerald-700 ring-1 ring-emerald-200">
+                            {totalCategoria}
+                          </span>
+                        </td>
+                      </tr>
+                    </tfoot>
                   </table>
                 </div>
               )}

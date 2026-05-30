@@ -161,10 +161,7 @@ export const getProdutos = async () => {
 
 export const postProduto = async (
   nome_produto: string,
-  codigo: string,
-  unidade_medida: string,
   categoria: string,
-  ativo = true,
   quantidade_por_embalagem?: number | null,
   estoque_minimo_sugerido = 1,
 ) => {
@@ -172,12 +169,10 @@ export const postProduto = async (
     method: "POST",
     body: JSON.stringify({
       nome_produto,
-      codigo,
-      unidade_medida,
+      unidade_medida: "UNIDADE",
       quantidade_por_embalagem,
       estoque_minimo_sugerido,
       categoria,
-      ativo,
     }),
   });
 
@@ -190,9 +185,7 @@ export const patchProduto = async (
     unidade_medida: string;
     quantidade_por_embalagem: number | null;
     estoque_minimo_sugerido: number;
-    ativo: boolean;
     categoria: string;
-    codigo: string;
     nome_produto: string;
   }>,
 ) => {

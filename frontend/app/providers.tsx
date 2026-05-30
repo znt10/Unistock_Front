@@ -4,6 +4,7 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
+import { Toaster } from "sonner";
 import { useAuthStore } from "@/stores/authStore";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         }}
       >
         <HydrationGuard>{children}</HydrationGuard>
+        <Toaster position="top-right" richColors />
       </ThemeProvider>
     </PersistQueryClientProvider>
   );

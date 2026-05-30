@@ -2,9 +2,11 @@
 
 import { useCallback, useMemo, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle, Boxes, CheckCircle2, TrendingDown } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import BarraLojas from "@/components/estoque/BarraLojas";
 import CategoriaEstoque from "@/components/estoque/CategoriaEstoque";
+import HistoricoEstoque from "@/components/estoque/HistoricoEstoque";
 import TotalGeral from "@/components/estoque/TotalGeral";
 import { useEstoque } from "@/hooks/useEstoque";
 import { useLojas } from "@/hooks/useLoja";
@@ -13,29 +15,44 @@ import { getEstoques, patchEstoque, patchProduto, postEstoque } from "@/services
 import { selectIsGerente, useAuthStore } from "@/stores/authStore";
 import type { EstadoProduto, EstoqueLocal } from "@/data/estruturaEstoque";
 
-const CATEGORIAS_VIEW: Record<
-  string,
-  {
-    label: string;
-    cor: "orange" | "red" | "blue" | "green";
-    temEstado?: boolean;
-  }
-> = {
+type CategoriaVisual = {
+  label: string;
+  cor: "orange" | "red" | "blue" | "green";
+  temEstado?: boolean;
+};
+
+const CATEGORIAS_VIEW: Record<string, CategoriaVisual> = {
   SALGADOS_GDE: { label: "SALGADOS GDE", cor: "orange" },
   SALGADOS_MINI: { label: "SALGADOS MINI", cor: "orange", temEstado: true },
   ESFIHAS_GDE: { label: "ESFIHAS GDE", cor: "red" },
   ESFIHAS_MINI: { label: "ESFIHAS MINI", cor: "red" },
+  FOGAZZAS_GDE: { label: "FOGAZZAS GDE", cor: "green" },
+  FOGAZZAS_MINI: { label: "FOGAZZAS MINI", cor: "green", temEstado: true },
   RECHEIOS: { label: "RECHEIOS", cor: "blue" },
   MERCADO: { label: "MERCADO", cor: "green" },
 };
 
-const CATEGORIA_ALIASES: Record<string, keyof typeof CATEGORIAS_VIEW> = {
+const CATEGORIAS_ORDEM = [
+  "SALGADOS_GDE",
+  "SALGADOS_MINI",
+  "ESFIHAS_GDE",
+  "ESFIHAS_MINI",
+  "FOGAZZAS_GDE",
+  "FOGAZZAS_MINI",
+  "RECHEIOS",
+  "MERCADO",
+];
+
+const CATEGORIA_ALIASES: Record<string, string> = {
   "SALGADOS GDE": "SALGADOS_GDE",
   "SALGADOS GRANDE": "SALGADOS_GDE",
   "SALGADOS MINI": "SALGADOS_MINI",
   "ESFIHAS GDE": "ESFIHAS_GDE",
   "ESFIHAS GRANDE": "ESFIHAS_GDE",
   "ESFIHAS MINI": "ESFIHAS_MINI",
+  "FOGAZZAS GDE": "FOGAZZAS_GDE",
+  "FOGAZZAS GRANDE": "FOGAZZAS_GDE",
+  "FOGAZZAS MINI": "FOGAZZAS_MINI",
   RECHEIOS: "RECHEIOS",
   MERCADO: "MERCADO",
 };
@@ -43,18 +60,44 @@ const CATEGORIA_ALIASES: Record<string, keyof typeof CATEGORIAS_VIEW> = {
 function normalizarCategoria(categoria?: string) {
   if (!categoria) return "MERCADO";
   const chave = categoria.trim().toUpperCase();
-  return CATEGORIAS_VIEW[chave] ? chave : CATEGORIA_ALIASES[chave] || "MERCADO";
+  return CATEGORIA_ALIASES[chave] || chave;
+}
+
+function formatarCategoria(categoria: string) {
+  return categoria
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (letra) => letra.toUpperCase())
+    .toUpperCase();
+}
+
+function getCategoriaVisual(categoria: string): CategoriaVisual {
+  return (
+    CATEGORIAS_VIEW[categoria] || {
+      label: formatarCategoria(categoria),
+      cor: "blue",
+    }
+  );
+}
+
+function ordenarCategorias(a: string, b: string) {
+  const ordemA = CATEGORIAS_ORDEM.indexOf(a);
+  const ordemB = CATEGORIAS_ORDEM.indexOf(b);
+
+  if (ordemA >= 0 && ordemB >= 0) return ordemA - ordemB;
+  if (ordemA >= 0) return -1;
+  if (ordemB >= 0) return 1;
+
+  return getCategoriaVisual(a).label.localeCompare(getCategoriaVisual(b).label);
 }
 
 function normalizarEstado(estado?: string): EstadoProduto {
   if (estado === "CONGELADO") return "Congelado";
-  if (estado === "RESFRIADO") return "Resfriado";
   return "Normal";
 }
 
 function estadoParaApi(estado?: EstadoProduto) {
   if (estado === "Congelado") return "CONGELADO";
-  if (estado === "Resfriado") return "RESFRIADO";
   return "NORMAL";
 }
 
@@ -131,13 +174,9 @@ export default function EstoquePage() {
       >
     >();
 
-    produtos
-      .filter((produto) => produto.ativo !== false)
-      .forEach((produto) => {
+    produtos.forEach((produto) => {
         const categoriaCodigo = normalizarCategoria(produto.categoria);
-        const config =
-          CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
-        const produtosCategoria = agrupadas.get(config.label) || new Map();
+        const produtosCategoria = agrupadas.get(categoriaCodigo) || new Map();
         produtosCategoria.set(produto.id, {
           id: produto.id,
           nome: produto.nome_produto,
@@ -145,18 +184,24 @@ export default function EstoquePage() {
           quantidade_por_embalagem: produto.quantidade_por_embalagem,
           estoque_minimo_sugerido: produto.estoque_minimo_sugerido,
         });
-        agrupadas.set(config.label, produtosCategoria);
+        agrupadas.set(categoriaCodigo, produtosCategoria);
       });
 
-    return Object.entries(CATEGORIAS_VIEW)
-      .map(([, config]) => ({
+    return Array.from(agrupadas.entries())
+      .sort(([categoriaA], [categoriaB]) =>
+        ordenarCategorias(categoriaA, categoriaB),
+      )
+      .map(([categoriaCodigo, produtosCategoria]) => {
+        const config = getCategoriaVisual(categoriaCodigo);
+
+        return {
         categoria: config.label,
         cor: config.cor,
         temEstado: config.temEstado,
-        produtos: Array.from(agrupadas.get(config.label)?.values() || [])
+        produtos: Array.from(produtosCategoria.values())
           .sort((a, b) => a.nome.localeCompare(b.nome)),
-      }))
-      .filter((categoria) => categoria.produtos.length > 0);
+        };
+      });
   }, [produtos]);
 
   const categoriaPorProduto = useMemo(() => {
@@ -164,29 +209,8 @@ export default function EstoquePage() {
 
     produtos.forEach((produto) => {
       const categoriaCodigo = normalizarCategoria(produto.categoria);
-      const config =
-        CATEGORIAS_VIEW[categoriaCodigo] || CATEGORIAS_VIEW.MERCADO;
+      const config = getCategoriaVisual(categoriaCodigo);
       mapa.set(produto.id, config.label);
-    });
-
-    return mapa;
-  }, [produtos]);
-
-  const nomePorLoja = useMemo(() => {
-    const mapa = new Map<string, string>();
-
-    lojas.forEach((loja) => {
-      mapa.set(loja.id, loja.nome_loja);
-    });
-
-    return mapa;
-  }, [lojas]);
-
-  const nomePorProduto = useMemo(() => {
-    const mapa = new Map<string, string>();
-
-    produtos.forEach((produto) => {
-      mapa.set(produto.id, produto.nome_produto);
     });
 
     return mapa;
@@ -237,10 +261,63 @@ export default function EstoquePage() {
     return base;
   }, [categoriaPorProduto, estoque, estoquesApi]);
 
+  const resumoEstoqueLoja = useMemo(() => {
+    if (!lojaAtiva || lojaAtiva === "TODAS") {
+      return {
+        total: 0,
+        emDia: 0,
+        estoqueBaixo: 0,
+        emFalta: 0,
+      };
+    }
+
+    return categorias.reduce(
+      (resumo, config) => {
+        config.produtos.forEach((produto) => {
+          const item = estoqueVisivel[lojaAtiva]?.[config.categoria]?.[produto.id];
+          const qtd = item?.qtd ?? 0;
+          const minimo =
+            minimoPorEstoque[lojaAtiva]?.[produto.id] ??
+            produto.estoque_minimo_sugerido ??
+            1;
+
+          resumo.total += qtd;
+
+          if (qtd <= 0) {
+            resumo.emFalta += 1;
+          } else if (qtd <= minimo) {
+            resumo.estoqueBaixo += 1;
+          } else {
+            resumo.emDia += 1;
+          }
+        });
+
+        return resumo;
+      },
+      {
+        total: 0,
+        emDia: 0,
+        estoqueBaixo: 0,
+        emFalta: 0,
+      },
+    );
+  }, [categorias, estoqueVisivel, lojaAtiva, minimoPorEstoque]);
+
+  const nomePorLoja = useMemo(() => {
+    const mapa = new Map<string, string>();
+    lojas.forEach((loja) => mapa.set(loja.id, loja.nome_loja));
+    return mapa;
+  }, [lojas]);
+
+  const nomePorProduto = useMemo(() => {
+    const mapa = new Map<string, string>();
+    produtos.forEach((produto) => mapa.set(produto.id, produto.nome_produto));
+    return mapa;
+  }, [produtos]);
+
   const historicoVisivel = useMemo(() => {
     if (isGerente) return historico;
     if (!lojaAtiva) return [];
-
     return historico.filter((item) => item.loja === lojaAtiva);
   }, [historico, isGerente, lojaAtiva]);
 
@@ -383,7 +460,7 @@ export default function EstoquePage() {
                   : lojaAtivaNome}
               </h1>
               <p className="mt-1 text-sm font-medium text-theme-text-sub sm:text-base">
-                {produtos.length} produto(s) carregado(s) · Ultima atualizacao:{" "}
+                {produtos.length} produto(s) carregado(s) - Ultima atualizacao:{" "}
                 {formatarData(ultimaAtualizacao)}
               </p>
             </div>
@@ -418,77 +495,103 @@ export default function EstoquePage() {
               categorias={categorias}
             />
           ) : (
-            categorias.map((config) => (
-              <CategoriaEstoque
-                key={config.categoria}
-                loja={lojaAtiva}
-                categoria={config.categoria}
-                cor={config.cor}
-                produtos={config.produtos}
-                temEstado={config.temEstado}
-                itens={estoqueVisivel[lojaAtiva]?.[config.categoria] || {}}
-                minimos={minimoPorEstoque[lojaAtiva] || {}}
-                alterados={alterados}
-                agora={agora}
-                podeEditarProduto={isGerente}
-                onUpdate={(loja, categoria, produto, data) => {
-                  if (data.qtd !== undefined || data.estado !== undefined) {
-                    atualizarItem(loja, categoria, produto, data);
-                  }
-                  salvarEstoqueApi(loja, produto, data).catch((error) => {
-                    alert(
-                      error instanceof Error
-                        ? error.message
-                        : "Erro ao salvar estoque.",
-                    );
-                  });
-                }}
-                onProdutoUpdate={(produto, data) => {
-                  salvarProdutoApi(produto, data).catch((error) => {
-                    alert(
-                      error instanceof Error
-                        ? error.message
-                        : "Erro ao atualizar produto.",
-                    );
-                  });
-                }}
-              />
-            ))
-          )}
+            <>
+              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {[
+                  {
+                    label: "Itens em estoque",
+                    valor: resumoEstoqueLoja.total,
+                    icon: Boxes,
+                    className: "bg-blue-500/10 text-blue-400",
+                  },
+                  {
+                    label: "Em dia",
+                    valor: resumoEstoqueLoja.emDia,
+                    icon: CheckCircle2,
+                    className: "bg-emerald-500/10 text-emerald-400",
+                  },
+                  {
+                    label: "Estoque baixo",
+                    valor: resumoEstoqueLoja.estoqueBaixo,
+                    icon: TrendingDown,
+                    className: "bg-amber-500/10 text-amber-400",
+                  },
+                  {
+                    label: "Em falta",
+                    valor: resumoEstoqueLoja.emFalta,
+                    icon: AlertTriangle,
+                    className: "bg-red-500/10 text-red-400",
+                  },
+                ].map((card) => {
+                  const Icone = card.icon;
 
-          <section className="rounded-lg border border-theme-border bg-theme-card p-4 shadow-sm">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-base font-black uppercase tracking-[2px] text-theme-text-title">
-                Historico recente
-              </h2>
-              <span className="text-sm font-medium text-theme-text-sub">
-                Ultimas {Math.min(historicoVisivel.length, 8)} alteracoes
-              </span>
-            </div>
-            <div className="space-y-2">
-              {historicoVisivel.slice(0, 8).map((item, index) => (
-                <div
-                  key={`${item.updatedAt}-${index}`}
-                  className="flex flex-col justify-between gap-1 rounded-lg bg-theme-header px-3 py-2 text-sm md:flex-row md:items-center"
-                >
-                  <span className="font-bold text-theme-text-title">
-                    {nomePorLoja.get(item.loja) || item.loja} / {item.categoria}{" "}
-                    / {nomePorProduto.get(item.produto) || item.produto}
-                  </span>
-                  <span className="text-theme-text-sub">
-                    {item.anterior ?? "-"} para {item.novo ?? item.qtd ?? "-"}{" "}
-                    por {item.usuario || "Usuario"} em{" "}
-                    {formatarData(item.updatedAt)}
-                  </span>
-                </div>
+                  return (
+                    <article
+                      key={card.label}
+                      className="flex min-h-24 items-center gap-4 rounded-2xl border border-theme-border bg-theme-card px-5 py-4 shadow-sm"
+                    >
+                      <span
+                        className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${card.className}`}
+                      >
+                        <Icone size={22} />
+                      </span>
+                      <div>
+                        <strong className="block text-3xl font-black leading-none text-theme-text-title">
+                          {card.valor}
+                        </strong>
+                        <span className="mt-2 block text-xs font-black uppercase tracking-[1px] text-theme-text-sub">
+                          {card.label}
+                        </span>
+                      </div>
+                    </article>
+                  );
+                })}
+              </section>
+
+              {categorias.map((config) => (
+                <CategoriaEstoque
+                  key={config.categoria}
+                  loja={lojaAtiva}
+                  categoria={config.categoria}
+                  cor={config.cor}
+                  produtos={config.produtos}
+                  temEstado={config.temEstado}
+                  itens={estoqueVisivel[lojaAtiva]?.[config.categoria] || {}}
+                  minimos={minimoPorEstoque[lojaAtiva] || {}}
+                  alterados={alterados}
+                  agora={agora}
+                  podeEditarProduto={isGerente}
+                  onUpdate={(loja, categoria, produto, data) => {
+                    if (data.qtd !== undefined || data.estado !== undefined) {
+                      atualizarItem(loja, categoria, produto, data);
+                    }
+                    salvarEstoqueApi(loja, produto, data).catch((error) => {
+                      alert(
+                        error instanceof Error
+                          ? error.message
+                          : "Erro ao salvar estoque.",
+                      );
+                    });
+                  }}
+                  onProdutoUpdate={(produto, data) => {
+                    salvarProdutoApi(produto, data).catch((error) => {
+                      alert(
+                        error instanceof Error
+                          ? error.message
+                          : "Erro ao atualizar produto.",
+                      );
+                    });
+                  }}
+                />
               ))}
-              {historicoVisivel.length === 0 && (
-                <p className="text-base font-medium text-theme-text-sub">
-                  Nenhuma alteracao registrada ainda.
-                </p>
-              )}
-            </div>
-          </section>
+            </>
+          )}
+          <HistoricoEstoque
+            historico={historicoVisivel}
+            nomePorLoja={nomePorLoja}
+            nomePorProduto={nomePorProduto}
+            limite={8}
+          />
         </div>
       </main>
     </div>
