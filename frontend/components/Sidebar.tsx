@@ -354,13 +354,12 @@ export default function Sidebar() {
     queryFn: getNotificacoes,
     enabled: hydrated && Boolean(user),
     refetchOnWindowFocus: true,
-    refetchInterval: 10000,
   });
 
   // Pega o grupo do usuário e renderiza o menu correto
   const role = normalizeRole(user?.group);
   const menuItems = MENU_CONFIG[role] || [];
-  const temNotificacoes = notificacoes.length > 0;
+  const temNotificacoes = notificacoes.some((n) => !n.lida);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
