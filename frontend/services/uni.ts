@@ -40,6 +40,8 @@ export type PedidoData = {
 export type Notificacao = {
   id: string;
   pedido: string | null;
+  loja_id: string | null;
+  loja_nome: string | null;
   tipo: string;
   titulo: string;
   mensagem: string;
