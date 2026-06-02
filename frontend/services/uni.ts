@@ -199,6 +199,10 @@ export const patchProduto = async (
   return res.json();
 };
 
+export const deleteProduto = async (id: string) => {
+  await apiV1(`/produtos/${id}/`, { method: "DELETE" });
+};
+
 
 // ======================================================
 // 🔹 ESTOQUE
