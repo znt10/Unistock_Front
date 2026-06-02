@@ -82,10 +82,12 @@ export default function ForgotPasswordPage() {
 
             <Link
               href="/login"
-              className="mx-auto flex w-fit items-center gap-2 text-sm font-semibold text-theme-text-sub transition hover:text-theme-text-title"
+              className="mx-auto inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
             >
-              <ArrowLeftIcon className="h-4 w-4" />
-              Voltar para login
+              <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
+                <ArrowLeftIcon className="h-3.5 w-3.5" />
+              </span>
+              <span className="text-[11px] font-black uppercase tracking-[2px]">Voltar para login</span>
             </Link>
           </form>
         </div>
