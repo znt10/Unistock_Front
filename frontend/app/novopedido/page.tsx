@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { postPedido } from "@/services/uni";
 import { useAuthStore } from "@/stores/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { useProdutos } from "@/hooks/useProduto";
 import { useLojas } from "@/hooks/useLoja";
 import AutocompleteProduto from "@/components/HeroUI/AutocompleteP";
@@ -27,6 +28,7 @@ const normalizeRole = (role?: string) => {
 };
 
 export default function NovoPedidoPage() {
+  const queryClient = useQueryClient();
   const { data: produtos = [] } = useProdutos();
   const { data: lojas = [] } = useLojas();
   const user = useAuthStore((state) => state.user);
@@ -82,6 +84,8 @@ export default function NovoPedidoPage() {
           { produto: produtoSelecionado, quantidade: Number(quantidade) },
         ],
       });
+
+      await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
 
       limparFormulario();
       setSucesso(true);

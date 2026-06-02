@@ -124,44 +124,55 @@ function LinhaProduto({ produto }: { produto: Produto }) {
     }
   }
 
+  const acento = editando
+    ? { boxShadow: "inset 3px 0 0 #3b82f6", background: "color-mix(in srgb, #3b82f6 6%, var(--card))" }
+    : confirmandoDelete
+    ? { boxShadow: "inset 3px 0 0 #ef4444", background: "color-mix(in srgb, #ef4444 5%, var(--card))" }
+    : {};
+
   if (editando) {
     return (
-      <tr className="bg-theme-hover">
-        <td className="px-6 py-3" colSpan={2}>
+      <tr style={acento}>
+        <td className="px-5 py-4">
           <input
             type="text"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             autoFocus
-            className="w-full rounded-xl border border-theme-border bg-theme-card px-4 py-2 text-sm font-black text-theme-text-title outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="w-full rounded-lg border border-blue-500/40 bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           />
         </td>
-        <td className="px-6 py-3">
+        <td className="px-5 py-4 text-sm font-semibold text-theme-text-sub">
+          {produto.unidade_medida ?? "—"}
+        </td>
+        <td className="px-5 py-4">
           <input
             type="number"
             min={0}
             value={estoqueMin}
             onChange={(e) => setEstoqueMin(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
-            className="w-24 rounded-xl border border-theme-border bg-theme-card px-3 py-2 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500"
+            className="w-24 rounded-lg border border-blue-500/40 bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           />
         </td>
-        <td className="px-6 py-3">
+        <td className="px-5 py-4">
           <div className="flex items-center justify-center gap-2">
             <button
               type="button"
               onClick={salvar}
               disabled={salvando}
-              className="rounded-xl border-none bg-blue-600 px-4 py-2 text-xs font-black uppercase tracking-[1px] text-white shadow-lg shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 disabled:opacity-50"
+              className="rounded-lg bg-blue-600 p-2.5 text-white shadow-md shadow-blue-900/30 transition hover:bg-blue-500 active:scale-95 disabled:opacity-50"
+              aria-label="Salvar"
             >
-              {salvando ? "Salvando..." : "Salvar"}
+              <IconeCheck />
             </button>
             <button
               type="button"
               onClick={cancelarEdicao}
-              className="rounded-xl border border-theme-border bg-theme-header px-4 py-2 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:bg-theme-hover active:scale-95"
+              className="rounded-lg border border-theme-border bg-theme-header p-2.5 text-theme-text-sub transition hover:bg-theme-hover active:scale-95"
+              aria-label="Cancelar"
             >
-              Cancelar
+              <IconeX />
             </button>
           </div>
         </td>
@@ -171,8 +182,8 @@ function LinhaProduto({ produto }: { produto: Produto }) {
 
   if (confirmandoDelete) {
     return (
-      <tr className="bg-theme-hover">
-        <td className="px-6 py-4" colSpan={3}>
+      <tr style={acento}>
+        <td className="px-5 py-4" colSpan={3}>
           <span className="text-sm font-bold text-theme-text-sub">
             Remover{" "}
             <span className="font-black text-theme-text-title">
@@ -181,22 +192,24 @@ function LinhaProduto({ produto }: { produto: Produto }) {
             ?
           </span>
         </td>
-        <td className="px-6 py-3">
+        <td className="px-5 py-4">
           <div className="flex items-center justify-center gap-2">
             <button
               type="button"
               onClick={remover}
               disabled={removendo}
-              className="rounded-xl border border-theme-border bg-theme-header px-4 py-2 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-red-500/40 hover:text-red-500 active:scale-95 disabled:opacity-50"
+              className="rounded-lg bg-red-600 p-2.5 text-white shadow-md shadow-red-900/30 transition hover:bg-red-500 active:scale-95 disabled:opacity-50"
+              aria-label="Confirmar remoção"
             >
-              {removendo ? "Removendo..." : "Confirmar"}
+              <IconeCheck />
             </button>
             <button
               type="button"
               onClick={() => setConfirmandoDelete(false)}
-              className="rounded-xl border border-theme-border bg-theme-header px-4 py-2 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:bg-theme-hover active:scale-95"
+              className="rounded-lg border border-theme-border bg-theme-header p-2.5 text-theme-text-sub transition hover:bg-theme-hover active:scale-95"
+              aria-label="Cancelar"
             >
-              Cancelar
+              <IconeX />
             </button>
           </div>
         </td>
@@ -205,24 +218,24 @@ function LinhaProduto({ produto }: { produto: Produto }) {
   }
 
   return (
-    <tr className="transition hover:bg-theme-hover">
-      <td className="px-6 py-5">
-        <span className="text-base font-black uppercase text-theme-text-title">
+    <tr className="group transition-colors hover:bg-theme-hover">
+      <td className="px-5 py-5">
+        <span className="text-sm font-black uppercase tracking-wide text-theme-text-title">
           {produto.nome_produto}
         </span>
       </td>
-      <td className="px-6 py-5 text-base font-bold text-theme-text-sub">
+      <td className="px-5 py-5 text-sm font-semibold text-theme-text-sub">
         {produto.unidade_medida ?? "—"}
       </td>
-      <td className="px-6 py-5 text-base font-bold text-theme-text-sub">
+      <td className="px-5 py-5 text-sm font-semibold text-theme-text-sub">
         {produto.estoque_minimo_sugerido ?? "—"}
       </td>
-      <td className="px-6 py-5">
+      <td className="px-5 py-5">
         <div className="flex items-center justify-center gap-2">
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="rounded-xl border border-theme-border bg-theme-header p-3 text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500"
+            className="rounded-lg border border-theme-border bg-theme-header p-2.5 text-theme-text-sub opacity-0 transition group-hover:opacity-100 hover:border-blue-500/40 hover:text-blue-400"
             aria-label={`Editar ${produto.nome_produto}`}
           >
             <IconeEditar />
@@ -230,7 +243,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
           <button
             type="button"
             onClick={() => setConfirmandoDelete(true)}
-            className="rounded-xl border border-theme-border bg-theme-header p-3 text-theme-text-sub transition hover:border-red-500/40 hover:text-red-500"
+            className="rounded-lg border border-theme-border bg-theme-header p-2.5 text-theme-text-sub opacity-0 transition group-hover:opacity-100 hover:border-red-500/40 hover:text-red-400"
             aria-label={`Remover ${produto.nome_produto}`}
           >
             <IconeLixo />
@@ -346,12 +359,12 @@ export default function CategoriaProdutos() {
           <section className="overflow-hidden rounded-[28px] border border-theme-border bg-theme-card shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full min-w-160 text-left">
-                <thead className="bg-theme-header text-sm uppercase tracking-[1px] text-theme-text-sub">
+                <thead className="bg-theme-header text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub">
                   <tr>
-                    <th className="px-6 py-4">Produto</th>
-                    <th className="px-6 py-4">Unidade</th>
-                    <th className="px-6 py-4">Estoque mínimo</th>
-                    <th className="px-6 py-4 text-center">Ações</th>
+                    <th className="px-5 py-4 text-left">Produto</th>
+                    <th className="px-5 py-4 text-left">Unidade</th>
+                    <th className="px-5 py-4 text-left">Estoque mínimo</th>
+                    <th className="px-5 py-4 text-center">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-theme-border">
