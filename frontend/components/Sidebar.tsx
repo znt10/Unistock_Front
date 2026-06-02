@@ -310,7 +310,7 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
-    { href: "/produtos/novo", label: "Cadastrar Produto", icon: "Tag" },
+    { href: "/produtos", label: "Produtos", icon: "Tag" },
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
     { href: "/historico", label: "Historico", icon: "History" },
@@ -455,7 +455,9 @@ export default function Sidebar() {
           <ul className="space-y-0.5">
             {menuItems.map((item) => {
               const IconComponent = Icons[item.icon];
-              const isActive = pathname === item.href;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/" && pathname.startsWith(item.href + "/"));
               return (
                 <li key={item.href}>
                   <Link
