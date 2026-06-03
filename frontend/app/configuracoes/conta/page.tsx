@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { logout } from "@/services/auth";
+
 import { useAuthStore } from "@/stores/authStore";
 
 const Icons = {
@@ -153,7 +154,6 @@ export default function GerenciarConta() {
               Gerenciar Conta
             </h1>
           </div>
-
         </div>
 
         {/* Card Perfil principal */}
