@@ -80,11 +80,17 @@ export default function ItemEstoque({
           dot: "bg-emerald-400",
         };
 
+  const valorAlterado = Number(valorQtd || 0) !== item.qtd;
+
   const salvarQtd = () => {
     const qtd = Math.max(0, Number(valorQtd || 0));
     setValorQtd(String(qtd));
     if (qtd === item.qtd) return;
     onUpdate({ qtd });
+  };
+
+  const cancelarQtd = () => {
+    setValorQtd(String(item.qtd));
   };
 
   return (
@@ -125,22 +131,42 @@ export default function ItemEstoque({
       </td>
 
       <td className="px-3 py-4 text-left">
-        <input
-          type="number"
-          min="0"
-          value={valorQtd}
-          onChange={(e) => setValorQtd(e.target.value)}
-          onBlur={salvarQtd}
-          onWheel={desativarScrollNumero}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") salvarQtd();
-            if (e.key === "Escape") {
-              setValorQtd(String(item.qtd));
-              e.currentTarget.blur();
-            }
-          }}
-          className="h-10 w-24 rounded-lg border border-theme-border bg-theme-card px-3 text-center text-base font-black text-theme-text-title outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min="0"
+            value={valorQtd}
+            onChange={(e) => setValorQtd(e.target.value)}
+            onWheel={desativarScrollNumero}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") { salvarQtd(); e.currentTarget.blur(); }
+              if (e.key === "Escape") { cancelarQtd(); e.currentTarget.blur(); }
+            }}
+            className="h-10 w-24 rounded-lg border border-theme-border bg-theme-card px-3 text-center text-base font-black text-theme-text-title outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+          />
+          {valorAlterado && (
+            <div className="flex gap-1">
+              <button
+                onClick={salvarQtd}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/40 transition-colors"
+                title="Confirmar"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </button>
+              <button
+                onClick={cancelarQtd}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/30 transition-colors"
+                title="Cancelar"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
       </td>
 
       <td className="px-5 py-4">

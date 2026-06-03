@@ -140,9 +140,12 @@ export default function NotificacoesAlertas() {
         {/* Cabeçalho */}
         <Link
           href="/configuracoes"
-          className="group mb-6 inline-flex items-center gap-2 rounded-xl border border-theme-border bg-theme-card px-6 py-3 text-[11px] font-black uppercase tracking-widest text-theme-text-sub shadow-sm transition-all hover:bg-theme-hover hover:text-theme-text-title"
+          className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
         >
-          <Icons.ChevronLeft /> Voltar
+          <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
+            <Icons.ChevronLeft />
+          </span>
+          <span className="text-[11px] font-black uppercase tracking-[2px]">Voltar</span>
         </Link>
 
         <div className="mb-14 flex flex-col items-start gap-6">
@@ -154,13 +157,6 @@ export default function NotificacoesAlertas() {
               Notificações
             </h1>
           </div>
-          <Link
-            href="/configuracoes"
-            // 👇 Botão adaptado ao tema
-            className="hidden"
-          >
-            <Icons.ChevronLeft /> Voltar
-          </Link>
         </div>
 
         {/* Lista de Opções */}

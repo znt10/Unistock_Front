@@ -21,7 +21,8 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/estoque",
     "/notificacoes",
     "/configuracoes",
-    "/caixa"
+    "/caixa",
+    "/historico"
   ],
 };
 

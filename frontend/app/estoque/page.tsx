@@ -562,16 +562,19 @@ export default function EstoquePage() {
                   agora={agora}
                   podeEditarProduto={isGerente}
                   onUpdate={(loja, categoria, produto, data) => {
-                    if (data.qtd !== undefined || data.estado !== undefined) {
-                      atualizarItem(loja, categoria, produto, data);
-                    }
-                    salvarEstoqueApi(loja, produto, data).catch((error) => {
-                      alert(
-                        error instanceof Error
-                          ? error.message
-                          : "Erro ao salvar estoque.",
-                      );
-                    });
+                    salvarEstoqueApi(loja, produto, data)
+                      .then(() => {
+                        if (data.qtd !== undefined || data.estado !== undefined) {
+                          atualizarItem(loja, categoria, produto, data);
+                        }
+                      })
+                      .catch((error) => {
+                        alert(
+                          error instanceof Error
+                            ? error.message
+                            : "Erro ao salvar estoque.",
+                        );
+                      });
                   }}
                   onProdutoUpdate={(produto, data) => {
                     salvarProdutoApi(produto, data).catch((error) => {

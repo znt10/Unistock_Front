@@ -136,6 +136,36 @@ export default function LojasGerencia() {
               Consulte, cadastre e edite as unidades usadas nos pedidos e no
               controle de estoque.
             </p>
+
+            {/* ── Stats inline ── */}
+            <div className="mt-5 flex items-center gap-6">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-[2px] text-theme-text-sub/50">
+                  Total
+                </span>
+                <p className="text-2xl font-black text-theme-text-title">
+                  {lojas.length}
+                </p>
+              </div>
+              <div className="h-8 w-px bg-theme-border" />
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-[2px] text-theme-text-sub/50">
+                  Ativas
+                </span>
+                <p className="text-2xl font-black text-emerald-500">
+                  {totalAtivas}
+                </p>
+              </div>
+              <div className="h-8 w-px bg-theme-border" />
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-[2px] text-theme-text-sub/50">
+                  Inativas
+                </span>
+                <p className="text-2xl font-black text-red-500">
+                  {totalInativas}
+                </p>
+              </div>
+            </div>
           </div>
 
           <Link
@@ -147,33 +177,6 @@ export default function LojasGerencia() {
             </span>
             <span className="truncate">Nova unidade</span>
           </Link>
-        </div>
-
-        <div className="mb-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-theme-border bg-theme-card p-5 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
-              Total
-            </p>
-            <strong className="mt-2 block text-4xl font-black text-theme-text-title">
-              {lojas.length}
-            </strong>
-          </div>
-          <div className="rounded-2xl border border-theme-border bg-theme-card p-5 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
-              Ativas
-            </p>
-            <strong className="mt-2 block text-4xl font-black text-emerald-600">
-              {totalAtivas}
-            </strong>
-          </div>
-          <div className="rounded-2xl border border-theme-border bg-theme-card p-5 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
-              Inativas
-            </p>
-            <strong className="mt-2 block text-4xl font-black text-red-500">
-              {totalInativas}
-            </strong>
-          </div>
         </div>
 
         <div className="mb-6 rounded-2xl border border-theme-border bg-theme-card p-4 shadow-sm">

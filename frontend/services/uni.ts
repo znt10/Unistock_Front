@@ -40,6 +40,8 @@ export type PedidoData = {
 export type Notificacao = {
   id: string;
   pedido: string | null;
+  loja_id: string | null;
+  loja_nome: string | null;
   tipo: string;
   titulo: string;
   mensagem: string;
@@ -195,6 +197,10 @@ export const patchProduto = async (
   });
 
   return res.json();
+};
+
+export const deleteProduto = async (id: string) => {
+  await apiV1(`/produtos/${id}/`, { method: "DELETE" });
 };
 
 

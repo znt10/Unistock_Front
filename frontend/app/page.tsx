@@ -13,7 +13,7 @@ export default function HomePage() {
 
   useEffect(() => {
     // Assim que o componente montar, redireciona o usuário.
-    router.replace("login/");
+    router.replace("/login");
   }, [router]);
 
   // Enquanto o redirecionamento acontece, mostramos um indicador de carregamento
