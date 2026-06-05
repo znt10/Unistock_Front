@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   title: "Unistock",
   description: "Sistema de controle de estoque e pedidos Unistock",
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
   },
 };
 
