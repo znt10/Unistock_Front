@@ -58,6 +58,19 @@ export default function proxy(request: NextRequest) {
   const role = normalizeRole(request.cookies.get("role")?.value);
   const { pathname } = request.nextUrl;
 
+  // Com skipTrailingSlashRedirect no next.config, a normalizacao da barra
+  // final das rotas de pagina passa a ser responsabilidade do middleware
+  // (as rotas /backend/* ficam fora do matcher e mantem a barra).
+  if (pathname !== "/" && pathname.endsWith("/")) {
+    // URL padrao, nao request.nextUrl.clone(): o NextURL re-aplica a barra
+    // final original ao serializar, o que geraria um loop de redirect.
+    const url = new URL(
+      pathname.slice(0, -1) + request.nextUrl.search,
+      request.url,
+    );
+    return NextResponse.redirect(url, 308);
+  }
+
   if (pathname === "/" && token && role) {
     return NextResponse.redirect(new URL(ROLE_HOME[role], request.url));
   }
