@@ -97,7 +97,8 @@ export default function proxy(request: NextRequest) {
 }
 
 async function refreshAccessToken(request: NextRequest) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl =
+    process.env.API_PROXY_URL || process.env.NEXT_PUBLIC_API_URL;
 
   if (!apiUrl) {
     return NextResponse.redirect(new URL("/login", request.url));
@@ -118,21 +119,21 @@ async function refreshAccessToken(request: NextRequest) {
     return response;
   }
 
-  const data = await refreshResponse.json();
+  // O novo access_token vem apenas como Set-Cookie HTTP-only do backend;
+  // repassa os cabecalhos ao navegador em vez de ler token do corpo.
   const response = NextResponse.redirect(request.nextUrl);
 
-  if (data.access) {
-    response.cookies.set("access_token", data.access, {
-      httpOnly: true,
-      secure: request.nextUrl.protocol === "https:",
-      sameSite: "lax",
-      path: "/",
-    });
+  for (const cookie of refreshResponse.headers.getSetCookie()) {
+    response.headers.append("set-cookie", cookie);
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon\\.ico|favicon\\.svg|icon\\.svg).*)"],
+  // "backend" fica fora do matcher: as chamadas de API same-origin passam
+  // direto para o rewrite do next.config sem sofrer redirect de navegacao.
+  matcher: [
+    "/((?!backend|_next/static|_next/image|favicon\\.ico|favicon\\.svg|icon\\.svg).*)",
+  ],
 };
