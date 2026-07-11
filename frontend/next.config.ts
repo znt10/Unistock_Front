@@ -11,11 +11,17 @@ const API_URL =
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  // Sem isso o Next redireciona /backend/login/ -> /backend/login (308)
+  // antes do rewrite, e o Django (APPEND_SLASH) rejeita POST sem barra
+  // final. O proxy.ts passa a normalizar a barra das rotas de pagina.
+  skipTrailingSlashRedirect: true,
   async rewrites() {
     return [
       {
+        // Barra final forcada no destino: todas as rotas do Django
+        // terminam em "/" (APPEND_SLASH cobre os GETs sem barra).
         source: "/backend/:path*",
-        destination: `${API_URL}/:path*`,
+        destination: `${API_URL}/:path*/`,
       },
     ];
   },
