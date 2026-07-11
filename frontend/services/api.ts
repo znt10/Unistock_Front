@@ -1,31 +1,14 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+// Todas as chamadas passam pelo rewrite same-origin do Next (/backend/...),
+// entao os cookies HTTP-only de autenticacao sao enviados automaticamente
+// pelo navegador. Nenhum token e lido ou gravado via JavaScript.
+const API_URL = "/backend";
+
 const NO_REFRESH_ENDPOINTS = [
   "/login/",
   "/logout/",
   "/token/refresh/",
   "/api/v1/user/me/",
 ];
-
-const getCookie = (name: string) => {
-  if (typeof document === "undefined") {
-    return null;
-  }
-
-  return (
-    document.cookie
-      .split("; ")
-      .find((row) => row.startsWith(`${name}=`))
-      ?.split("=")[1] ?? null
-  );
-};
-
-const setClientCookie = (name: string, value: string, maxAge: number) => {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
-};
 
 const extractApiErrorMessage = (data: unknown): string | null => {
   if (!data) return null;
@@ -62,15 +45,10 @@ export const apiFetch = async (
 ): Promise<Response> => {
   const { headers, ...rest } = options;
   const canRefresh = !NO_REFRESH_ENDPOINTS.includes(endpoint);
-  const accessToken = getCookie("access_token");
   const requestHeaders = new Headers(headers);
 
   if (!requestHeaders.has("Content-Type")) {
     requestHeaders.set("Content-Type", "application/json");
-  }
-
-  if (accessToken) {
-    requestHeaders.set("Authorization", `Bearer ${accessToken}`);
   }
 
   const response = await fetch(`${API_URL}${endpoint}`, {
@@ -81,32 +59,19 @@ export const apiFetch = async (
 
   if (canRefresh && [401, 403].includes(response.status) && !_isRetry) {
     try {
-      const refreshToken = getCookie("refresh_token");
-
-      if (!refreshToken) {
-        throw new Error("Sessao expirada. Faca login novamente.");
-      }
-
+      // O refresh_token HTTP-only vai junto automaticamente; o backend
+      // devolve o novo access_token tambem como cookie HTTP-only.
       const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ refresh: refreshToken }),
       });
 
       if (!refreshResponse.ok) {
         throw new Error("Sessao expirada. Faca login novamente.");
       }
-
-      const refreshData = await refreshResponse.json();
-
-      if (!refreshData.access) {
-        throw new Error("Sessao expirada. Faca login novamente.");
-      }
-
-      setClientCookie("access_token", refreshData.access, 60 * 60);
 
       return await apiFetch(endpoint, options, true);
     } catch (refreshError) {
