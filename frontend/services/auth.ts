@@ -1,19 +1,10 @@
 import { apiFetch, apiV1 } from './api';
 import { useAuthStore } from '@/stores/authStore';
 
-const setClientCookie = (name: string, value: string, maxAge: number) => {
-  document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
-};
+// Os cookies de autenticacao (access_token, refresh_token, role) sao
+// gravados e removidos exclusivamente pelo backend, como HTTP-only.
+// Nenhum token passa pelo JavaScript.
 
-const clearClientCookie = (name: string) => {
-  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
-};
-
-const clearAuthCookies = () => {
-  clearClientCookie("access_token");
-  clearClientCookie("refresh_token");
-  clearClientCookie("role");
-};
 // 🔹 LOGIN
 
 
@@ -32,12 +23,6 @@ export const login = async (email: string, password: string) => {
 
   const data = await response.json();
   const userInfo = data.user;
-
-  if (data.access && data.refresh) {
-    setClientCookie("access_token", data.access, 60 * 60);
-    setClientCookie("refresh_token", data.refresh, 7 * 24 * 60 * 60);
-    setClientCookie("role", userInfo.group, 7 * 24 * 60 * 60);
-  }
 
   const user = {
     id: userInfo.id,
@@ -58,6 +43,7 @@ export const login = async (email: string, password: string) => {
 export const logout = async () => {
   useAuthStore.getState().clearUser();
 
+  // A remocao dos cookies HTTP-only e feita pelo backend nesta chamada.
   try {
     const response = await apiFetch('/logout/', {
       method: 'POST',
@@ -66,8 +52,6 @@ export const logout = async () => {
     return response;
   } catch (error) {
     console.error("Erro ao fazer logout:", error);
-  } finally {
-    clearAuthCookies();
   }
 };
 
@@ -91,4 +75,3 @@ export const register = async (
     }),
   });
 };
-
