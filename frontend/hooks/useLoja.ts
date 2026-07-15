@@ -20,6 +20,8 @@ export interface Loja {
   responsavel_nome?: string;
   first_name?: string;
   ativo: boolean;
+  email?: string | null;
+  telefone_whatsapp?: string | null;
 }
 
 function normalizarLojas(data: unknown): Loja[] {
