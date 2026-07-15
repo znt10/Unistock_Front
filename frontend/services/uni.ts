@@ -57,6 +57,8 @@ export type LojaUpdateData = Partial<{
   cidade: string;
   endereco: string;
   ativo: boolean;
+  email: string;
+  telefone_whatsapp: string;
 }>;
 
 // 🔹 USUÁRIOS
@@ -85,6 +87,8 @@ export const postLoja = async (
   tipo: string,
   cidade: string,
   endereco: string,
+  email?: string,
+  telefone_whatsapp?: string,
 ) => {
   const res = await apiV1("/lojas/", {
     method: "POST",
@@ -93,6 +97,8 @@ export const postLoja = async (
       tipo,
       cidade,
       endereco,
+      email: email || null,
+      telefone_whatsapp: telefone_whatsapp || null,
     }),
   });
 
