@@ -445,6 +445,29 @@ export const getUsuarios = async () => {
 
 
 // ======================================================
+// 🔹 MOVIMENTACOES DE ESTOQUE (historico auditavel)
+// ======================================================
+
+export type MovimentacaoEstoque = {
+  id: string;
+  tipo: "ENTRADA" | "SAIDA" | "TRANSFERENCIA" | "AJUSTE" | "VENDA_PDV";
+  produto_nome: string;
+  loja_origem_nome: string | null;
+  loja_destino_nome: string | null;
+  quantidade: number;
+  usuario_nome: string | null;
+  data: string;
+};
+
+export const getMovimentacoes = async () => {
+  // Primeira pagina (50 mais recentes) — suficiente para a tela de historico.
+  const res = await apiV1("/movimentacoes/", { method: "GET" });
+  const data = await res.json();
+  return (data.results ?? data) as MovimentacaoEstoque[];
+};
+
+
+// ======================================================
 // 🔹 PREFERENCIAS DE NOTIFICACAO
 // ======================================================
 
