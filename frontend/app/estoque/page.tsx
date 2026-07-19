@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Boxes, CheckCircle2, TrendingDown } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
@@ -433,7 +434,7 @@ export default function EstoquePage() {
         qtd: alteracao.qtd,
         estado: alteracao.estado,
       }).catch((error) => {
-        alert(
+        toast.error(
           error instanceof Error
             ? error.message
             : "Erro ao desfazer alteracao.",
@@ -571,7 +572,7 @@ export default function EstoquePage() {
                         }
                       })
                       .catch((error) => {
-                        alert(
+                        toast.error(
                           error instanceof Error
                             ? error.message
                             : "Erro ao salvar estoque.",
@@ -580,7 +581,7 @@ export default function EstoquePage() {
                   }}
                   onProdutoUpdate={(produto, data) => {
                     salvarProdutoApi(produto, data).catch((error) => {
-                      alert(
+                      toast.error(
                         error instanceof Error
                           ? error.message
                           : "Erro ao atualizar produto.",
