@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type EstadoProduto, type EstoqueLocal } from "@/data/estruturaEstoque";
-import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuthStore } from "@/stores/authStore";
 
 const STORAGE_KEY = "unistock-estoque-lojas";
@@ -173,12 +172,8 @@ export function useEstoque() {
     return payload;
   }, [marcarAlterado, usuario]);
 
-  const { conectado, enviar, pendentes } = useWebSocket((message) => {
-    if (message.tipo === "estoque:update" && message.payload) {
-      aplicarUpdate(message.payload as UpdatePayload, true);
-    }
-  });
-
+  // Sincronizacao entre abas via BroadcastChannel; entre dispositivos os dados
+  // vem da API (TanStack Query com refetch periodico nas paginas).
   useEffect(() => {
     const channel = new BroadcastChannel("unistock-estoque");
 
@@ -208,13 +203,12 @@ export function useEstoque() {
       };
 
       aplicarUpdate(payload);
-      enviar({ tipo: "estoque:update", payload });
 
       const channel = new BroadcastChannel("unistock-estoque");
       channel.postMessage({ tipo: "estoque:update", payload });
       channel.close();
     },
-    [aplicarUpdate, enviar, usuario],
+    [aplicarUpdate, usuario],
   );
 
   const ultimaAtualizacao = useMemo(() => {
@@ -233,8 +227,6 @@ export function useEstoque() {
     estoque,
     historico,
     alterados,
-    conectado,
-    pendentes,
     notificacoesExternas,
     ultimaAtualizacao,
     atualizarItem,

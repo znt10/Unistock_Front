@@ -103,8 +103,9 @@ export default function CadastroUsuarioForm({
     setLoading(true);
 
     try {
-      await register(nome, email, senha, tipo, precisaLoja ? loja : undefined);
-      setSuccess(texto.sucesso);
+      const data = await register(nome, email, senha, tipo, precisaLoja ? loja : undefined);
+      // O backend avisa se a conta precisa de confirmacao por email.
+      setSuccess(data.detail || texto.sucesso);
       resetForm();
       onSuccess?.();
     } catch (err: unknown) {
