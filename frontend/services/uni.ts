@@ -79,7 +79,8 @@ export const getLoja = async () => {
   });
 
   const data = await res.json();
-  return data;
+  // Compatível com resposta paginada do DRF e com array cru.
+  return data.results ?? data;
 };
 
 export const postLoja = async (
@@ -299,16 +300,30 @@ export const getPedidos = async (filters?: {
     params.append("loja", filters.loja);
   }
 
-  const query = params.toString();
+  const pedidos: unknown[] = [];
+  let page = 1;
+  let hasNext = true;
 
-  const res = await apiV1(
-    `/pedidos/${query ? `?${query}` : ""}`,
-    {
+  while (hasNext) {
+    params.set("page", String(page));
+
+    const res = await apiV1(`/pedidos/?${params.toString()}`, {
       method: "GET",
-    }
-  );
+    });
 
-  return res.json();
+    const data = await res.json();
+
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    pedidos.push(...(data.results ?? []));
+    hasNext = Boolean(data.next);
+
+    page += 1;
+  }
+
+  return pedidos;
 };
 
 export const patchPedidoStatus = async (
