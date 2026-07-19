@@ -10,7 +10,7 @@ const API_URL =
   "http://localhost:8000";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true,
   // Sem isso o Next redireciona /backend/login/ -> /backend/login (308)
   // antes do rewrite, e o Django (APPEND_SLASH) rejeita POST sem barra
   // final. O proxy.ts passa a normalizar a barra das rotas de pagina.
