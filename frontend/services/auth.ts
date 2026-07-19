@@ -64,7 +64,7 @@ export const register = async (
   tipo_usuario: string,
   id_loja?: number | string
 ) => {
-  return await apiV1('/user/registrar/', {
+  const response = await apiV1('/user/registrar/', {
     method: 'POST',
     body: JSON.stringify({
       first_name,
@@ -74,4 +74,17 @@ export const register = async (
       id_loja: id_loja || null,
     }),
   });
+
+  // O backend informa em `detail` se a conta precisa de confirmacao por email.
+  return (await response.json()) as { detail?: string };
+};
+
+
+// 🔹 CONFIRMACAO DE CONTA (link enviado por email)
+export const confirmarConta = async (token: string) => {
+  const response = await apiV1(`/user/confirmar/${encodeURIComponent(token)}/`, {
+    method: 'GET',
+  });
+
+  return (await response.json()) as { detail?: string };
 };

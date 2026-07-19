@@ -124,6 +124,8 @@ export default function EstoquePage() {
   const { data: estoquesApi = [], isLoading: carregandoEstoques } = useQuery({
     queryKey: ["estoque"],
     queryFn: getEstoques,
+    // Substitui o antigo WebSocket: atualiza sozinho a cada 30s.
+    refetchInterval: 30 * 1000,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

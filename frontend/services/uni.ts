@@ -427,3 +427,32 @@ export const getUsuarios = async () => {
 
   return (data.results ?? data) as UsuarioResumo[];
 };
+
+
+// ======================================================
+// 🔹 PREFERENCIAS DE NOTIFICACAO
+// ======================================================
+
+export type PreferenciaNotificacao = {
+  email_ativo: boolean;
+  whatsapp_ativo: boolean;
+  telefone_whatsapp: string;
+  digest_ativo: boolean;
+  digest_horario: string; // "HH:MM:SS"
+  digest_dias_semana: string; // "1,2,3" (1=segunda ... 7=domingo)
+};
+
+export const getPreferenciasNotificacao = async () => {
+  const res = await apiV1("/preferencias-notificacao/me/", { method: "GET" });
+  return (await res.json()) as PreferenciaNotificacao;
+};
+
+export const updatePreferenciasNotificacao = async (
+  data: Partial<PreferenciaNotificacao>,
+) => {
+  const res = await apiV1("/preferencias-notificacao/me/", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+  return (await res.json()) as PreferenciaNotificacao;
+};
