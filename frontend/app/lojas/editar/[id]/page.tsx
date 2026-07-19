@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -91,7 +92,7 @@ export default function EditarLoja() {
         setAtivo(Boolean(loja.ativo));
       } catch (error) {
         console.error(error);
-        alert("Erro ao carregar unidade.");
+        toast.error("Erro ao carregar unidade.");
         router.push("/lojas");
       } finally {
         setCarregando(false);
@@ -107,15 +108,15 @@ export default function EditarLoja() {
     e.preventDefault();
 
     if (!nomeLoja.trim()) {
-      alert("Informe o nome da unidade");
+      toast.error("Informe o nome da unidade");
       return;
     }
     if (!cidade.trim()) {
-      alert("Informe a cidade");
+      toast.error("Informe a cidade");
       return;
     }
     if (!endereco.trim()) {
-      alert("Informe o endereco");
+      toast.error("Informe o endereco");
       return;
     }
 
@@ -135,11 +136,11 @@ export default function EditarLoja() {
         return lojasAtuais.map((loja) => (loja.id === id ? lojaAtualizada : loja));
       });
       queryClient.setQueryData(["lojas", id], lojaAtualizada);
-      alert("Unidade atualizada com sucesso!");
+      toast.success("Unidade atualizada com sucesso!");
       router.push(`/lojas/detalhes/${id}`);
     } catch (error) {
       console.error(error);
-      alert("Erro ao atualizar unidade. Tente novamente.");
+      toast.error("Erro ao atualizar unidade. Tente novamente.");
     } finally {
       setSalvando(false);
     }

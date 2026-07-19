@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -100,15 +101,15 @@ export default function NovaLoja() {
     e.preventDefault();
 
     if (!nomeLoja.trim()) {
-      alert("Informe o nome da unidade");
+      toast.error("Informe o nome da unidade");
       return;
     }
     if (!cidade.trim()) {
-      alert("Informe a cidade");
+      toast.error("Informe a cidade");
       return;
     }
     if (!endereco.trim()) {
-      alert("Informe o endereço");
+      toast.error("Informe o endereço");
       return;
     }
 
@@ -126,10 +127,10 @@ export default function NovaLoja() {
         if (!lojasAtuais) return lojasAtuais;
         return [...lojasAtuais, lojaCriada];
       });
-      alert("Unidade salva com sucesso!");
+      toast.success("Unidade salva com sucesso!");
       router.push("/lojas");
     } catch (error: unknown) {
-      alert("Erro ao salvar unidade. Tente novamente.");
+      toast.error("Erro ao salvar unidade. Tente novamente.");
       console.error(error);
     } finally {
       setLoading(false);
