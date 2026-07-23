@@ -70,7 +70,7 @@ type Secao =
 function CardConteudo({ secao }: { secao: Secao }) {
   return (
     <>
-      <div className="flex items-center gap-8 pr-14 sm:pr-0">
+      <div className="flex items-center gap-8">
         <div className="shrink-0 rounded-[22px] border border-theme-border bg-theme-header p-5 text-blue-500 shadow-inner transition-all group-hover:scale-105 group-hover:border-blue-500/30">
           {secao.icon}
         </div>
@@ -90,7 +90,7 @@ function CardConteudo({ secao }: { secao: Secao }) {
         </div>
       </div>
 
-      <div className="absolute right-5 top-5 shrink-0 rounded-full border border-theme-border bg-theme-header p-3 text-theme-text-sub shadow-inner transition-all group-hover:translate-x-1 group-hover:border-blue-500/30 group-hover:text-blue-500 sm:static sm:right-auto sm:top-auto">
+      <div className="shrink-0 rounded-full border border-theme-border bg-theme-header p-3 text-theme-text-sub shadow-inner transition-all group-hover:translate-x-1 group-hover:border-blue-500/30 group-hover:text-blue-500">
         <Icons.ChevronRight />
       </div>
     </>
@@ -147,7 +147,7 @@ export default function Configuracoes() {
     (secao) => !secao.adminOnly || podeGerenciarAcessos,
   );
   const cardClass =
-    "group relative flex w-full cursor-pointer flex-col items-start justify-between gap-5 rounded-[28px] border border-theme-border bg-theme-card p-5 text-left shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover active:scale-[0.985] sm:flex-row sm:items-center sm:p-7";
+    "group flex w-full cursor-pointer flex-col items-start justify-between gap-5 rounded-[28px] border border-theme-border bg-theme-card p-5 text-left shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover active:scale-[0.985] sm:flex-row sm:items-center sm:p-7";
 
   return (
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
