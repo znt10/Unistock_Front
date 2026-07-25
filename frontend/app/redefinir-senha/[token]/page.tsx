@@ -29,8 +29,10 @@ export default function ResetPasswordPage() {
     setError(null);
     setSuccess(false);
 
-    if (password.length < 6) {
-      setError("A senha precisa ter pelo menos 6 caracteres.");
+    // 8 e o minimo do MinimumLengthValidator do Django. Avisar 6 aqui so
+    // empurrava o erro pro servidor, que devolve a mensagem certa tarde demais.
+    if (password.length < 8) {
+      setError("A senha precisa ter pelo menos 8 caracteres.");
       return;
     }
 

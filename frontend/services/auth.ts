@@ -80,9 +80,23 @@ export const register = async (
 };
 
 
+// Token vindo da URL (useParams) para dentro do path da API.
+//
+// O useParams do Next devolve o segmento JA percent-encoded: os ":" que o
+// django.core.signing usa como separador chegam como "%3A". Chamar
+// encodeURIComponent direto nisso gera "%253A", o Django decodifica uma vez so
+// e recebe um token quebrado — que ele rejeita com "Link invalido ou ja
+// utilizado", mensagem que nao tem nada a ver com a causa.
+//
+// Decodificar antes normaliza os dois casos. E idempotente: o alfabeto do token
+// (base64url + ":") nao tem "%", entao decodificar um token cru nao muda nada.
+const tokenParaUrl = (token: string) =>
+  encodeURIComponent(decodeURIComponent(token));
+
+
 // 🔹 CONFIRMACAO DE CONTA (link enviado por email)
 export const confirmarConta = async (token: string) => {
-  const response = await apiV1(`/user/confirmar/${encodeURIComponent(token)}/`, {
+  const response = await apiV1(`/user/confirmar/${tokenParaUrl(token)}/`, {
     method: 'GET',
   });
 
@@ -98,7 +112,7 @@ export const confirmarConta = async (token: string) => {
 // confirmarConta acima).
 export const definirSenha = async (token: string, password: string) => {
   const response = await apiV1(
-    `/user/definir-senha/${encodeURIComponent(token)}/`,
+    `/user/definir-senha/${tokenParaUrl(token)}/`,
     {
       method: 'POST',
       body: JSON.stringify({ password }),
