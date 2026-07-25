@@ -215,6 +215,24 @@ export const deleteProduto = async (id: string) => {
 // 🔹 ESTOQUE
 // ======================================================
 
+// Produtos no/abaixo do minimo. O back ja escopa: gerente ve todas as lojas,
+// responsavel so as dele.
+export type EstoqueBaixo = {
+  id: string;
+  loja_id: string;
+  loja_nome: string;
+  produto_nome: string;
+  unidade_medida: string;
+  quantidade_atual: number;
+  quantidade_minima: number;
+};
+
+export const getEstoquesBaixos = async () => {
+  const res = await apiV1("/estoque/baixos/", { method: "GET" });
+  if (!res.ok) throw new Error("Erro ao carregar estoque baixo");
+  return (await res.json()) as EstoqueBaixo[];
+};
+
 export const getEstoques = async () => {
   const estoques: EstoqueApi[] = [];
 
@@ -471,13 +489,12 @@ export const getMovimentacoes = async () => {
 // 🔹 PREFERENCIAS DE NOTIFICACAO
 // ======================================================
 
+// O resumo diario NAO fica aqui: ele e por loja (vai pro email da loja as 7h),
+// nao por usuario. Aqui ficam so os canais.
 export type PreferenciaNotificacao = {
   email_ativo: boolean;
   whatsapp_ativo: boolean;
   telefone_whatsapp: string;
-  digest_ativo: boolean;
-  digest_horario: string; // "HH:MM:SS"
-  digest_dias_semana: string; // "1,2,3" (1=segunda ... 7=domingo)
 };
 
 export const getPreferenciasNotificacao = async () => {
