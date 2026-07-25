@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
   CheckCircleIcon,
@@ -10,6 +11,7 @@ import {
   EyeSlashIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
+import { definirSenha } from "@/services/auth";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -18,8 +20,11 @@ export default function ResetPasswordPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const params = useParams<{ token: string }>();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
@@ -34,7 +39,17 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    setSuccess(true);
+    setSalvando(true);
+    try {
+      await definirSenha(params.token, password);
+      setSuccess(true);
+      // Deixa a mensagem de sucesso aparecer antes de sair da tela.
+      setTimeout(() => router.push("/login"), 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao definir a senha.");
+    } finally {
+      setSalvando(false);
+    }
   };
 
   return (
@@ -151,9 +166,10 @@ export default function ResetPasswordPage() {
 
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98]"
+              disabled={salvando}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Salvar nova senha
+              {salvando ? "Salvando..." : "Salvar senha"}
               <CheckCircleIcon className="h-5 w-5" />
             </button>
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha", "/redefinir-senha"];
+const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha"];
 
 const ROLE_ROUTES: Record<string, string[]> = {
   Gerente: [
@@ -79,7 +79,10 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(ROLE_HOME[role], request.url));
   }
 
-  if (PUBLIC_ROUTES.includes(pathname)) {
+  if (
+    PUBLIC_ROUTES.includes(pathname) ||
+    pathname.startsWith("/redefinir-senha/")
+  ) {
     return NextResponse.next();
   }
 
