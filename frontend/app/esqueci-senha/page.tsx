@@ -2,21 +2,32 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
   CubeIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
+import { esqueciSenha } from "@/services/auth";
 
 export default function ForgotPasswordPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/redefinir-senha");
+    setErro(null);
+    setEnviando(true);
+    try {
+      await esqueciSenha(email.trim());
+      setEnviado(true);
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Erro ao enviar o link.");
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -72,11 +83,24 @@ export default function ForgotPasswordPage() {
               </div>
             </div>
 
+            {enviado && (
+              <p className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-500">
+                Se este e-mail estiver cadastrado, enviamos o link para
+                definir a senha. Confira a caixa de entrada.
+              </p>
+            )}
+            {erro && (
+              <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-500">
+                {erro}
+              </p>
+            )}
+
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98]"
+              disabled={enviando}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Continuar
+              {enviando ? "Enviando..." : "Enviar link"}
               <ArrowRightIcon className="h-5 w-5" />
             </button>
 
