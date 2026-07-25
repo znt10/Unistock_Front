@@ -51,7 +51,6 @@ export type Notificacao = {
 
 // 🔹 LOJAS
 export type LojaUpdateData = Partial<{
-  responsavel: number | null;
   nome_loja: string;
   tipo: string;
   cidade: string;
@@ -60,13 +59,6 @@ export type LojaUpdateData = Partial<{
   email: string;
   telefone_whatsapp: string;
 }>;
-
-// 🔹 USUÁRIOS
-export type UsuarioResumo = {
-  id: number;
-  first_name: string;
-  email: string;
-};
 
 
 // ======================================================
@@ -444,21 +436,6 @@ export const getRelatorio = async (
   }
 
   return response.blob();
-};
-
-
-// ======================================================
-// 🔹 USUÁRIOS
-// ======================================================
-
-export const getUsuarios = async () => {
-  const res = await apiV1("/user/", {
-    method: "GET",
-  });
-
-  const data = await res.json();
-
-  return (data.results ?? data) as UsuarioResumo[];
 };
 
 

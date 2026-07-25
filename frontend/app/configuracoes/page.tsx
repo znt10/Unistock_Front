@@ -45,7 +45,7 @@ const Icons = {
   ),
 };
 
-type CadastroTipo = "gerente" | "responsavel";
+type CadastroTipo = "gerente";
 
 type Secao =
   | {
@@ -131,14 +131,6 @@ export default function Configuracoes() {
       icon: <Icons.UserPlus />,
       tag: "ACESSO",
       action: "gerente",
-      adminOnly: true,
-    },
-    {
-      titulo: "Criar responsavel",
-      subtitulo: "Cadastre um responsavel e vincule a uma loja.",
-      icon: <Icons.UserPlus />,
-      tag: "ACESSO",
-      action: "responsavel",
       adminOnly: true,
     },
   ];

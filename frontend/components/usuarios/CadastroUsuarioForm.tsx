@@ -1,17 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { register } from "@/services/auth";
-import { getLoja } from "@/services/uni";
 
-type TipoUsuario = "gerente" | "responsavel";
-
-type LojaOption = {
-  id: number | string;
-  nome?: string;
-  nome_loja?: string;
-  name?: string;
-};
+type TipoUsuario = "gerente";
 
 type Props = {
   tipo: TipoUsuario;
@@ -32,15 +24,6 @@ const textos = {
     submit: "Cadastrar gerente",
     loading: "Cadastrando gerente...",
   },
-  responsavel: {
-    tituloSecao: "Dados do responsavel",
-    ajuda: "Informe identificacao, credenciais e loja vinculada.",
-    nomePlaceholder: "Nome do responsavel",
-    emailPlaceholder: "responsavel@email.com",
-    sucesso: "Responsavel cadastrado com sucesso.",
-    submit: "Cadastrar responsavel",
-    loading: "Cadastrando responsavel...",
-  },
 };
 
 export default function CadastroUsuarioForm({
@@ -55,55 +38,25 @@ export default function CadastroUsuarioForm({
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [loja, setLoja] = useState("");
-  const [lojas, setLojas] = useState<LojaOption[]>([]);
-  const [loadingLojas, setLoadingLojas] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const precisaLoja = tipo === "responsavel";
   const texto = textos[tipo];
-
-  useEffect(() => {
-    if (!precisaLoja) return;
-
-    async function carregarLojas() {
-      setLoadingLojas(true);
-
-      try {
-        const data = await getLoja();
-        setLojas(Array.isArray(data) ? data : data?.results || []);
-      } catch {
-        setLojas([]);
-      } finally {
-        setLoadingLojas(false);
-      }
-    }
-
-    carregarLojas();
-  }, [precisaLoja]);
 
   const resetForm = () => {
     setNome("");
     setEmail("");
     setSenha("");
-    setLoja("");
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
     setSuccess(null);
-
-    if (precisaLoja && !loja) {
-      setError("Selecione uma loja para o responsavel.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const data = await register(nome, email, senha, tipo, precisaLoja ? loja : undefined);
+      const data = await register(nome, email, senha, tipo);
       // O backend avisa se a conta precisa de confirmacao por email.
       setSuccess(data.detail || texto.sucesso);
       resetForm();
@@ -180,41 +133,10 @@ export default function CadastroUsuarioForm({
         </div>
       </div>
 
-      {precisaLoja && (
-        <div className="space-y-4 border-t border-theme-border pt-5">
-          <div>
-            <h3 className="text-sm font-black uppercase tracking-[2px] text-theme-text-title">
-              Vinculo com loja
-            </h3>
-            <p className="mt-1 text-sm text-theme-text-sub">
-              Escolha a unidade que esse responsavel podera operar.
-            </p>
-          </div>
-          <label htmlFor={`${tipo}-loja`} className="text-sm font-bold">
-            Loja vinculada
-          </label>
-          <select
-            id={`${tipo}-loja`}
-            value={loja}
-            onChange={(event) => setLoja(event.target.value)}
-            className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-            required
-          >
-            <option value="">
-              {loadingLojas
-                ? "Carregando lojas..."
-                : lojas.length
-                  ? "Selecione uma loja"
-                  : "Nenhuma loja disponivel"}
-            </option>
-            {lojas.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.nome_loja || item.nome || item.name || `Loja ${item.id}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+      <p className="mt-1 text-xs font-medium text-theme-text-sub">
+        Responsaveis nao sao mais cadastrados aqui: cada loja tem o proprio acesso,
+        criado junto com a loja e usando o e-mail dela.
+      </p>
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">

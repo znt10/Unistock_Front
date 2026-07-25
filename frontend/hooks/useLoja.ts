@@ -21,6 +21,7 @@ export interface Loja {
   first_name?: string;
   ativo: boolean;
   email?: string | null;
+  email_acesso?: string | null;
   telefone_whatsapp?: string | null;
 }
 

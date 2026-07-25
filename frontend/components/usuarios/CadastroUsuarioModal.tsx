@@ -3,7 +3,7 @@
 import React from "react";
 import CadastroUsuarioForm from "@/components/usuarios/CadastroUsuarioForm";
 
-type TipoUsuario = "gerente" | "responsavel";
+type TipoUsuario = "gerente";
 
 type Props = {
   tipo: TipoUsuario;
@@ -14,10 +14,6 @@ const textos = {
   gerente: {
     titulo: "Criar gerente",
     descricao: "Cadastre um gerente para administrar o sistema.",
-  },
-  responsavel: {
-    titulo: "Criar responsavel",
-    descricao: "Cadastre o responsavel e vincule a uma loja.",
   },
 };
 
