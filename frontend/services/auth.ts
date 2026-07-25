@@ -88,3 +88,31 @@ export const confirmarConta = async (token: string) => {
 
   return (await response.json()) as { detail?: string };
 };
+
+
+// 🔹 SENHA (definicao no 1o acesso e recuperacao de senha)
+// A loja define a senha no 1o acesso (link enviado pro email da loja) e usa o
+// mesmo fluxo quando esquece a senha. apiV1/apiFetch ja injeta o Content-Type
+// e ja lanca um Error com a mensagem do backend quando a resposta nao e ok,
+// entao nao ha necessidade de checar response.ok aqui (mesmo padrao do
+// confirmarConta acima).
+export const definirSenha = async (token: string, password: string) => {
+  const response = await apiV1(
+    `/user/definir-senha/${encodeURIComponent(token)}/`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    },
+  );
+
+  return (await response.json().catch(() => ({}))) as { detail?: string };
+};
+
+export const esqueciSenha = async (email: string) => {
+  const response = await apiV1('/user/esqueci-senha/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+
+  return (await response.json().catch(() => ({}))) as { detail?: string };
+};
