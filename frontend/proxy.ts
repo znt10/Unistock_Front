@@ -11,6 +11,9 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/notificacoes",
     "/configuracoes",
     "/estoque",
+    // Explicito: hoje passaria pelo prefixo "/estoque", mas o Sidebar mostra
+    // este item e depender do prefixo esconde a intencao.
+    "/estoque-baixo",
     "/produtos",
     "/caixa",
     "/historico"
@@ -19,6 +22,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/novopedido",
     "/meuspedidos",
     "/estoque",
+    "/estoque-baixo",
     "/notificacoes",
     "/configuracoes",
     "/caixa",
@@ -81,7 +85,8 @@ export default function proxy(request: NextRequest) {
 
   if (
     PUBLIC_ROUTES.includes(pathname) ||
-    pathname.startsWith("/redefinir-senha/")
+    pathname.startsWith("/redefinir-senha/") ||
+    pathname.startsWith("/confirmar-conta/")
   ) {
     return NextResponse.next();
   }

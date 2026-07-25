@@ -14,13 +14,16 @@ export default function ConfirmarContaPage() {
 
   useEffect(() => {
     if (!token) return;
+    let cancelled = false;
 
     confirmarConta(token)
       .then((data) => {
+        if (cancelled) return;
         setStatus("sucesso");
         setMensagem(data.detail || "Conta confirmada. Você já pode fazer login.");
       })
       .catch((error: unknown) => {
+        if (cancelled) return;
         setStatus("erro");
         setMensagem(
           error instanceof Error
@@ -28,6 +31,8 @@ export default function ConfirmarContaPage() {
             : "Não foi possível confirmar a conta.",
         );
       });
+
+    return () => { cancelled = true; };
   }, [token]);
 
   return (
