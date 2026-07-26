@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import CadastroUsuarioModal from "@/features/usuarios/components/CadastroUsuarioModal";
-import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
+import { selectIsAdmin, useAuthStore } from "@/shared/stores/authStore";
 
 const Icons = {
   User: () => (
@@ -98,7 +98,7 @@ function CardConteudo({ secao }: { secao: Secao }) {
 }
 
 export default function Configuracoes() {
-  const podeGerenciarAcessos = useAuthStore(selectIsGerente);
+  const podeGerenciarAcessos = useAuthStore(selectIsAdmin);
   const [cadastroAberto, setCadastroAberto] = useState<CadastroTipo | null>(
     null,
   );

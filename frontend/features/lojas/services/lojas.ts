@@ -13,6 +13,7 @@ export type LojaUpdateData = Partial<{
   ativo: boolean;
   email: string;
   telefone_whatsapp: string;
+  gerente: number | null;
 }>;
 
 export const getLoja = async () => {

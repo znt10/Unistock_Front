@@ -143,6 +143,9 @@ const SIDEBAR_WIDTH_COLLAPSED = "lg:w-[72px]";
 const NOTIFICACOES_QUERY_KEY = ["notificacoes"];
 
 const MENU_CONFIG: Record<string, MenuItem[]> = {
+  Admin: [
+    { href: "/admin", label: "Dashboard Admin", icon: "UserCircle" },
+  ],
   Gerente: [
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
@@ -169,7 +172,11 @@ const normalizeRole = (role?: string) => {
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase();
 
-  if (["gerente", "administrador", "admin"].includes(normalized ?? "")) {
+  if (["admin", "administrador"].includes(normalized ?? "")) {
+    return "Admin";
+  }
+
+  if (normalized === "gerente") {
     return "Gerente";
   }
 
