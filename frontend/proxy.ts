@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha"];
 
 const ROLE_ROUTES: Record<string, string[]> = {
+  Admin: [
+    "/admin",
+    "/configuracoes",
+  ],
   Gerente: [
     "/lojas",
     "/novopedido",
@@ -31,6 +35,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
 };
 
 const ROLE_HOME: Record<string, string> = {
+  Admin: "/admin",
   Gerente: "/lojas",
   Responsavel: "/novopedido",
 };
@@ -45,7 +50,11 @@ const normalizeRole = (role?: string) => {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 
-  if (["gerente", "administrador", "admin"].includes(normalized)) {
+  if (["admin", "administrador"].includes(normalized)) {
+    return "Admin";
+  }
+
+  if (normalized === "gerente") {
     return "Gerente";
   }
 
