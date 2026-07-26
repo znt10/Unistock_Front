@@ -11,7 +11,7 @@ import {
   EyeSlashIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
-import { definirSenha } from "@/services/auth";
+import { definirSenha } from "@/shared/services/auth";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");

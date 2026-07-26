@@ -3,7 +3,7 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
 import { useQuery } from "@tanstack/react-query";
-import { getEstoquesBaixos, type EstoqueBaixo } from "@/services/uni";
+import { getEstoquesBaixos, type EstoqueBaixo } from "@/features/estoque/services/estoque";
 
 const ESTOQUE_BAIXO_QUERY_KEY = ["estoque-baixo"];
 

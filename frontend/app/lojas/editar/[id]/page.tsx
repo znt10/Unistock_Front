@@ -6,8 +6,8 @@ import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
-import { getLojaById, patchLoja } from "@/services/uni";
+import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
+import { getLojaById, patchLoja } from "@/features/lojas/services/lojas";
 
 const Icons = {
   ChevronLeft: () => (

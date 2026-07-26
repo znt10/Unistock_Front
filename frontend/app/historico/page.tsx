@@ -10,7 +10,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
-import { getMovimentacoes, type MovimentacaoEstoque } from "@/services/uni";
+import { getMovimentacoes, type MovimentacaoEstoque } from "@/features/estoque/services/estoque";
 
 /**
  * Historico de movimentacoes de estoque, direto do banco (auditavel).

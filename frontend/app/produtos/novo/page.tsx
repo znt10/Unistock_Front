@@ -9,8 +9,8 @@ import {
   PRODUTOS_QUERY_KEY,
   type Produto,
   useProdutos,
-} from "@/hooks/useProduto";
-import { postProduto } from "@/services/uni";
+} from "@/features/produtos/hooks/useProduto";
+import { postProduto } from "@/features/produtos/services/produtos";
 
 const CATEGORIAS = [
   { valor: "SALGADOS_GDE", label: "Salgados grande", dot: "bg-orange-500" },

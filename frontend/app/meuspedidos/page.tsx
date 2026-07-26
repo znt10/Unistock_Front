@@ -2,13 +2,13 @@
 
 import React, { Suspense, useState } from "react";
 import Sidebar from "@/components/Sidebar";
-import { usePedidos } from "@/hooks/usePedidos";
-import { usePedidoStatusActions } from "@/hooks/usePedidoStatusActions";
+import { usePedidos } from "@/features/pedidos/hooks/usePedidos";
+import { usePedidoStatusActions } from "@/features/pedidos/hooks/usePedidoStatusActions";
 import {
   selectIsGerente,
   selectIsResponsavel,
   useAuthStore,
-} from "@/stores/authStore";
+} from "@/shared/stores/authStore";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 

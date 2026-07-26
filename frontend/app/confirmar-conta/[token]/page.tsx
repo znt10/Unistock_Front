@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { confirmarConta } from "@/services/auth";
+import { confirmarConta } from "@/shared/services/auth";
 
 type Status = "confirmando" | "sucesso" | "erro";
 

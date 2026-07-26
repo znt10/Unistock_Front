@@ -11,7 +11,7 @@ import {
   marcarNotificacaoLida,
   marcarTodasNotificacoesLidas,
   type Notificacao,
-} from "@/services/uni";
+} from "@/features/notificacoes/services/notificacoes";
 
 const NOTIFICACOES_QUERY_KEY = ["notificacoes"];
 

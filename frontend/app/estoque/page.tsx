@@ -5,16 +5,17 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Boxes, CheckCircle2, TrendingDown } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
-import BarraLojas from "@/components/estoque/BarraLojas";
-import CategoriaEstoque from "@/components/estoque/CategoriaEstoque";
-import HistoricoEstoque from "@/components/estoque/HistoricoEstoque";
-import TotalGeral from "@/components/estoque/TotalGeral";
-import { useEstoque } from "@/hooks/useEstoque";
-import { useLojas } from "@/hooks/useLoja";
-import { PRODUTOS_QUERY_KEY, type Produto, useProdutos } from "@/hooks/useProduto";
-import { getEstoques, patchEstoque, patchProduto, postEstoque } from "@/services/uni";
-import { selectIsGerente, useAuthStore } from "@/stores/authStore";
-import type { EstadoProduto, EstoqueLocal } from "@/data/estruturaEstoque";
+import BarraLojas from "@/features/estoque/components/BarraLojas";
+import CategoriaEstoque from "@/features/estoque/components/CategoriaEstoque";
+import HistoricoEstoque from "@/features/estoque/components/HistoricoEstoque";
+import TotalGeral from "@/features/estoque/components/TotalGeral";
+import { useEstoque } from "@/features/estoque/hooks/useEstoque";
+import { useLojas } from "@/features/lojas/hooks/useLoja";
+import { PRODUTOS_QUERY_KEY, type Produto, useProdutos } from "@/features/produtos/hooks/useProduto";
+import { getEstoques, patchEstoque, postEstoque } from "@/features/estoque/services/estoque";
+import { patchProduto } from "@/features/produtos/services/produtos";
+import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
+import type { EstadoProduto, EstoqueLocal } from "@/features/estoque/data/estruturaEstoque";
 
 type CategoriaVisual = {
   label: string;

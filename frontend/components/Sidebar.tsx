@@ -4,9 +4,9 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { logout } from "@/services/auth";
-import { getNotificacoes } from "@/services/uni";
-import { useAuthStore } from "@/stores/authStore";
+import { logout } from "@/shared/services/auth";
+import { getNotificacoes } from "@/features/notificacoes/services/notificacoes";
+import { useAuthStore } from "@/shared/stores/authStore";
 
 const Icons = {
   Package: () => (
