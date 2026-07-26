@@ -1,4 +1,4 @@
-// components/pedidos/FiltrosPedidos.tsx
+// features/pedidos/components/FiltrosPedidos.tsx
 
 import { useAuthStore } from "@/shared/stores/authStore";
 import { getLoja } from "@/services/uni";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ItemEstoque from "@/components/estoque/ItemEstoque";
+import ItemEstoque from "@/features/estoque/components/ItemEstoque";
 import { type EstadoProduto, type ItemEstoqueData } from "@/data/estruturaEstoque";
 
 const COR = {

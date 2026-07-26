@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
-import CadastroUsuarioModal from "@/components/usuarios/CadastroUsuarioModal";
+import CadastroUsuarioModal from "@/features/usuarios/components/CadastroUsuarioModal";
 import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
 
 const Icons = {

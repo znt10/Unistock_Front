@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import CadastroUsuarioForm from "@/components/usuarios/CadastroUsuarioForm";
+import CadastroUsuarioForm from "@/features/usuarios/components/CadastroUsuarioForm";
 
 type TipoUsuario = "gerente";
 
