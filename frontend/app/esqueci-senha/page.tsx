@@ -8,7 +8,7 @@ import {
   CubeIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
-import { esqueciSenha } from "@/services/auth";
+import { esqueciSenha } from "@/shared/services/auth";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

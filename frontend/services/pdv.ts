@@ -1,4 +1,4 @@
-import { apiV1 } from "@/services/api";
+import { apiV1 } from "@/shared/services/api";
 import type { VendaPayload, VendaResponse } from "@/types/pdv";
 
 export const finalizarVenda = async (payload: VendaPayload) => {

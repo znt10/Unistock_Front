@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type EstadoProduto, type EstoqueLocal } from "@/data/estruturaEstoque";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/shared/stores/authStore";
 
 const STORAGE_KEY = "unistock-estoque-lojas";
 const HISTORY_KEY = "unistock-estoque-historico";

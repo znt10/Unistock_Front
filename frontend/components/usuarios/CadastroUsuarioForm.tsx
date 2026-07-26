@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { register } from "@/services/auth";
+import { register } from "@/shared/services/auth";
 
 type TipoUsuario = "gerente";
 

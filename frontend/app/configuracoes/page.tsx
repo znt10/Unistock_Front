@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import CadastroUsuarioModal from "@/components/usuarios/CadastroUsuarioModal";
-import { selectIsGerente, useAuthStore } from "@/stores/authStore";
+import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
 
 const Icons = {
   User: () => (

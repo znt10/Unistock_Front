@@ -1,4 +1,4 @@
-import { apiFetch, apiV1 } from "./api";
+import { apiFetch, apiV1 } from "@/shared/services/api";
 
 
 // ======================================================

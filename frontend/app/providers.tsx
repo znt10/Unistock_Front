@@ -5,7 +5,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 import { Toaster } from "sonner";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/shared/stores/authStore";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(

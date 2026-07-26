@@ -1,5 +1,5 @@
 import { apiFetch, apiV1 } from './api';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/shared/stores/authStore';
 
 // Os cookies de autenticacao (access_token, refresh_token, role) sao
 // gravados e removidos exclusivamente pelo backend, como HTTP-only.

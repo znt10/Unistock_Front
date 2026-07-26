@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { postPedido } from "@/services/uni";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/shared/stores/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProdutos } from "@/hooks/useProduto";
 import { useLojas } from "@/hooks/useLoja";
-import AutocompleteProduto from "@/components/HeroUI/AutocompleteP";
-import AutocompleteLoja from "@/components/HeroUI/AutocompleteLoja";
+import AutocompleteProduto from "@/shared/components/HeroUI/AutocompleteP";
+import AutocompleteLoja from "@/shared/components/HeroUI/AutocompleteLoja";
 
 const normalizeRole = (role?: string) => {
   const normalized = role

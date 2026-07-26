@@ -8,7 +8,7 @@ import {
   selectIsGerente,
   selectIsResponsavel,
   useAuthStore,
-} from "@/stores/authStore";
+} from "@/shared/stores/authStore";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 

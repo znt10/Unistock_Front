@@ -16,7 +16,7 @@ import { useLojas } from "@/hooks/useLoja";
 import { useProdutos } from "@/hooks/useProduto";
 import { getEstoques } from "@/services/uni";
 import { finalizarVenda } from "@/services/pdv";
-import { selectIsGerente, useAuthStore } from "@/stores/authStore";
+import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
 import type { PdvCarrinhoItem, PdvProdutoDisponivel } from "@/types/pdv";
 
 function formatarUnidade(unidade?: string) {
