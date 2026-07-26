@@ -12,12 +12,12 @@ import {
   Trash2,
 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
-import { useLojas } from "@/hooks/useLoja";
-import { useProdutos } from "@/hooks/useProduto";
+import { useLojas } from "@/features/lojas/hooks/useLoja";
+import { useProdutos } from "@/features/produtos/hooks/useProduto";
 import { getEstoques } from "@/features/estoque/services/estoque";
-import { finalizarVenda } from "@/services/pdv";
+import { finalizarVenda } from "@/features/pdv/services/pdv";
 import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
-import type { PdvCarrinhoItem, PdvProdutoDisponivel } from "@/types/pdv";
+import type { PdvCarrinhoItem, PdvProdutoDisponivel } from "@/features/pdv/types";
 
 function formatarUnidade(unidade?: string) {
   return unidade?.replaceAll("_", " ").toLowerCase() || "unidade";

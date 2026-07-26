@@ -9,7 +9,7 @@ import {
   PRODUTOS_QUERY_KEY,
   type Produto,
   useProdutos,
-} from "@/hooks/useProduto";
+} from "@/features/produtos/hooks/useProduto";
 import { postProduto } from "@/features/produtos/services/produtos";
 
 const CATEGORIAS = [

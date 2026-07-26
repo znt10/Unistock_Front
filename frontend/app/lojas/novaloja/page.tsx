@@ -6,7 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
+import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
 import { postLoja } from "@/features/lojas/services/lojas";
 
 const Icons = {

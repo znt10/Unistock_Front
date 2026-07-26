@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type EstadoProduto, type EstoqueLocal } from "@/data/estruturaEstoque";
+import { type EstadoProduto, type EstoqueLocal } from "@/features/estoque/data/estruturaEstoque";
 import { useAuthStore } from "@/shared/stores/authStore";
 
 const STORAGE_KEY = "unistock-estoque-lojas";

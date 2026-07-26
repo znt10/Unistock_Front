@@ -5,8 +5,8 @@ import Sidebar from "@/components/Sidebar";
 import { postPedido } from "@/features/pedidos/services/pedidos";
 import { useAuthStore } from "@/shared/stores/authStore";
 import { useQueryClient } from "@tanstack/react-query";
-import { useProdutos } from "@/hooks/useProduto";
-import { useLojas } from "@/hooks/useLoja";
+import { useProdutos } from "@/features/produtos/hooks/useProduto";
+import { useLojas } from "@/features/lojas/hooks/useLoja";
 import AutocompleteProduto from "@/shared/components/HeroUI/AutocompleteP";
 import AutocompleteLoja from "@/shared/components/HeroUI/AutocompleteLoja";
 

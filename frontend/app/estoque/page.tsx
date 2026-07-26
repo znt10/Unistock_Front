@@ -9,13 +9,13 @@ import BarraLojas from "@/features/estoque/components/BarraLojas";
 import CategoriaEstoque from "@/features/estoque/components/CategoriaEstoque";
 import HistoricoEstoque from "@/features/estoque/components/HistoricoEstoque";
 import TotalGeral from "@/features/estoque/components/TotalGeral";
-import { useEstoque } from "@/hooks/useEstoque";
-import { useLojas } from "@/hooks/useLoja";
-import { PRODUTOS_QUERY_KEY, type Produto, useProdutos } from "@/hooks/useProduto";
+import { useEstoque } from "@/features/estoque/hooks/useEstoque";
+import { useLojas } from "@/features/lojas/hooks/useLoja";
+import { PRODUTOS_QUERY_KEY, type Produto, useProdutos } from "@/features/produtos/hooks/useProduto";
 import { getEstoques, patchEstoque, postEstoque } from "@/features/estoque/services/estoque";
 import { patchProduto } from "@/features/produtos/services/produtos";
 import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
-import type { EstadoProduto, EstoqueLocal } from "@/data/estruturaEstoque";
+import type { EstadoProduto, EstoqueLocal } from "@/features/estoque/data/estruturaEstoque";
 
 type CategoriaVisual = {
   label: string;

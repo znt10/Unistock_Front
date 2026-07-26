@@ -3,7 +3,7 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import { usePreferenciasNotificacao } from "@/hooks/usePreferenciasNotificacao";
+import { usePreferenciasNotificacao } from "@/features/notificacoes/hooks/usePreferenciasNotificacao";
 
 const Icons = {
   Mail: () => (

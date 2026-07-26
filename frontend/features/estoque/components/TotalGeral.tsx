@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { type EstoqueLocal } from "@/data/estruturaEstoque";
+import { type EstoqueLocal } from "@/features/estoque/data/estruturaEstoque";
 
 type Props = {
   estoque: EstoqueLocal;

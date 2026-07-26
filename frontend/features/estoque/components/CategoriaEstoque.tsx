@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ItemEstoque from "@/features/estoque/components/ItemEstoque";
-import { type EstadoProduto, type ItemEstoqueData } from "@/data/estruturaEstoque";
+import { type EstadoProduto, type ItemEstoqueData } from "@/features/estoque/data/estruturaEstoque";
 
 const COR = {
   orange: "border-orange-200 bg-orange-50 text-orange-700",

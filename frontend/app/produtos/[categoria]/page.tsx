@@ -9,7 +9,7 @@ import {
   PRODUTOS_QUERY_KEY,
   useProdutos,
   type Produto,
-} from "@/hooks/useProduto";
+} from "@/features/produtos/hooks/useProduto";
 import { patchProduto, deleteProduto } from "@/features/produtos/services/produtos";
 
 // ─── Mapa de categorias ───────────────────────────────────────────────────────

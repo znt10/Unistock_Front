@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
-import { useProdutos } from "@/hooks/useProduto";
+import { useProdutos } from "@/features/produtos/hooks/useProduto";
 
 // ─── Categorias ───────────────────────────────────────────────────────────────
 

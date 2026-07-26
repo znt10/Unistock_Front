@@ -5,7 +5,7 @@ import {
   ESTADOS_PRODUTO,
   type EstadoProduto,
   type ItemEstoqueData,
-} from "@/data/estruturaEstoque";
+} from "@/features/estoque/data/estruturaEstoque";
 
 type ProdutoLinha = {
   id: string;

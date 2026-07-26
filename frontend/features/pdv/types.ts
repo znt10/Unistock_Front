@@ -1,4 +1,4 @@
-import type { Produto } from "@/hooks/useProduto";
+import type { Produto } from "@/features/produtos/hooks/useProduto";
 
 export type PdvProdutoDisponivel = Produto & {
   estoque_id: string;

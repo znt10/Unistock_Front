@@ -1,4 +1,4 @@
-// hooks/useProdutos.ts
+// features/produtos/hooks/useProduto.ts
 import { useQuery } from "@tanstack/react-query";
 import { getProdutos } from "@/features/produtos/services/produtos"; // ← confirma o nome da função
 

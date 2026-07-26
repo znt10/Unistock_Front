@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, ArrowRight, History, TrendingDown, TrendingUp } from "lucide-react";
-import type { HistoricoEstoque as HistoricoEstoqueData } from "@/hooks/useEstoque";
+import type { HistoricoEstoque as HistoricoEstoqueData } from "@/features/estoque/hooks/useEstoque";
 
 type Props = {
   historico: HistoricoEstoqueData[];

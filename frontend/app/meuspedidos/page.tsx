@@ -2,8 +2,8 @@
 
 import React, { Suspense, useState } from "react";
 import Sidebar from "@/components/Sidebar";
-import { usePedidos } from "@/hooks/usePedidos";
-import { usePedidoStatusActions } from "@/hooks/usePedidoStatusActions";
+import { usePedidos } from "@/features/pedidos/hooks/usePedidos";
+import { usePedidoStatusActions } from "@/features/pedidos/hooks/usePedidoStatusActions";
 import {
   selectIsGerente,
   selectIsResponsavel,
