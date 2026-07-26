@@ -14,7 +14,7 @@ Interface do sistema UniStock, desenvolvida com Next.js e TypeScript.
 Crie um arquivo `.env.local` na raiz desta pasta:
 
 ```env
-JWT_SECRET_KEY=zjgi%%1n4urQXXme1eZC^tqg=ehlqtomf)S23X@__0yt752QgP
+JWT_SECRET_KEY=
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_ENVIRONMENT=development
 NEXT_PUBLIC_DEBUG_MODE=true
