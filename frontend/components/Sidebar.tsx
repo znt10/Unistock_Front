@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { logout } from "@/shared/services/auth";
-import { getNotificacoes } from "@/services/uni";
+import { getNotificacoes } from "@/features/notificacoes/services/notificacoes";
 import { useAuthStore } from "@/shared/stores/authStore";
 
 const Icons = {

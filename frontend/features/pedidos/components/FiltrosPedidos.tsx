@@ -1,7 +1,7 @@
 // features/pedidos/components/FiltrosPedidos.tsx
 
 import { useAuthStore } from "@/shared/stores/authStore";
-import { getLoja } from "@/services/uni";
+import { getLoja } from "@/features/lojas/services/lojas";
 import { useQuery } from "@tanstack/react-query";
 
 interface FiltrosPedidosProps {

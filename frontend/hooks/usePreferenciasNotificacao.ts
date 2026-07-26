@@ -6,7 +6,7 @@ import {
   getPreferenciasNotificacao,
   updatePreferenciasNotificacao,
   type PreferenciaNotificacao,
-} from "@/services/uni";
+} from "@/features/notificacoes/services/notificacoes";
 
 const QUERY_KEY = ["preferencias-notificacao"];
 

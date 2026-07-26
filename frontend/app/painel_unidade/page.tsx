@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useLojas, type Loja } from "@/hooks/useLoja";
-import { getRelatorio } from "@/services/uni";
+import { getRelatorio } from "@/features/pedidos/services/pedidos";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

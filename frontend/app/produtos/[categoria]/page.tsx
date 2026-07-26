@@ -10,7 +10,7 @@ import {
   useProdutos,
   type Produto,
 } from "@/hooks/useProduto";
-import { patchProduto, deleteProduto } from "@/services/uni";
+import { patchProduto, deleteProduto } from "@/features/produtos/services/produtos";
 
 // ─── Mapa de categorias ───────────────────────────────────────────────────────
 

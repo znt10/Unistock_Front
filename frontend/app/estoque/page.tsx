@@ -12,7 +12,8 @@ import TotalGeral from "@/features/estoque/components/TotalGeral";
 import { useEstoque } from "@/hooks/useEstoque";
 import { useLojas } from "@/hooks/useLoja";
 import { PRODUTOS_QUERY_KEY, type Produto, useProdutos } from "@/hooks/useProduto";
-import { getEstoques, patchEstoque, patchProduto, postEstoque } from "@/services/uni";
+import { getEstoques, patchEstoque, postEstoque } from "@/features/estoque/services/estoque";
+import { patchProduto } from "@/features/produtos/services/produtos";
 import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
 import type { EstadoProduto, EstoqueLocal } from "@/data/estruturaEstoque";
 

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
-import { getLojaById, deleteLoja } from "@/services/uni"; // Ajuste o caminho do import
+import { getLojaById, deleteLoja } from "@/features/lojas/services/lojas"; // Ajuste o caminho do import
 
 // Ícones (Mantidos conforme seu código original)
 const Icons = {

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
-import { postPedido } from "@/services/uni";
+import { postPedido } from "@/features/pedidos/services/pedidos";
 import { useAuthStore } from "@/shared/stores/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProdutos } from "@/hooks/useProduto";

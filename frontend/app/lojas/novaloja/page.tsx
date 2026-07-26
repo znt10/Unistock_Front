@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
-import { postLoja } from "@/services/uni";
+import { postLoja } from "@/features/lojas/services/lojas";
 
 const Icons = {
   ChevronLeft: () => (

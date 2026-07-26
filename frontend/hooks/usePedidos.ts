@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getPedidos } from "@/services/uni";
+import { getPedidos } from "@/features/pedidos/services/pedidos";
 
 export interface Pedido {
   id: string;

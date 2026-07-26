@@ -1,6 +1,6 @@
 // hooks/useProdutos.ts
 import { useQuery } from "@tanstack/react-query";
-import { getProdutos } from "@/services/uni"; // ← confirma o nome da função
+import { getProdutos } from "@/features/produtos/services/produtos"; // ← confirma o nome da função
 
 export const PRODUTOS_QUERY_KEY = ["produtos", "v3"] as const;
 

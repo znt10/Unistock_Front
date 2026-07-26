@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { getLoja } from "@/services/uni";
+import { getLoja } from "@/features/lojas/services/lojas";
 
 export const LOJAS_QUERY_KEY = ["lojas", "v2"] as const;
 

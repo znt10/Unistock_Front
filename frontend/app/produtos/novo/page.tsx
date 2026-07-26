@@ -10,7 +10,7 @@ import {
   type Produto,
   useProdutos,
 } from "@/hooks/useProduto";
-import { postProduto } from "@/services/uni";
+import { postProduto } from "@/features/produtos/services/produtos";
 
 const CATEGORIAS = [
   { valor: "SALGADOS_GDE", label: "Salgados grande", dot: "bg-orange-500" },
