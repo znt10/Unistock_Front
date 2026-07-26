@@ -99,6 +99,8 @@ export type MovimentacaoEstoque = {
   id: string;
   tipo: "ENTRADA" | "SAIDA" | "TRANSFERENCIA" | "AJUSTE" | "VENDA_PDV";
   produto_nome: string;
+  loja_origem_id: string | null;
+  loja_destino_id: string | null;
   loja_origem_nome: string | null;
   loja_destino_nome: string | null;
   quantidade: number;
@@ -106,9 +108,10 @@ export type MovimentacaoEstoque = {
   data: string;
 };
 
-export const getMovimentacoes = async () => {
+export const getMovimentacoes = async (lojaId?: string) => {
   // Primeira pagina (50 mais recentes) — suficiente para a tela de historico.
-  const res = await apiV1("/movimentacoes/", { method: "GET" });
+  const query = lojaId ? `?loja=${lojaId}` : "";
+  const res = await apiV1(`/movimentacoes/${query}`, { method: "GET" });
   const data = await res.json();
   return (data.results ?? data) as MovimentacaoEstoque[];
 };
