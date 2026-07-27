@@ -78,5 +78,17 @@ export const deleteLoja = async (id: string) => {
     method: "DELETE",
   });
 
-  return res.ok;
+  if (res.ok) {
+    return { ok: true as const };
+  }
+
+  let mensagem = "Erro ao excluir a loja.";
+  try {
+    const data = await res.json();
+    mensagem = data.error || mensagem;
+  } catch {
+    // corpo vazio (ex.: 204 sem chegar aqui, ou erro sem JSON) — mantem o generico
+  }
+
+  return { ok: false as const, mensagem };
 };
