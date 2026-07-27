@@ -128,8 +128,8 @@ export default function DetalheLoja() {
 
   const handleDeletar = async () => {
     if (confirm("Tem certeza que deseja remover esta unidade?")) {
-      const resultado = await deleteLoja(params.id as string);
-      if (resultado.ok) {
+      const ok = await deleteLoja(params.id as string);
+      if (ok) {
         queryClient.setQueryData<Loja[] | undefined>(
           LOJAS_QUERY_KEY,
           (lojasAtuais) => {
@@ -139,8 +139,6 @@ export default function DetalheLoja() {
         );
         queryClient.removeQueries({ queryKey: ["lojas", id] });
         router.push("/lojas");
-      } else {
-        alert(resultado.mensagem);
       }
     }
   };
