@@ -4,19 +4,9 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import { useProdutos } from "@/features/produtos/hooks/useProduto";
-
-// ─── Categorias ───────────────────────────────────────────────────────────────
-
-const CATEGORIAS = [
-  { valor: "SALGADOS_GDE",  label: "Salgados Grande", grupo: "Salgados",  cor: "text-orange-500",  borda: "border-orange-500/30",  bg: "bg-orange-500/10",  acento: "bg-orange-500"  },
-  { valor: "SALGADOS_MINI", label: "Salgados Mini",   grupo: "Salgados",  cor: "text-orange-400",  borda: "border-orange-400/30",  bg: "bg-orange-400/10",  acento: "bg-orange-400"  },
-  { valor: "ESFIHAS_GDE",   label: "Esfihas Grande",  grupo: "Esfihas",   cor: "text-red-500",     borda: "border-red-500/30",     bg: "bg-red-500/10",     acento: "bg-red-500"     },
-  { valor: "ESFIHAS_MINI",  label: "Esfihas Mini",    grupo: "Esfihas",   cor: "text-red-400",     borda: "border-red-400/30",     bg: "bg-red-400/10",     acento: "bg-red-400"     },
-  { valor: "FOGAZZAS_GDE",  label: "Fogazzas Grande", grupo: "Fogazzas",  cor: "text-emerald-500", borda: "border-emerald-500/30", bg: "bg-emerald-500/10", acento: "bg-emerald-500" },
-  { valor: "FOGAZZAS_MINI", label: "Fogazzas Mini",   grupo: "Fogazzas",  cor: "text-emerald-400", borda: "border-emerald-400/30", bg: "bg-emerald-400/10", acento: "bg-emerald-400" },
-  { valor: "RECHEIOS",      label: "Recheios",         grupo: "Outros",    cor: "text-blue-400",    borda: "border-blue-400/30",    bg: "bg-blue-400/10",    acento: "bg-blue-400"    },
-  { valor: "MERCADO",       label: "Mercado",          grupo: "Outros",    cor: "text-violet-400",  borda: "border-violet-400/30",  bg: "bg-violet-400/10",  acento: "bg-violet-400"  },
-] as const;
+import { useCategorias } from "@/features/produtos/hooks/useCategorias";
+import NovaCategoriaModal from "@/features/produtos/components/NovaCategoriaModal";
+import { corDaCategoria } from "@/features/produtos/utils/categoriaCores";
 
 // ─── Ícones ───────────────────────────────────────────────────────────────────
 
@@ -42,7 +32,9 @@ const IconeSeta = () => (
 
 export default function ProdutosPage() {
   const { data: produtos = [], isLoading, isError } = useProdutos();
+  const { data: categorias = [], isLoading: carregandoCategorias } = useCategorias();
   const [busca, setBusca] = useState("");
+  const [modalCategoriaAberto, setModalCategoriaAberto] = useState(false);
 
   const contagemPorCategoria = useMemo(() => {
     const map: Record<string, number> = {};
@@ -52,9 +44,8 @@ export default function ProdutosPage() {
     return map;
   }, [produtos]);
 
-  const categoriasFiltradas = CATEGORIAS.filter((c) =>
-    c.label.toLowerCase().includes(busca.toLowerCase()) ||
-    c.grupo.toLowerCase().includes(busca.toLowerCase()),
+  const categoriasFiltradas = categorias.filter((c) =>
+    c.nome.toLowerCase().includes(busca.toLowerCase()),
   );
 
   const totalProdutos = produtos.length;
@@ -94,19 +85,29 @@ export default function ProdutosPage() {
                   Categorias
                 </span>
                 <p className="text-2xl font-black text-theme-text-title">
-                  {CATEGORIAS.length}
+                  {carregandoCategorias ? "—" : categorias.length}
                 </p>
               </div>
             </div>
           </div>
 
-          <Link
-            href="/produtos/novo"
-            className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-4 text-xs font-black uppercase tracking-[1px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
-          >
-            <span className="shrink-0"><IconePlus /></span>
-            <span className="truncate">Novo produto</span>
-          </Link>
+          <div className="flex w-full min-w-0 flex-col gap-3 sm:w-auto sm:flex-row">
+            <button
+              type="button"
+              onClick={() => setModalCategoriaAberto(true)}
+              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-4 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
+            >
+              <span className="shrink-0"><IconePlus /></span>
+              <span className="truncate">Nova categoria</span>
+            </button>
+            <Link
+              href="/produtos/novo"
+              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-4 text-xs font-black uppercase tracking-[1px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
+            >
+              <span className="shrink-0"><IconePlus /></span>
+              <span className="truncate">Novo produto</span>
+            </Link>
+          </div>
         </div>
 
         {/* ── Busca ── */}
@@ -133,27 +134,25 @@ export default function ProdutosPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {categoriasFiltradas.map((cat) => {
-              const count = contagemPorCategoria[cat.valor] ?? 0;
+              const count = contagemPorCategoria[cat.id] ?? 0;
+              const cor = corDaCategoria(cat.id);
               return (
                 <Link
-                  key={cat.valor}
-                  href={`/produtos/${cat.valor}`}
+                  key={cat.id}
+                  href={`/produtos/${cat.id}`}
                   className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-theme-border bg-theme-card shadow-sm transition hover:border-blue-500/40 hover:shadow-md"
                 >
                   {/* barra colorida no topo */}
-                  <div className={`h-1 w-full ${cat.acento} opacity-70`} />
+                  <div className={`h-1 w-full ${cor.dot} opacity-70`} />
 
                   <div className="p-5">
-                    <p className={`mb-1 text-[10px] font-black uppercase tracking-[2px] ${cat.cor}`}>
-                      {cat.grupo}
-                    </p>
                     <h2 className="text-base font-black uppercase text-theme-text-title">
-                      {cat.label}
+                      {cat.nome}
                     </h2>
 
                     <div className="mt-4 flex items-end justify-between">
                       <div>
-                        <strong className={`block text-3xl font-black ${isLoading ? "text-theme-text-sub/30" : cat.cor}`}>
+                        <strong className={`block text-3xl font-black ${isLoading ? "text-theme-text-sub/30" : cor.cor}`}>
                           {isLoading ? "—" : count}
                         </strong>
                         <span className="text-[11px] font-bold uppercase tracking-wider text-theme-text-sub/50">
@@ -167,13 +166,20 @@ export default function ProdutosPage() {
                   </div>
 
                   {/* brilho decorativo */}
-                  <div className={`pointer-events-none absolute right-0 top-0 -mr-8 -mt-8 h-24 w-24 rounded-full ${cat.bg} blur-2xl`} />
+                  <div className={`pointer-events-none absolute right-0 top-0 -mr-8 -mt-8 h-24 w-24 rounded-full ${cor.bg} blur-2xl`} />
                 </Link>
               );
             })}
           </div>
         )}
       </main>
+
+      {modalCategoriaAberto && (
+        <NovaCategoriaModal
+          onClose={() => setModalCategoriaAberto(false)}
+          onCriada={() => {}}
+        />
+      )}
     </div>
   );
 }

@@ -74,21 +74,16 @@ export const getLojaById = async (id: string) => {
 };
 
 export const deleteLoja = async (id: string) => {
-  const res = await apiV1(`/lojas/${id}/`, {
-    method: "DELETE",
-  });
-
-  if (res.ok) {
-    return { ok: true as const };
-  }
-
-  let mensagem = "Erro ao excluir a loja.";
+  // apiFetch ja lanca Error (com a mensagem extraida de {"error": ...}) pra
+  // qualquer resposta nao-OK, entao um eventual `res.ok` aqui nunca seria
+  // false — o catch e o unico jeito de pegar o 409 do backend.
   try {
-    const data = await res.json();
-    mensagem = data.error || mensagem;
-  } catch {
-    // corpo vazio (ex.: 204 sem chegar aqui, ou erro sem JSON) — mantem o generico
+    await apiV1(`/lojas/${id}/`, { method: "DELETE" });
+    return { ok: true as const };
+  } catch (err) {
+    return {
+      ok: false as const,
+      mensagem: err instanceof Error ? err.message : "Erro ao excluir a loja.",
+    };
   }
-
-  return { ok: false as const, mensagem };
 };

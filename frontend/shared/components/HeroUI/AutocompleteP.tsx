@@ -7,23 +7,13 @@ type Produto = {
   nome_produto: string;
   unidade_medida?: string;
   categoria?: string;
+  categoria_nome?: string;
 };
 
 interface Props {
   produtos: Produto[];
   onSelect: (id: string) => void;
 }
-
-const CATEGORIA_LABELS: Record<string, string> = {
-  SALGADOS_GDE: "Salgados grande",
-  SALGADOS_MINI: "Salgados mini",
-  ESFIHAS_GDE: "Esfihas grande",
-  ESFIHAS_MINI: "Esfihas mini",
-  FOGAZZAS_GDE: "Fogazzas grande",
-  FOGAZZAS_MINI: "Fogazzas mini",
-  RECHEIOS: "Recheios",
-  MERCADO: "Mercado",
-};
 
 function normalizarTexto(valor?: string) {
   return (valor || "")
@@ -33,13 +23,12 @@ function normalizarTexto(valor?: string) {
     .toLowerCase();
 }
 
-function categoriaLabel(categoria?: string) {
-  if (!categoria) return "Sem categoria";
-  return CATEGORIA_LABELS[categoria] || categoria;
+function categoriaLabel(produto: Produto) {
+  return produto.categoria_nome || "Sem categoria";
 }
 
 function produtoLabel(produto: Produto) {
-  return `${produto.nome_produto} - ${categoriaLabel(produto.categoria)}`;
+  return `${produto.nome_produto} - ${categoriaLabel(produto)}`;
 }
 
 export default function AutocompleteProduto({ produtos, onSelect }: Props) {
@@ -49,12 +38,7 @@ export default function AutocompleteProduto({ produtos, onSelect }: Props) {
   const queryNormalizada = normalizarTexto(query);
 
   const filtrados = listaProdutos.filter((p) => {
-    const termos = [
-      p.nome_produto,
-      p.unidade_medida,
-      p.categoria,
-      categoriaLabel(p.categoria),
-    ];
+    const termos = [p.nome_produto, p.unidade_medida, categoriaLabel(p)];
 
     return termos.some((termo) =>
       normalizarTexto(termo).includes(queryNormalizada),
@@ -67,7 +51,7 @@ export default function AutocompleteProduto({ produtos, onSelect }: Props) {
       )
     : [];
   const categoriasComMesmoNome = new Set(
-    produtosComMesmoNome.map((p) => categoriaLabel(p.categoria)),
+    produtosComMesmoNome.map((p) => categoriaLabel(p)),
   );
   const temMesmoNomeEmCategoriasDiferentes = categoriasComMesmoNome.size > 1;
 
@@ -118,7 +102,7 @@ export default function AutocompleteProduto({ produtos, onSelect }: Props) {
                   {p.nome_produto}
                   <span className="font-bold text-theme-text-sub">
                     {" "}
-                    - {categoriaLabel(p.categoria)}
+                    - {categoriaLabel(p)}
                   </span>
                 </span>
                 <span className="text-xs font-medium text-theme-text-sub/70">

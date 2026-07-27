@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Boxes, CheckCircle2, TrendingDown } from "lucide-react";
+import { AlertTriangle, Boxes, CheckCircle2, Plus, TrendingDown } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import BarraLojas from "@/features/estoque/components/BarraLojas";
 import CategoriaEstoque from "@/features/estoque/components/CategoriaEstoque";
@@ -12,86 +12,24 @@ import TotalGeral from "@/features/estoque/components/TotalGeral";
 import { useEstoque } from "@/features/estoque/hooks/useEstoque";
 import { useLojas } from "@/features/lojas/hooks/useLoja";
 import { PRODUTOS_QUERY_KEY, type Produto, useProdutos } from "@/features/produtos/hooks/useProduto";
+import { useCategorias } from "@/features/produtos/hooks/useCategorias";
+import NovaCategoriaModal from "@/features/produtos/components/NovaCategoriaModal";
 import { getEstoques, patchEstoque, postEstoque } from "@/features/estoque/services/estoque";
 import { patchProduto } from "@/features/produtos/services/produtos";
 import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
 import type { EstadoProduto, EstoqueLocal } from "@/features/estoque/data/estruturaEstoque";
 
-type CategoriaVisual = {
-  label: string;
-  cor: "orange" | "red" | "blue" | "green";
-  temEstado?: boolean;
-};
+const SEM_CATEGORIA = "Sem categoria";
 
-const CATEGORIAS_VIEW: Record<string, CategoriaVisual> = {
-  SALGADOS_GDE: { label: "SALGADOS GDE", cor: "orange" },
-  SALGADOS_MINI: { label: "SALGADOS MINI", cor: "orange", temEstado: true },
-  ESFIHAS_GDE: { label: "ESFIHAS GDE", cor: "red" },
-  ESFIHAS_MINI: { label: "ESFIHAS MINI", cor: "red" },
-  FOGAZZAS_GDE: { label: "FOGAZZAS GDE", cor: "green" },
-  FOGAZZAS_MINI: { label: "FOGAZZAS MINI", cor: "green", temEstado: true },
-  RECHEIOS: { label: "RECHEIOS", cor: "blue" },
-  MERCADO: { label: "MERCADO", cor: "green" },
-};
-
-const CATEGORIAS_ORDEM = [
-  "SALGADOS_GDE",
-  "SALGADOS_MINI",
-  "ESFIHAS_GDE",
-  "ESFIHAS_MINI",
-  "FOGAZZAS_GDE",
-  "FOGAZZAS_MINI",
-  "RECHEIOS",
-  "MERCADO",
+// Sem cor cadastrada no backend: cicla uma paleta fixa na ordem das
+// categorias (config.ordem), assim a mesma tela sempre re-gera as mesmas
+// cores enquanto a lista de categorias nao mudar.
+const PALETA_CORES: readonly ("orange" | "red" | "blue" | "green")[] = [
+  "orange",
+  "red",
+  "green",
+  "blue",
 ];
-
-const CATEGORIA_ALIASES: Record<string, string> = {
-  "SALGADOS GDE": "SALGADOS_GDE",
-  "SALGADOS GRANDE": "SALGADOS_GDE",
-  "SALGADOS MINI": "SALGADOS_MINI",
-  "ESFIHAS GDE": "ESFIHAS_GDE",
-  "ESFIHAS GRANDE": "ESFIHAS_GDE",
-  "ESFIHAS MINI": "ESFIHAS_MINI",
-  "FOGAZZAS GDE": "FOGAZZAS_GDE",
-  "FOGAZZAS GRANDE": "FOGAZZAS_GDE",
-  "FOGAZZAS MINI": "FOGAZZAS_MINI",
-  RECHEIOS: "RECHEIOS",
-  MERCADO: "MERCADO",
-};
-
-function normalizarCategoria(categoria?: string) {
-  if (!categoria) return "MERCADO";
-  const chave = categoria.trim().toUpperCase();
-  return CATEGORIA_ALIASES[chave] || chave;
-}
-
-function formatarCategoria(categoria: string) {
-  return categoria
-    .replaceAll("_", " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (letra) => letra.toUpperCase())
-    .toUpperCase();
-}
-
-function getCategoriaVisual(categoria: string): CategoriaVisual {
-  return (
-    CATEGORIAS_VIEW[categoria] || {
-      label: formatarCategoria(categoria),
-      cor: "blue",
-    }
-  );
-}
-
-function ordenarCategorias(a: string, b: string) {
-  const ordemA = CATEGORIAS_ORDEM.indexOf(a);
-  const ordemB = CATEGORIAS_ORDEM.indexOf(b);
-
-  if (ordemA >= 0 && ordemB >= 0) return ordemA - ordemB;
-  if (ordemA >= 0) return -1;
-  if (ordemB >= 0) return 1;
-
-  return getCategoriaVisual(a).label.localeCompare(getCategoriaVisual(b).label);
-}
 
 function normalizarEstado(estado?: string): EstadoProduto {
   if (estado === "CONGELADO") return "Congelado";
@@ -123,6 +61,8 @@ export default function EstoquePage() {
   const { data: lojasQuery = [], isLoading: carregandoLojas } = useLojas();
   const { data: produtosQuery = [], isLoading: carregandoProdutos } =
     useProdutos();
+  const { data: categoriasApi = [] } = useCategorias();
+  const [modalCategoriaAberto, setModalCategoriaAberto] = useState(false);
   const { data: estoquesApi = [], isLoading: carregandoEstoques } = useQuery({
     queryKey: ["estoque"],
     queryFn: getEstoques,
@@ -179,42 +119,43 @@ export default function EstoquePage() {
     >();
 
     produtos.forEach((produto) => {
-        const categoriaCodigo = normalizarCategoria(produto.categoria);
-        const produtosCategoria = agrupadas.get(categoriaCodigo) || new Map();
-        produtosCategoria.set(produto.id, {
-          id: produto.id,
-          nome: produto.nome_produto,
-          unidade_medida: produto.unidade_medida,
-          quantidade_por_embalagem: produto.quantidade_por_embalagem,
-          estoque_minimo_sugerido: produto.estoque_minimo_sugerido,
-        });
-        agrupadas.set(categoriaCodigo, produtosCategoria);
+      const nomeCategoria = produto.categoria_nome || SEM_CATEGORIA;
+      const produtosCategoria = agrupadas.get(nomeCategoria) || new Map();
+      produtosCategoria.set(produto.id, {
+        id: produto.id,
+        nome: produto.nome_produto,
+        unidade_medida: produto.unidade_medida,
+        quantidade_por_embalagem: produto.quantidade_por_embalagem,
+        estoque_minimo_sugerido: produto.estoque_minimo_sugerido,
       });
+      agrupadas.set(nomeCategoria, produtosCategoria);
+    });
+
+    const ordemPorNome = new Map(categoriasApi.map((c) => [c.nome, c.ordem]));
 
     return Array.from(agrupadas.entries())
-      .sort(([categoriaA], [categoriaB]) =>
-        ordenarCategorias(categoriaA, categoriaB),
-      )
-      .map(([categoriaCodigo, produtosCategoria]) => {
-        const config = getCategoriaVisual(categoriaCodigo);
-
-        return {
-        categoria: config.label,
-        cor: config.cor,
-        temEstado: config.temEstado,
+      .sort(([nomeA], [nomeB]) => {
+        const ordemA = ordemPorNome.get(nomeA) ?? 999;
+        const ordemB = ordemPorNome.get(nomeB) ?? 999;
+        if (ordemA !== ordemB) return ordemA - ordemB;
+        return nomeA.localeCompare(nomeB);
+      })
+      .map(([nomeCategoria, produtosCategoria], indice) => ({
+        categoria: nomeCategoria,
+        cor: PALETA_CORES[indice % PALETA_CORES.length],
+        // Estoque.estado (Normal/Congelado) e um campo generico do backend,
+        // nao restrito a categoria — mostra o controle pra todas.
+        temEstado: true,
         produtos: Array.from(produtosCategoria.values())
           .sort((a, b) => a.nome.localeCompare(b.nome)),
-        };
-      });
-  }, [produtos]);
+      }));
+  }, [produtos, categoriasApi]);
 
   const categoriaPorProduto = useMemo(() => {
     const mapa = new Map<string, string>();
 
     produtos.forEach((produto) => {
-      const categoriaCodigo = normalizarCategoria(produto.categoria);
-      const config = getCategoriaVisual(categoriaCodigo);
-      mapa.set(produto.id, config.label);
+      mapa.set(produto.id, produto.categoria_nome || SEM_CATEGORIA);
     });
 
     return mapa;
@@ -247,7 +188,7 @@ export default function EstoquePage() {
     const base: EstoqueLocal = { ...estoque };
 
     estoquesApi.forEach((item) => {
-      const categoria = categoriaPorProduto.get(item.produto) || "MERCADO";
+      const categoria = categoriaPorProduto.get(item.produto) || SEM_CATEGORIA;
 
       base[item.loja] = {
         ...base[item.loja],
@@ -344,7 +285,7 @@ export default function EstoquePage() {
   ) => {
     const produtoDados = produtoPorId.get(produto);
     const itemAtual =
-      estoqueVisivel[loja]?.[categoriaPorProduto.get(produto) || "MERCADO"]?.[
+      estoqueVisivel[loja]?.[categoriaPorProduto.get(produto) || SEM_CATEGORIA]?.[
         produto
       ];
     const registro = estoquesApi.find(
@@ -468,6 +409,15 @@ export default function EstoquePage() {
                 {formatarData(ultimaAtualizacao)}
               </p>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setModalCategoriaAberto(true)}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500 active:scale-95 md:w-auto"
+            >
+              <Plus size={16} strokeWidth={3} />
+              Nova categoria
+            </button>
           </div>
 
           <BarraLojas
@@ -601,6 +551,13 @@ export default function EstoquePage() {
           />
         </div>
       </main>
+
+      {modalCategoriaAberto && (
+        <NovaCategoriaModal
+          onClose={() => setModalCategoriaAberto(false)}
+          onCriada={() => {}}
+        />
+      )}
     </div>
   );
 }

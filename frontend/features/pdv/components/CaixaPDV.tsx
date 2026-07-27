@@ -23,24 +23,18 @@ function formatarUnidade(unidade?: string) {
   return unidade?.replaceAll("_", " ").toLowerCase() || "unidade";
 }
 
-const CATEGORIAS_EXCLUIDAS = ["RECHEIOS", "MERCADO"];
+// PDV so vende salgados/esfihas/fogazzas: recheios sao insumo, mercado tem
+// fluxo proprio. Comparado pelo nome da categoria (categoria_nome), ja que
+// categoria agora e um id (UUID) opaco sem significado textual.
+const CATEGORIAS_EXCLUIDAS = ["Recheios", "Mercado"];
 
 const CATEGORIA_ORDEM: Record<string, number> = {
-  SALGADOS_GDE: 0,
-  ESFIHAS_GDE: 1,
-  FOGAZZAS_GDE: 2,
-  SALGADOS_MINI: 3,
-  ESFIHAS_MINI: 4,
-  FOGAZZAS_MINI: 5,
-};
-
-const CATEGORIA_LABEL: Record<string, string> = {
-  SALGADOS_GDE: "Salgados Grande",
-  SALGADOS_MINI: "Salgados Mini",
-  ESFIHAS_GDE: "Esfihas Grande",
-  ESFIHAS_MINI: "Esfihas Mini",
-  FOGAZZAS_GDE: "Fogazzas Grande",
-  FOGAZZAS_MINI: "Fogazzas Mini",
+  "Salgados grande": 0,
+  "Esfihas grande": 1,
+  "Fogazzas grande": 2,
+  "Salgados mini": 3,
+  "Esfihas mini": 4,
+  "Fogazzas mini": 5,
 };
 
 export default function CaixaPDV() {
@@ -125,10 +119,10 @@ export default function CaixaPDV() {
       });
 
     return Array.from(disponiveisPorProduto.values())
-      .filter((p) => !CATEGORIAS_EXCLUIDAS.includes(p.categoria ?? ""))
+      .filter((p) => !CATEGORIAS_EXCLUIDAS.includes(p.categoria_nome ?? ""))
       .sort((a, b) => {
-        const ordemA = CATEGORIA_ORDEM[a.categoria ?? ""] ?? 99;
-        const ordemB = CATEGORIA_ORDEM[b.categoria ?? ""] ?? 99;
+        const ordemA = CATEGORIA_ORDEM[a.categoria_nome ?? ""] ?? 99;
+        const ordemB = CATEGORIA_ORDEM[b.categoria_nome ?? ""] ?? 99;
         if (ordemA !== ordemB) return ordemA - ordemB;
         return a.nome_produto.localeCompare(b.nome_produto);
       });
@@ -342,7 +336,7 @@ export default function CaixaPDV() {
                     const grupos = produtosDisponiveis.reduce<
                       Record<string, typeof produtosDisponiveis>
                     >((acc, produto) => {
-                      const cat = produto.categoria ?? "OUTROS";
+                      const cat = produto.categoria_nome ?? "Outros";
                       if (!acc[cat]) acc[cat] = [];
                       acc[cat].push(produto);
                       return acc;
@@ -352,7 +346,7 @@ export default function CaixaPDV() {
                       <div key={cat}>
                         <h3 className="mb-3 flex items-center gap-3 text-sm font-black uppercase tracking-[2px] text-slate-200">
                           <span className="h-px flex-1 bg-theme-border" />
-                          {CATEGORIA_LABEL[cat] ?? cat}
+                          {cat}
                           <span className="h-px flex-1 bg-theme-border" />
                         </h3>
                         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
