@@ -23,23 +23,9 @@ import {
   useProdutos,
   type Produto,
 } from "@/features/produtos/hooks/useProduto";
+import { useCategorias } from "@/features/produtos/hooks/useCategorias";
+import { corDaCategoria } from "@/features/produtos/utils/categoriaCores";
 import { patchProduto, deleteProduto } from "@/features/produtos/services/produtos";
-
-// ─── Mapa de categorias ───────────────────────────────────────────────────────
-
-const CATEGORIAS_INFO: Record<
-  string,
-  { label: string; grupo: string; cor: string; borda: string; bg: string; acento: string }
-> = {
-  SALGADOS_GDE:  { label: "Salgados Grande", grupo: "Salgados", cor: "text-orange-500",  borda: "border-orange-500/30",  bg: "bg-orange-500/10",  acento: "bg-orange-500"  },
-  SALGADOS_MINI: { label: "Salgados Mini",   grupo: "Salgados", cor: "text-orange-400",  borda: "border-orange-400/30",  bg: "bg-orange-400/10",  acento: "bg-orange-400"  },
-  ESFIHAS_GDE:   { label: "Esfihas Grande",  grupo: "Esfihas",  cor: "text-red-500",     borda: "border-red-500/30",     bg: "bg-red-500/10",     acento: "bg-red-500"     },
-  ESFIHAS_MINI:  { label: "Esfihas Mini",    grupo: "Esfihas",  cor: "text-red-400",     borda: "border-red-400/30",     bg: "bg-red-400/10",     acento: "bg-red-400"     },
-  FOGAZZAS_GDE:  { label: "Fogazzas Grande", grupo: "Fogazzas", cor: "text-emerald-500", borda: "border-emerald-500/30", bg: "bg-emerald-500/10", acento: "bg-emerald-500" },
-  FOGAZZAS_MINI: { label: "Fogazzas Mini",   grupo: "Fogazzas", cor: "text-emerald-400", borda: "border-emerald-400/30", bg: "bg-emerald-400/10", acento: "bg-emerald-400" },
-  RECHEIOS:      { label: "Recheios",         grupo: "Outros",  cor: "text-blue-400",    borda: "border-blue-400/30",    bg: "bg-blue-400/10",    acento: "bg-blue-400"    },
-  MERCADO:       { label: "Mercado",          grupo: "Outros",  cor: "text-violet-400",  borda: "border-violet-400/30",  bg: "bg-violet-400/10",  acento: "bg-violet-400"  },
-};
 
 // ─── Linha de produto ─────────────────────────────────────────────────────────
 
@@ -258,15 +244,16 @@ function LinhaEsqueleto() {
 export default function CategoriaProdutos() {
   const { categoria } = useParams<{ categoria: string }>();
   const { data: produtos = [], isLoading, isError } = useProdutos();
+  const { data: categorias = [] } = useCategorias();
   const [busca, setBusca] = useState("");
 
-  const info = CATEGORIAS_INFO[categoria] ?? {
-    label: categoria,
-    grupo: "Categoria",
-    cor: "text-blue-500",
-    borda: "border-blue-500/30",
-    bg: "bg-blue-500/10",
-    acento: "bg-blue-500",
+  const categoriaAtual = categorias.find((c) => c.id === categoria);
+  const cor = corDaCategoria(categoria);
+  const info = {
+    label: categoriaAtual?.nome ?? "Categoria",
+    cor: cor.cor,
+    borda: cor.borda,
+    bg: cor.bg,
   };
 
   const produtosDaCategoria = produtos.filter((p) => p.categoria === categoria);
@@ -311,7 +298,7 @@ export default function CategoriaProdutos() {
               </span>
               <div className="min-w-0">
                 <span className={`mb-3 block text-xs font-black uppercase tracking-[3px] sm:text-sm sm:tracking-[4px] ${info.cor}`}>
-                  {info.grupo}
+                  Categoria
                 </span>
                 <h1 className="max-w-full wrap-break-word text-3xl font-black uppercase leading-tight text-theme-text-title sm:text-5xl sm:leading-none sm:tracking-tighter">
                   {info.label}

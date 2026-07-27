@@ -10,7 +10,10 @@ export interface Produto {
   unidade_medida?: string;
   quantidade_por_embalagem?: number | null;
   estoque_minimo_sugerido?: number;
+  // categoria e o id (UUID) da Categoria, usado pra ler/escrever na API;
+  // categoria_nome e o nome pra exibicao — nunca usar categoria como texto.
   categoria?: string;
+  categoria_nome?: string;
 }
 
 function normalizarProdutos(data: unknown): Produto[] {
