@@ -108,6 +108,8 @@ type LojaDetalhe = {
   responsavel?: string | number | null;
   responsavel_nome?: string | null;
   ativo: boolean;
+  telefone_whatsapp?: string | null;
+  email?: string | null;
 };
 
 export default function DetalheLoja() {
@@ -247,7 +249,7 @@ export default function DetalheLoja() {
             </div>
           </div>
 
-          {/* Contatos (Se o seu back-end tiver esses campos, senão pode omitir ou mockar) */}
+          {/* Contatos */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="group flex items-center gap-4 rounded-[24px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover sm:gap-6 sm:p-6 cursor-default">
               <div className="p-4 bg-theme-header border border-theme-border rounded-2xl text-theme-text-sub group-hover:text-blue-500 group-hover:border-blue-500/30 transition-all">
@@ -258,7 +260,7 @@ export default function DetalheLoja() {
                   Telefone de Contato
                 </label>
                 <p className="text-lg font-black text-theme-text-title font-mono tracking-tighter">
-                  (83) 90000-0000
+                  {loja.telefone_whatsapp || "Não informado"}
                 </p>
               </div>
             </div>
@@ -272,7 +274,7 @@ export default function DetalheLoja() {
                   E-mail Corporativo
                 </label>
                 <p className="break-all text-lg font-black text-theme-text-title lowercase">
-                  contato@{loja.nome_loja?.toLowerCase().replace(/\s/g, "")}.com
+                  {loja.email || "Não informado"}
                 </p>
               </div>
             </div>
