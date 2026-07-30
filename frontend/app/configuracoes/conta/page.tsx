@@ -4,8 +4,8 @@ import React from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { logout } from "@/services/auth";
-import { useAuthStore } from "@/stores/authStore";
+import { logout } from "@/shared/services/auth";
+import { useAuthStore } from "@/shared/stores/authStore";
 
 const Icons = {
   User: () => (

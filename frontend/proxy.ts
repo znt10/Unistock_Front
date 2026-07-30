@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha", "/redefinir-senha"];
+const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha"];
 
 const ROLE_ROUTES: Record<string, string[]> = {
+  Admin: [
+    "/admin",
+    "/configuracoes",
+  ],
   Gerente: [
     "/lojas",
     "/novopedido",
@@ -11,6 +15,9 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/notificacoes",
     "/configuracoes",
     "/estoque",
+    // Explicito: hoje passaria pelo prefixo "/estoque", mas o Sidebar mostra
+    // este item e depender do prefixo esconde a intencao.
+    "/estoque-baixo",
     "/produtos",
     "/caixa",
     "/historico"
@@ -19,6 +26,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/novopedido",
     "/meuspedidos",
     "/estoque",
+    "/estoque-baixo",
     "/notificacoes",
     "/configuracoes",
     "/caixa",
@@ -27,6 +35,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
 };
 
 const ROLE_HOME: Record<string, string> = {
+  Admin: "/admin",
   Gerente: "/lojas",
   Responsavel: "/novopedido",
 };
@@ -41,7 +50,11 @@ const normalizeRole = (role?: string) => {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 
-  if (["gerente", "administrador", "admin"].includes(normalized)) {
+  if (["admin", "administrador"].includes(normalized)) {
+    return "Admin";
+  }
+
+  if (normalized === "gerente") {
     return "Gerente";
   }
 
@@ -58,6 +71,19 @@ export default function proxy(request: NextRequest) {
   const role = normalizeRole(request.cookies.get("role")?.value);
   const { pathname } = request.nextUrl;
 
+  // Com skipTrailingSlashRedirect no next.config, a normalizacao da barra
+  // final das rotas de pagina passa a ser responsabilidade do middleware
+  // (as rotas /backend/* ficam fora do matcher e mantem a barra).
+  if (pathname !== "/" && pathname.endsWith("/")) {
+    // URL padrao, nao request.nextUrl.clone(): o NextURL re-aplica a barra
+    // final original ao serializar, o que geraria um loop de redirect.
+    const url = new URL(
+      pathname.slice(0, -1) + request.nextUrl.search,
+      request.url,
+    );
+    return NextResponse.redirect(url, 308);
+  }
+
   if (pathname === "/" && token && role) {
     return NextResponse.redirect(new URL(ROLE_HOME[role], request.url));
   }
@@ -66,7 +92,11 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(ROLE_HOME[role], request.url));
   }
 
-  if (PUBLIC_ROUTES.includes(pathname)) {
+  if (
+    PUBLIC_ROUTES.includes(pathname) ||
+    pathname.startsWith("/redefinir-senha/") ||
+    pathname.startsWith("/confirmar-conta/")
+  ) {
     return NextResponse.next();
   }
 
@@ -97,7 +127,8 @@ export default function proxy(request: NextRequest) {
 }
 
 async function refreshAccessToken(request: NextRequest) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl =
+    process.env.API_PROXY_URL || process.env.NEXT_PUBLIC_API_URL;
 
   if (!apiUrl) {
     return NextResponse.redirect(new URL("/login", request.url));
@@ -118,21 +149,21 @@ async function refreshAccessToken(request: NextRequest) {
     return response;
   }
 
-  const data = await refreshResponse.json();
+  // O novo access_token vem apenas como Set-Cookie HTTP-only do backend;
+  // repassa os cabecalhos ao navegador em vez de ler token do corpo.
   const response = NextResponse.redirect(request.nextUrl);
 
-  if (data.access) {
-    response.cookies.set("access_token", data.access, {
-      httpOnly: true,
-      secure: request.nextUrl.protocol === "https:",
-      sameSite: "lax",
-      path: "/",
-    });
+  for (const cookie of refreshResponse.headers.getSetCookie()) {
+    response.headers.append("set-cookie", cookie);
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon\\.ico|favicon\\.svg|icon\\.svg).*)"],
+  // "backend" fica fora do matcher: as chamadas de API same-origin passam
+  // direto para o rewrite do next.config sem sofrer redirect de navegacao.
+  matcher: [
+    "/((?!backend|_next/static|_next/image|favicon\\.ico|favicon\\.svg|icon\\.svg).*)",
+  ],
 };

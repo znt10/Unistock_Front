@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import { useLojas, type Loja } from "@/hooks/useLoja";
-import { getRelatorio } from "@/services/uni";
+import { useLojas, type Loja } from "@/features/lojas/hooks/useLoja";
+import { getRelatorio } from "@/features/pedidos/services/pedidos";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -179,7 +180,7 @@ function BotaoRelatorio() {
       window.open(url, "_blank");
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Erro ao gerar PDF");
+      toast.error(error instanceof Error ? error.message : "Erro ao gerar PDF");
     } finally {
       setGerando(null);
     }

@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
-import { postLoja } from "@/services/uni";
+import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
+import { postLoja } from "@/features/lojas/services/lojas";
 
 const Icons = {
   ChevronLeft: () => (
@@ -71,6 +72,17 @@ const Icons = {
       <circle cx="12" cy="7" r="4" />
     </svg>
   ),
+  Mail: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  ),
+  Phone: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+  ),
 };
 
 export default function NovaLoja() {
@@ -81,35 +93,44 @@ export default function NovaLoja() {
   const [nomeLoja, setNomeLoja] = useState("");
   const [cidade, setCidade] = useState("");
   const [endereco, setEndereco] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!nomeLoja.trim()) {
-      alert("Informe o nome da unidade");
+      toast.error("Informe o nome da unidade");
       return;
     }
     if (!cidade.trim()) {
-      alert("Informe a cidade");
+      toast.error("Informe a cidade");
       return;
     }
     if (!endereco.trim()) {
-      alert("Informe o endereço");
+      toast.error("Informe o endereço");
       return;
     }
 
     try {
       setLoading(true);
-      const lojaCriada = await postLoja(nomeLoja.trim(), tipo, cidade.trim(), endereco.trim());
+      const lojaCriada = await postLoja(
+        nomeLoja.trim(),
+        tipo,
+        cidade.trim(),
+        endereco.trim(),
+        email.trim(),
+        telefone.trim(),
+      );
       queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
         if (!lojasAtuais) return lojasAtuais;
         return [...lojasAtuais, lojaCriada];
       });
-      alert("Unidade salva com sucesso!");
+      toast.success("Unidade salva com sucesso!");
       router.push("/lojas");
     } catch (error: unknown) {
-      alert("Erro ao salvar unidade. Tente novamente.");
+      toast.error("Erro ao salvar unidade. Tente novamente.");
       console.error(error);
     } finally {
       setLoading(false);
@@ -215,6 +236,44 @@ export default function NovaLoja() {
                     placeholder="RUA, NÚMERO, BAIRRO"
                     className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 px-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm"
                   />
+                </div>
+              </div>
+
+              {/* Contato: Email + WhatsApp */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
+                    E-mail
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
+                      <Icons.Mail />
+                    </div>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="contato@unidade.com"
+                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
+                    WhatsApp
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
+                      <Icons.Phone />
+                    </div>
+                    <input
+                      type="tel"
+                      value={telefone}
+                      onChange={(e) => setTelefone(e.target.value)}
+                      placeholder="(83) 99999-8888"
+                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold text-sm"
+                    />
+                  </div>
                 </div>
               </div>
 

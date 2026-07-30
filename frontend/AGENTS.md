@@ -2,7 +2,33 @@
 
 Projeto: Unistock
 Parte: Frontend
-Stack: Next.js
+Stack: Next.js 16, React 19, TypeScript, Tailwind CSS, Zustand, TanStack Query
+
+## Estrutura
+
+```
+frontend/
+├── app/                # Pages (App Router)
+│   ├── caixa/
+│   ├── configuracoes/
+│   ├── esqueci-senha/
+│   ├── estoque/
+│   ├── historico/
+│   ├── login/
+│   ├── lojas/
+│   ├── meuspedidos/
+│   ├── notificacoes/
+│   ├── novopedido/
+│   ├── painel_unidade/
+│   ├── produtos/
+│   └── redefinir-senha/
+├── components/         # Componentes React (estoque, pdv, pedidos, usuarios, HeroUI)
+├── services/           # Chamadas API (api.ts, auth.ts, pdv.ts, uni.ts)
+├── stores/             # Estado global Zustand (authStore.ts)
+├── hooks/
+├── types/
+└── data/
+```
 
 ## Regras do frontend
 

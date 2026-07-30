@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
-import { getLojaById, getUsuarios, patchLoja, UsuarioResumo } from "@/services/uni";
+import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
+import { getLojaById, patchLoja } from "@/features/lojas/services/lojas";
 
 const Icons = {
   ChevronLeft: () => (
@@ -29,16 +30,21 @@ const Icons = {
       <circle cx="12" cy="10" r="3" />
     </svg>
   ),
-  User: () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  ),
   Power: () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2v10" />
       <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+    </svg>
+  ),
+  Mail: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  ),
+  Phone: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
     </svg>
   ),
 };
@@ -53,8 +59,9 @@ export default function EditarLoja() {
   const [nomeLoja, setNomeLoja] = useState("");
   const [cidade, setCidade] = useState("");
   const [endereco, setEndereco] = useState("");
-  const [responsavel, setResponsavel] = useState("");
-  const [usuarios, setUsuarios] = useState<UsuarioResumo[]>([]);
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [emailAcesso, setEmailAcesso] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -62,21 +69,19 @@ export default function EditarLoja() {
   useEffect(() => {
     const carregarLoja = async () => {
       try {
-        const [loja, usuariosData] = await Promise.all([
-          getLojaById(id),
-          getUsuarios(),
-        ]);
+        const loja = await getLojaById(id);
 
         setNomeLoja(loja.nome_loja ?? "");
         setTipo(loja.tipo ?? "Loja");
         setCidade(loja.cidade ?? "");
         setEndereco(loja.endereco ?? "");
-        setResponsavel(loja.responsavel ? String(loja.responsavel) : "");
-        setUsuarios(usuariosData);
+        setEmail(loja.email ?? "");
+        setTelefone(loja.telefone_whatsapp ?? "");
+        setEmailAcesso(loja.email_acesso ?? "");
         setAtivo(Boolean(loja.ativo));
       } catch (error) {
         console.error(error);
-        alert("Erro ao carregar unidade.");
+        toast.error("Erro ao carregar unidade.");
         router.push("/lojas");
       } finally {
         setCarregando(false);
@@ -92,15 +97,15 @@ export default function EditarLoja() {
     e.preventDefault();
 
     if (!nomeLoja.trim()) {
-      alert("Informe o nome da unidade");
+      toast.error("Informe o nome da unidade");
       return;
     }
     if (!cidade.trim()) {
-      alert("Informe a cidade");
+      toast.error("Informe a cidade");
       return;
     }
     if (!endereco.trim()) {
-      alert("Informe o endereco");
+      toast.error("Informe o endereco");
       return;
     }
 
@@ -110,7 +115,8 @@ export default function EditarLoja() {
         nome_loja: nomeLoja.trim(),
         cidade: cidade.trim(),
         endereco: endereco.trim(),
-        responsavel: responsavel ? Number(responsavel) : null,
+        email: email.trim(),
+        telefone_whatsapp: telefone.trim(),
         ativo,
       });
       queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
@@ -118,11 +124,11 @@ export default function EditarLoja() {
         return lojasAtuais.map((loja) => (loja.id === id ? lojaAtualizada : loja));
       });
       queryClient.setQueryData(["lojas", id], lojaAtualizada);
-      alert("Unidade atualizada com sucesso!");
+      toast.success("Unidade atualizada com sucesso!");
       router.push(`/lojas/detalhes/${id}`);
     } catch (error) {
       console.error(error);
-      alert("Erro ao atualizar unidade. Tente novamente.");
+      toast.error("Erro ao atualizar unidade. Tente novamente.");
     } finally {
       setSalvando(false);
     }
@@ -238,27 +244,55 @@ export default function EditarLoja() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
-                  Responsavel
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors pointer-events-none">
-                    <Icons.User />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
+                    E-mail
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
+                      <Icons.Mail />
+                    </div>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="contato@unidade.com"
+                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold text-sm"
+                    />
                   </div>
-                  <select
-                    value={responsavel}
-                    onChange={(e) => setResponsavel(e.target.value)}
-                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm appearance-none"
-                  >
-                    <option value="">Sem responsavel</option>
-                    {usuarios.map((usuario) => (
-                      <option key={usuario.id} value={usuario.id}>
-                        {usuario.first_name || usuario.email || `Usuario ${usuario.id}`}
-                      </option>
-                    ))}
-                  </select>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
+                    WhatsApp
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
+                      <Icons.Phone />
+                    </div>
+                    <input
+                      type="tel"
+                      value={telefone}
+                      onChange={(e) => setTelefone(e.target.value)}
+                      placeholder="(83) 99999-8888"
+                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-black uppercase tracking-[2px] text-theme-text-sub">
+                  Acesso da loja
+                </label>
+                <p className="mt-2 rounded-lg border border-theme-border bg-theme-header px-4 py-3 text-sm font-bold text-theme-text-title">
+                  {emailAcesso || "Sem acesso — cadastre um e-mail para a loja"}
+                </p>
+                <p className="mt-1 text-xs font-medium text-theme-text-sub">
+                  A loja entra no sistema com este e-mail. Ele acompanha o e-mail
+                  do cadastro acima.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2 sm:gap-6">
