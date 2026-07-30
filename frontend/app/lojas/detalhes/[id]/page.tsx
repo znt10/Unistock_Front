@@ -5,8 +5,8 @@ import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
-import { getLojaById, deleteLoja } from "@/services/uni"; // Ajuste o caminho do import
+import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
+import { getLojaById, deleteLoja } from "@/features/lojas/services/lojas"; // Ajuste o caminho do import
 
 // Ícones (Mantidos conforme seu código original)
 const Icons = {
@@ -37,21 +37,6 @@ const Icons = {
     >
       <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
       <circle cx="12" cy="10" r="3" />
-    </svg>
-  ),
-  User: () => (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
     </svg>
   ),
   Phone: () => (
@@ -105,9 +90,9 @@ type LojaDetalhe = {
   nome_loja: string;
   cidade: string;
   endereco: string;
-  responsavel?: string | number | null;
-  responsavel_nome?: string | null;
   ativo: boolean;
+  telefone_whatsapp?: string | null;
+  email?: string | null;
 };
 
 export default function DetalheLoja() {
@@ -126,8 +111,8 @@ export default function DetalheLoja() {
 
   const handleDeletar = async () => {
     if (confirm("Tem certeza que deseja remover esta unidade?")) {
-      const ok = await deleteLoja(params.id as string);
-      if (ok) {
+      const resultado = await deleteLoja(params.id as string);
+      if (resultado.ok) {
         queryClient.setQueryData<Loja[] | undefined>(
           LOJAS_QUERY_KEY,
           (lojasAtuais) => {
@@ -137,6 +122,8 @@ export default function DetalheLoja() {
         );
         queryClient.removeQueries({ queryKey: ["lojas", id] });
         router.push("/lojas");
+      } else {
+        alert(resultado.mensagem);
       }
     }
   };
@@ -197,9 +184,9 @@ export default function DetalheLoja() {
             </Link>
           </div>
 
-          {/* Grid de Informações */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="group relative overflow-hidden rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all sm:p-8 md:col-span-2">
+          {/* Localização */}
+          <div className="mb-12">
+            <div className="group relative overflow-hidden rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all sm:p-8">
               <div className="absolute top-0 right-0 p-8 text-blue-500 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all">
                 <Icons.MapPin />
               </div>
@@ -225,27 +212,9 @@ export default function DetalheLoja() {
                 </div>
               </div>
             </div>
-
-            <div className="group flex flex-col justify-between rounded-[32px] border border-l-4 border-theme-border border-l-blue-600 bg-theme-header p-5 shadow-sm transition-all hover:bg-theme-hover sm:p-8">
-              <span className="text-theme-text-sub/50 text-[10px] font-black uppercase tracking-[3px] mb-4 block">
-                Responsável
-              </span>
-              <div>
-                <div className="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform">
-                  <Icons.User />
-                </div>
-                {/* Se o seu back-end retornar o objeto do responsável, use loja.responsavel_nome */}
-                <h3 className="text-2xl font-black text-theme-text-title tracking-tighter mb-1 uppercase">
-                  {loja.responsavel_nome || "Não definido"}
-                </h3>
-                <p className="text-blue-500/70 text-[11px] font-black uppercase tracking-widest italic">
-                  Gerente de Unidade
-                </p>
-              </div>
-            </div>
           </div>
 
-          {/* Contatos (Se o seu back-end tiver esses campos, senão pode omitir ou mockar) */}
+          {/* Contatos */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="group flex items-center gap-4 rounded-[24px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover sm:gap-6 sm:p-6 cursor-default">
               <div className="p-4 bg-theme-header border border-theme-border rounded-2xl text-theme-text-sub group-hover:text-blue-500 group-hover:border-blue-500/30 transition-all">
@@ -256,7 +225,7 @@ export default function DetalheLoja() {
                   Telefone de Contato
                 </label>
                 <p className="text-lg font-black text-theme-text-title font-mono tracking-tighter">
-                  (83) 90000-0000
+                  {loja.telefone_whatsapp || "Não informado"}
                 </p>
               </div>
             </div>
@@ -270,7 +239,7 @@ export default function DetalheLoja() {
                   E-mail Corporativo
                 </label>
                 <p className="break-all text-lg font-black text-theme-text-title lowercase">
-                  contato@{loja.nome_loja?.toLowerCase().replace(/\s/g, "")}.com
+                  {loja.email || "Não informado"}
                 </p>
               </div>
             </div>

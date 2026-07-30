@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha", "/redefinir-senha"];
+const PUBLIC_ROUTES = ["/login", "/registrar", "/esqueci-senha"];
 
 const ROLE_ROUTES: Record<string, string[]> = {
+  Admin: [
+    "/admin",
+    "/configuracoes",
+  ],
   Gerente: [
     "/lojas",
     "/novopedido",
@@ -11,6 +15,9 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/notificacoes",
     "/configuracoes",
     "/estoque",
+    // Explicito: hoje passaria pelo prefixo "/estoque", mas o Sidebar mostra
+    // este item e depender do prefixo esconde a intencao.
+    "/estoque-baixo",
     "/produtos",
     "/caixa",
     "/historico"
@@ -19,6 +26,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/novopedido",
     "/meuspedidos",
     "/estoque",
+    "/estoque-baixo",
     "/notificacoes",
     "/configuracoes",
     "/caixa",
@@ -27,6 +35,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
 };
 
 const ROLE_HOME: Record<string, string> = {
+  Admin: "/admin",
   Gerente: "/lojas",
   Responsavel: "/novopedido",
 };
@@ -41,7 +50,11 @@ const normalizeRole = (role?: string) => {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 
-  if (["gerente", "administrador", "admin"].includes(normalized)) {
+  if (["admin", "administrador"].includes(normalized)) {
+    return "Admin";
+  }
+
+  if (normalized === "gerente") {
     return "Gerente";
   }
 
@@ -79,7 +92,11 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(ROLE_HOME[role], request.url));
   }
 
-  if (PUBLIC_ROUTES.includes(pathname)) {
+  if (
+    PUBLIC_ROUTES.includes(pathname) ||
+    pathname.startsWith("/redefinir-senha/") ||
+    pathname.startsWith("/confirmar-conta/")
+  ) {
     return NextResponse.next();
   }
 

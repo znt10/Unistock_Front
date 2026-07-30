@@ -3,7 +3,7 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import { usePreferenciasNotificacao } from "@/hooks/usePreferenciasNotificacao";
+import { usePreferenciasNotificacao } from "@/features/notificacoes/hooks/usePreferenciasNotificacao";
 
 const Icons = {
   Mail: () => (
@@ -67,16 +67,6 @@ const Icons = {
   ),
 };
 
-const DIAS = [
-  { valor: "1", rotulo: "Seg" },
-  { valor: "2", rotulo: "Ter" },
-  { valor: "3", rotulo: "Qua" },
-  { valor: "4", rotulo: "Qui" },
-  { valor: "5", rotulo: "Sex" },
-  { valor: "6", rotulo: "Sáb" },
-  { valor: "7", rotulo: "Dom" },
-];
-
 function Toggle({
   ativo,
   onClick,
@@ -109,17 +99,6 @@ export default function NotificacoesAlertas() {
   const { preferencias, carregando, salvar, salvando } =
     usePreferenciasNotificacao();
   const [telefone, setTelefone] = React.useState<string | null>(null);
-
-  const dias = (preferencias?.digest_dias_semana || "")
-    .split(",")
-    .filter(Boolean);
-
-  const alternarDia = (valor: string) => {
-    const novos = dias.includes(valor)
-      ? dias.filter((d) => d !== valor)
-      : [...dias, valor].sort();
-    salvar({ digest_dias_semana: novos.join(",") });
-  };
 
   return (
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
@@ -174,10 +153,11 @@ export default function NotificacoesAlertas() {
                   </div>
                   <div className="text-left">
                     <h3 className="text-[17px] font-black tracking-tight text-theme-text-title md:text-[19px]">
-                      Receber alertas por e-mail
+                      Receber e-mails do Unistock
                     </h3>
                     <p className="mt-1 text-xs font-medium text-theme-text-sub md:text-sm">
-                      Enviar e-mail quando o estoque de um produto estiver baixo.
+                      Resumo diário e avisos do sistema no seu e-mail. Os alertas
+                      de estoque baixo continuam aparecendo no sino.
                     </p>
                   </div>
                 </div>
@@ -187,71 +167,23 @@ export default function NotificacoesAlertas() {
                 />
               </div>
 
-              {/* Resumo diario */}
+              {/* Resumo diario: por loja, horario fixo — informativo */}
               <div className="w-full rounded-[24px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all sm:p-6">
-                <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
-                  <div className="flex items-center gap-4 md:gap-7">
-                    <div className="rounded-[20px] border border-theme-border bg-theme-header p-4 text-blue-500 transition-all">
-                      <Icons.Clock />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="text-[17px] font-black tracking-tight text-theme-text-title md:text-[19px]">
-                        Resumo diário
-                      </h3>
-                      <p className="mt-1 text-xs font-medium text-theme-text-sub md:text-sm">
-                        Um e-mail por dia, no horário escolhido, com os produtos
-                        abaixo do mínimo.
-                      </p>
-                    </div>
+                <div className="flex items-center gap-4 md:gap-7">
+                  <div className="rounded-[20px] border border-theme-border bg-theme-header p-4 text-blue-500 transition-all">
+                    <Icons.Clock />
                   </div>
-                  <Toggle
-                    ativo={preferencias.digest_ativo}
-                    onClick={() => salvar({ digest_ativo: !preferencias.digest_ativo })}
-                  />
+                  <div className="text-left">
+                    <h3 className="text-[17px] font-black tracking-tight text-theme-text-title md:text-[19px]">
+                      Resumo diário às 7h
+                    </h3>
+                    <p className="mt-1 text-xs font-medium text-theme-text-sub md:text-sm">
+                      Todo dia, no começo do expediente, cada loja recebe no
+                      próprio e-mail um PDF com os produtos abaixo do mínimo.
+                      Gerentes recebem um PDF com todas as lojas.
+                    </p>
+                  </div>
                 </div>
-
-                {preferencias.digest_ativo && (
-                  <div className="mt-6 space-y-5 border-t border-theme-border pt-5">
-                    <div className="flex flex-wrap items-center gap-4">
-                      <label
-                        htmlFor="digest-horario"
-                        className="text-xs font-black uppercase tracking-[2px] text-theme-text-sub"
-                      >
-                        Horário
-                      </label>
-                      <input
-                        id="digest-horario"
-                        type="time"
-                        defaultValue={(preferencias.digest_horario || "18:00").slice(0, 5)}
-                        onBlur={(event) =>
-                          event.target.value &&
-                          salvar({ digest_horario: event.target.value })
-                        }
-                        className="rounded-lg border border-theme-border bg-theme-base px-4 py-2 text-sm font-bold text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                      />
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="mr-2 text-xs font-black uppercase tracking-[2px] text-theme-text-sub">
-                        Dias
-                      </span>
-                      {DIAS.map((dia) => (
-                        <button
-                          key={dia.valor}
-                          type="button"
-                          onClick={() => alternarDia(dia.valor)}
-                          className={`rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wide transition-all ${
-                            dias.includes(dia.valor)
-                              ? "bg-blue-600 text-white shadow-md"
-                              : "border border-theme-border bg-theme-header text-theme-text-sub hover:text-theme-text-title"
-                          }`}
-                        >
-                          {dia.rotulo}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* WhatsApp (fase 2) */}

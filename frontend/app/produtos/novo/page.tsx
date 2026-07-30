@@ -3,29 +3,17 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Package } from "lucide-react";
+import { Check, Package, Plus } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import {
   PRODUTOS_QUERY_KEY,
   type Produto,
   useProdutos,
-} from "@/hooks/useProduto";
-import { postProduto } from "@/services/uni";
-
-const CATEGORIAS = [
-  { valor: "SALGADOS_GDE", label: "Salgados grande", dot: "bg-orange-500" },
-  { valor: "SALGADOS_MINI", label: "Salgados mini", dot: "bg-orange-500" },
-  { valor: "ESFIHAS_GDE", label: "Esfihas grande", dot: "bg-red-500" },
-  { valor: "ESFIHAS_MINI", label: "Esfihas mini", dot: "bg-red-500" },
-  { valor: "FOGAZZAS_GDE", label: "Fogazzas grande", dot: "bg-emerald-500" },
-  { valor: "FOGAZZAS_MINI", label: "Fogazzas mini", dot: "bg-emerald-500" },
-  { valor: "RECHEIOS", label: "Recheios", dot: "bg-blue-500" },
-  { valor: "MERCADO", label: "Mercado", dot: "bg-emerald-500" },
-] as const;
-
-const CATEGORIA_LABELS: Record<string, string> = Object.fromEntries(
-  CATEGORIAS.map((c) => [c.valor, c.label]),
-);
+} from "@/features/produtos/hooks/useProduto";
+import { useCategorias } from "@/features/produtos/hooks/useCategorias";
+import NovaCategoriaModal from "@/features/produtos/components/NovaCategoriaModal";
+import { corDaCategoria } from "@/features/produtos/utils/categoriaCores";
+import { postProduto } from "@/features/produtos/services/produtos";
 
 function normalizarTexto(valor?: string) {
   return (valor || "")
@@ -38,6 +26,7 @@ function normalizarTexto(valor?: string) {
 export default function NovoProduto() {
   const queryClient = useQueryClient();
   const { data: produtosExistentes = [] } = useProdutos();
+  const { data: categorias = [] } = useCategorias();
 
   const [nomeProduto, setNomeProduto] = useState("");
   const [estoqueMinimo, setEstoqueMinimo] = useState("1");
@@ -45,6 +34,7 @@ export default function NovoProduto() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [modalCategoriaAberto, setModalCategoriaAberto] = useState(false);
 
   const produtosComNomeParecido = useMemo(() => {
     const nomeNormalizado = normalizarTexto(nomeProduto);
@@ -174,10 +164,7 @@ export default function NovoProduto() {
                           </span>
                           <span className="font-bold text-theme-text-sub">
                             {" "}
-                            -{" "}
-                            {CATEGORIA_LABELS[produto.categoria || ""] ||
-                              produto.categoria ||
-                              "Sem categoria"}
+                            - {produto.categoria_nome || "Sem categoria"}
                           </span>
                         </div>
                       ))}
@@ -206,21 +193,32 @@ export default function NovoProduto() {
                 <div className="space-y-2">
                   <span className={labelClass}>Categoria</span>
                   <div className="flex flex-wrap gap-2">
-                    {CATEGORIAS.map((c) => (
-                      <button
-                        type="button"
-                        key={c.valor}
-                        onClick={() => setCategoria(c.valor)}
-                        className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-black uppercase tracking-[1px] transition ${
-                          categoria === c.valor
-                            ? "border-blue-600 bg-blue-600/10 text-blue-500"
-                            : "border-theme-border bg-theme-header text-theme-text-sub hover:text-theme-text-title"
-                        }`}
-                      >
-                        <span className={`h-2.5 w-2.5 rounded-sm ${c.dot}`} />
-                        {c.label}
-                      </button>
-                    ))}
+                    {categorias.map((c) => {
+                      const cor = corDaCategoria(c.id);
+                      return (
+                        <button
+                          type="button"
+                          key={c.id}
+                          onClick={() => setCategoria(c.id)}
+                          className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-black uppercase tracking-[1px] transition ${
+                            categoria === c.id
+                              ? "border-blue-600 bg-blue-600/10 text-blue-500"
+                              : "border-theme-border bg-theme-header text-theme-text-sub hover:text-theme-text-title"
+                          }`}
+                        >
+                          <span className={`h-2.5 w-2.5 rounded-sm ${cor.dot}`} />
+                          {c.nome}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => setModalCategoriaAberto(true)}
+                      className="inline-flex items-center gap-2 rounded-xl border border-dashed border-theme-border bg-theme-header px-4 py-2.5 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500"
+                    >
+                      <Plus size={14} strokeWidth={3} />
+                      Nova categoria
+                    </button>
                   </div>
                 </div>
 
@@ -262,6 +260,13 @@ export default function NovoProduto() {
           </div>
         </div>
       </main>
+
+      {modalCategoriaAberto && (
+        <NovaCategoriaModal
+          onClose={() => setModalCategoriaAberto(false)}
+          onCriada={(categoriaCriada) => setCategoria(categoriaCriada.id)}
+        />
+      )}
     </div>
   );
 }

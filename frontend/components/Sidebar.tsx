@@ -4,9 +4,9 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { logout } from "@/services/auth";
-import { getNotificacoes } from "@/services/uni";
-import { useAuthStore } from "@/stores/authStore";
+import { logout } from "@/shared/services/auth";
+import { getNotificacoes } from "@/features/notificacoes/services/notificacoes";
+import { useAuthStore } from "@/shared/stores/authStore";
 
 const Icons = {
   Package: () => (
@@ -124,6 +124,13 @@ const Icons = {
       <path d="M12 7v5l4 2" />
     </svg>
   ),
+  AlertTriangle: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+      <line x1="12" x2="12" y1="9" y2="13" />
+      <line x1="12" x2="12.01" y1="17" y2="17" />
+    </svg>
+  ),
 };
 
 type IconKey = keyof typeof Icons;
@@ -136,9 +143,13 @@ const SIDEBAR_WIDTH_COLLAPSED = "lg:w-[72px]";
 const NOTIFICACOES_QUERY_KEY = ["notificacoes"];
 
 const MENU_CONFIG: Record<string, MenuItem[]> = {
+  Admin: [
+    { href: "/admin", label: "Dashboard Admin", icon: "UserCircle" },
+  ],
   Gerente: [
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
+    { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
     { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
     { href: "/produtos", label: "Produtos", icon: "Tag" },
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
@@ -149,6 +160,7 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
+    { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
     { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
     { href: "/historico", label: "Historico", icon: "History" },
   ],
@@ -160,7 +172,11 @@ const normalizeRole = (role?: string) => {
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase();
 
-  if (["gerente", "administrador", "admin"].includes(normalized ?? "")) {
+  if (["admin", "administrador"].includes(normalized ?? "")) {
+    return "Admin";
+  }
+
+  if (normalized === "gerente") {
     return "Gerente";
   }
 

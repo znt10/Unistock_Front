@@ -6,8 +6,8 @@ import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { LOJAS_QUERY_KEY, type Loja } from "@/hooks/useLoja";
-import { getLojaById, getUsuarios, patchLoja, UsuarioResumo } from "@/services/uni";
+import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
+import { getLojaById, patchLoja } from "@/features/lojas/services/lojas";
 
 const Icons = {
   ChevronLeft: () => (
@@ -28,12 +28,6 @@ const Icons = {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
       <circle cx="12" cy="10" r="3" />
-    </svg>
-  ),
-  User: () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
     </svg>
   ),
   Power: () => (
@@ -67,8 +61,7 @@ export default function EditarLoja() {
   const [endereco, setEndereco] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
-  const [responsavel, setResponsavel] = useState("");
-  const [usuarios, setUsuarios] = useState<UsuarioResumo[]>([]);
+  const [emailAcesso, setEmailAcesso] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -76,10 +69,7 @@ export default function EditarLoja() {
   useEffect(() => {
     const carregarLoja = async () => {
       try {
-        const [loja, usuariosData] = await Promise.all([
-          getLojaById(id),
-          getUsuarios(),
-        ]);
+        const loja = await getLojaById(id);
 
         setNomeLoja(loja.nome_loja ?? "");
         setTipo(loja.tipo ?? "Loja");
@@ -87,8 +77,7 @@ export default function EditarLoja() {
         setEndereco(loja.endereco ?? "");
         setEmail(loja.email ?? "");
         setTelefone(loja.telefone_whatsapp ?? "");
-        setResponsavel(loja.responsavel ? String(loja.responsavel) : "");
-        setUsuarios(usuariosData);
+        setEmailAcesso(loja.email_acesso ?? "");
         setAtivo(Boolean(loja.ativo));
       } catch (error) {
         console.error(error);
@@ -128,7 +117,6 @@ export default function EditarLoja() {
         endereco: endereco.trim(),
         email: email.trim(),
         telefone_whatsapp: telefone.trim(),
-        responsavel: responsavel ? Number(responsavel) : null,
         ativo,
       });
       queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
@@ -294,27 +282,17 @@ export default function EditarLoja() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
-                  Responsavel
+              <div>
+                <label className="text-xs font-black uppercase tracking-[2px] text-theme-text-sub">
+                  Acesso da loja
                 </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors pointer-events-none">
-                    <Icons.User />
-                  </div>
-                  <select
-                    value={responsavel}
-                    onChange={(e) => setResponsavel(e.target.value)}
-                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm appearance-none"
-                  >
-                    <option value="">Sem responsavel</option>
-                    {usuarios.map((usuario) => (
-                      <option key={usuario.id} value={usuario.id}>
-                        {usuario.first_name || usuario.email || `Usuario ${usuario.id}`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <p className="mt-2 rounded-lg border border-theme-border bg-theme-header px-4 py-3 text-sm font-bold text-theme-text-title">
+                  {emailAcesso || "Sem acesso — cadastre um e-mail para a loja"}
+                </p>
+                <p className="mt-1 text-xs font-medium text-theme-text-sub">
+                  A loja entra no sistema com este e-mail. Ele acompanha o e-mail
+                  do cadastro acima.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2 sm:gap-6">

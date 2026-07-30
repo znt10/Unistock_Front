@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { login } from "@/services/auth";
+import { login } from "@/shared/services/auth";
 
 import { CubeIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 

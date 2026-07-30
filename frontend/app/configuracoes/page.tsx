@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
-import CadastroUsuarioModal from "@/components/usuarios/CadastroUsuarioModal";
-import { selectIsGerente, useAuthStore } from "@/stores/authStore";
+import CadastroUsuarioModal from "@/features/usuarios/components/CadastroUsuarioModal";
+import { selectIsAdmin, useAuthStore } from "@/shared/stores/authStore";
 
 const Icons = {
   User: () => (
@@ -45,7 +45,7 @@ const Icons = {
   ),
 };
 
-type CadastroTipo = "gerente" | "responsavel";
+type CadastroTipo = "gerente";
 
 type Secao =
   | {
@@ -98,7 +98,7 @@ function CardConteudo({ secao }: { secao: Secao }) {
 }
 
 export default function Configuracoes() {
-  const podeGerenciarAcessos = useAuthStore(selectIsGerente);
+  const podeGerenciarAcessos = useAuthStore(selectIsAdmin);
   const [cadastroAberto, setCadastroAberto] = useState<CadastroTipo | null>(
     null,
   );
@@ -131,14 +131,6 @@ export default function Configuracoes() {
       icon: <Icons.UserPlus />,
       tag: "ACESSO",
       action: "gerente",
-      adminOnly: true,
-    },
-    {
-      titulo: "Criar responsavel",
-      subtitulo: "Cadastre um responsavel e vincule a uma loja.",
-      icon: <Icons.UserPlus />,
-      tag: "ACESSO",
-      action: "responsavel",
       adminOnly: true,
     },
   ];

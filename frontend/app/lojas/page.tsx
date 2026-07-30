@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
-import { type Loja, useLojas } from "@/hooks/useLoja";
+import { type Loja, useLojas } from "@/features/lojas/hooks/useLoja";
 
 const Icons = {
   Plus: () => (
