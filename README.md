@@ -29,7 +29,54 @@ README rodam **de dentro dessa pasta**.
 
 ## Como rodar
 
-O backend precisa estar de pe em `http://localhost:8000` — veja o repositorio
+Duas opcoes. A de Docker nao exige Node instalado na maquina.
+
+### Com Docker (recomendado)
+
+O backend roda em Docker e o front entra **na mesma rede** do compose dele, para
+falar com o Django pelo nome de servico `api`. Por isso o backend sobe primeiro:
+
+```powershell
+cd ..\Unistock_Back
+docker compose up -d
+
+cd ..\Unistock_Front\frontend
+docker compose up
+```
+
+O front sobe em `http://localhost:3000`.
+
+**Buildar so na primeira vez.** Depois disso o `docker compose up` reaproveita a
+imagem ja construida. Refaca o build apenas quando mudar o `Dockerfile` ou o
+`package.json`.
+
+```powershell
+docker compose up            # sobe (sem rebuild)
+docker compose up -d         # sobe em segundo plano
+docker compose up --build    # sobe refazendo a imagem
+docker compose logs -f       # acompanha os logs
+docker compose down          # derruba
+```
+
+Rodando em container, os comandos de npm vao **por dentro** dele:
+
+```powershell
+docker compose exec frontend npm run lint
+docker compose exec frontend npm run build
+docker compose exec frontend npm install <pacote>   # depois: docker compose up --build
+```
+
+O `node_modules` fica num volume do container, nao na pasta do Windows — os
+binarios sao de Linux e nao serviriam no host de qualquer forma. Por isso
+instalar pacote pede um `--build` depois, para a imagem passar a inclui-lo.
+
+Se o `docker compose up` reclamar que a rede `unistock_back_default` nao existe,
+e sinal de que o backend nao esta de pe — suba ele primeiro.
+
+### Sem Docker, com Node na maquina
+
+Precisa de Node 20.9+ (o container usa 22). O backend precisa estar acessivel em
+`http://localhost:8000` — veja o repositorio
 [Unistock_Back](https://github.com/znt10/Unistock_Back).
 
 ```powershell
@@ -37,8 +84,6 @@ cd frontend
 npm install
 npm run dev
 ```
-
-O front sobe em `http://localhost:3000`.
 
 ```powershell
 npm run dev      # desenvolvimento
@@ -58,6 +103,14 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 |---|---|
 | `NEXT_PUBLIC_API_URL` | destino do rewrite `/backend/*`. Default: `http://localhost:8000` |
 | `API_PROXY_URL` | opcional; tem prioridade sobre a de cima. Util quando o destino interno difere do publico |
+| `NEXT_WATCH_POLL_MS` | opcional; liga o polling do watcher do Turbopack. So faz sentido em container |
+
+As duas ultimas ja vem definidas pelo `docker-compose.yml` e nao precisam ir no
+`.env.local`. No container o destino da API e `http://api:8000` (nome do
+servico na rede do backend), nao `localhost` — que la dentro apontaria para o
+proprio front. O `NEXT_WATCH_POLL_MS` existe porque bind mount do Windows nao
+propaga evento de arquivo para o container, entao o hot-reload depende de
+consultar os arquivos por intervalo.
 
 Nao existe segredo no front. **Nenhuma chave de assinatura de token deve ir
 neste arquivo** — quem emite e valida JWT e o backend, e o front nunca ve o
