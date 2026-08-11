@@ -1,31 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Sidebar from "@/components/Sidebar";
 import CadastroUsuarioModal from "@/features/usuarios/components/CadastroUsuarioModal";
 import { getEstrutura } from "@/features/admin/services/admin";
-import { getLoja, patchLoja } from "@/features/lojas/services/lojas";
 
 export default function AdminDashboard() {
   const [criarGerenteAberto, setCriarGerenteAberto] = useState(false);
-  const queryClient = useQueryClient();
 
   const { data: estrutura = [], isLoading } = useQuery({
     queryKey: ["admin-estrutura"],
     queryFn: getEstrutura,
   });
-
-  const { data: todasAsLojas = [] } = useQuery({
-    queryKey: ["lojas-todas-admin"],
-    queryFn: getLoja,
-  });
-
-  const handleTrocarGerente = async (lojaId: string, gerenteId: string) => {
-    await patchLoja(lojaId, { gerente: gerenteId ? Number(gerenteId) : null });
-    queryClient.invalidateQueries({ queryKey: ["admin-estrutura"] });
-    queryClient.invalidateQueries({ queryKey: ["lojas-todas-admin"] });
-  };
 
   return (
     <div className="flex min-h-screen bg-theme-base font-sans">
@@ -93,36 +80,6 @@ export default function AdminDashboard() {
               Nenhum gerente cadastrado ainda.
             </p>
           )}
-        </div>
-
-        <div className="mt-10">
-          <h3 className="mb-3 text-sm font-black uppercase tracking-[2px] text-theme-text-sub">
-            Atribuir gerente por loja
-          </h3>
-          <div className="space-y-2">
-            {todasAsLojas.map((loja: any) => (
-              <div
-                key={loja.id}
-                className="flex items-center justify-between rounded-lg border border-theme-border bg-theme-card p-3"
-              >
-                <span className="font-bold text-theme-text-title">
-                  {loja.nome_loja}
-                </span>
-                <select
-                  defaultValue={loja.gerente ?? ""}
-                  onChange={(e) => handleTrocarGerente(loja.id, e.target.value)}
-                  className="rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-sm"
-                >
-                  <option value="">Sem gerente</option>
-                  {estrutura.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
-          </div>
         </div>
       </main>
 

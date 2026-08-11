@@ -1,0 +1,37 @@
+services:
+  frontend:
+    build:
+      context: .
+      target: dev
+    container_name: unistock_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      # Codigo do host dentro do container -> hot reload.
+      - .:/app
+      # Volumes anonimos: preservam o node_modules instalado na imagem
+      # (binarios Linux) e o cache do .next, que nao devem vir do Windows.
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - .env.local
+    environment:
+      # O Django roda no compose do Unistock_Back. Dentro da rede dele o
+      # servico se chama "api" e escuta na 8000 — nao usar localhost, que
+      # dentro do container aponta pro proprio frontend.
+      # "api" ja esta no ALLOWED_HOSTS do backend, entao o Host header passa.
+      API_PROXY_URL: http://api:8000
+      # Liga o polling do Turbopack (ver next.config.ts). Sem isso o
+      # hot-reload nao dispara em bind mount do Windows.
+      NEXT_WATCH_POLL_MS: "1000"
+    networks:
+      - backend
+    stdin_open: true
+    tty: true
+
+networks:
+  # Rede criada pelo compose do Unistock_Back (projeto "unistock_back").
+  # Externa de proposito: o backend precisa estar de pe antes do front.
+  backend:
+    name: unistock_back_default
+    external: true
