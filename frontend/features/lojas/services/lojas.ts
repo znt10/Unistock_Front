@@ -13,7 +13,10 @@ export type LojaUpdateData = Partial<{
   ativo: boolean;
   email: string;
   telefone_whatsapp: string;
-  gerente: number | null;
+  // Atalho de gerencia: preenchido, cria/reseta a senha do acesso da loja na
+  // hora (ativa, sem o email de "defina sua senha"). Em branco/ausente nao
+  // mexe em nada — o link por email continua sendo o caminho padrao.
+  senha_acesso: string;
 }>;
 
 export const getLoja = async () => {
@@ -33,6 +36,9 @@ export const postLoja = async (
   endereco: string,
   email?: string,
   telefone_whatsapp?: string,
+  // Preenchido, a loja ja nasce com acesso ativo e essa senha — sem esperar
+  // o link por e-mail. Em branco, e o fluxo de sempre.
+  senha_acesso?: string,
 ) => {
   const res = await apiV1("/lojas/", {
     method: "POST",
@@ -43,6 +49,7 @@ export const postLoja = async (
       endereco,
       email: email || null,
       telefone_whatsapp: telefone_whatsapp || null,
+      senha_acesso: senha_acesso || undefined,
     }),
   });
 

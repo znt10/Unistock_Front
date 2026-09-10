@@ -10,6 +10,9 @@ export interface Produto {
   unidade_medida?: string;
   quantidade_por_embalagem?: number | null;
   estoque_minimo_sugerido?: number;
+  // Valor de PARTIDA do teto quando a loja ainda nao tem linha deste produto.
+  // O teto que vale e o de cada loja (Estoque.quantidade_maxima).
+  estoque_maximo_sugerido?: number;
   // categoria e o id (UUID) da Categoria, usado pra ler/escrever na API;
   // categoria_nome e o nome pra exibicao — nunca usar categoria como texto.
   categoria?: string;

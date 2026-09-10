@@ -38,6 +38,25 @@ const extractApiErrorMessage = (data: unknown): string | null => {
   return null;
 };
 
+/**
+ * Erro de API com o corpo preservado.
+ *
+ * Continua sendo um Error (quem so mostra `message` nao muda), mas carrega
+ * `status` e `data` para os casos em que a resposta de erro e informacao util
+ * e nao so um texto — o aviso de teto de estoque (409) manda a lista de
+ * produtos que estouram, com os numeros que a tela precisa mostrar.
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly data: unknown,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export const apiFetch = async (
   endpoint: string,
   options: RequestInit = {},
@@ -87,16 +106,17 @@ export const apiFetch = async (
 
   if (!response.ok) {
     let message = `Erro ${response.status}`;
+    let data: unknown = null;
 
     try {
-      const data = await response.clone().json();
+      data = await response.clone().json();
       message = extractApiErrorMessage(data) || message;
     } catch {
       const errorText = await response.clone().text();
       message = errorText || message;
     }
 
-    throw new Error(message);
+    throw new ApiError(message, response.status, data);
   }
 
   return response;

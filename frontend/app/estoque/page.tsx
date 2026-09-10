@@ -114,6 +114,7 @@ export default function EstoquePage() {
           unidade_medida?: string;
           quantidade_por_embalagem?: number | null;
           estoque_minimo_sugerido?: number;
+          estoque_maximo_sugerido?: number;
         }
       >
     >();
@@ -127,6 +128,7 @@ export default function EstoquePage() {
         unidade_medida: produto.unidade_medida,
         quantidade_por_embalagem: produto.quantidade_por_embalagem,
         estoque_minimo_sugerido: produto.estoque_minimo_sugerido,
+        estoque_maximo_sugerido: produto.estoque_maximo_sugerido,
       });
       agrupadas.set(nomeCategoria, produtosCategoria);
     });
@@ -281,7 +283,7 @@ export default function EstoquePage() {
   const salvarEstoqueApi = useCallback(async (
     loja: string,
     produto: string,
-    data: { qtd?: number; minimo?: number; estado?: EstadoProduto },
+    data: { qtd?: number; minimo?: number; maximo?: number; estado?: EstadoProduto },
   ) => {
     const produtoDados = produtoPorId.get(produto);
     const itemAtual =
@@ -297,12 +299,23 @@ export default function EstoquePage() {
       registro?.quantidade_minima ??
       produtoDados?.estoque_minimo_sugerido ??
       1;
+    // O teto e obrigatorio e sempre acima do minimo: o back recusa com 400 e
+    // o banco tem CheckConstraint. Quando a linha ainda nao existe, parte da
+    // sugestao do produto; o piso de minimo+1 evita mandar um valor invalido
+    // quando alguem sobe o minimo acima da sugestao.
+    const maximoBase =
+      data.maximo ??
+      registro?.quantidade_maxima ??
+      produtoDados?.estoque_maximo_sugerido ??
+      quantidadeMinima * 3;
+    const quantidadeMaxima = Math.max(maximoBase, quantidadeMinima + 1);
     const estadoAtual = estadoParaApi(data.estado ?? itemAtual?.estado);
 
     if (registro) {
       await patchEstoque(registro.id, {
         quantidade_atual: quantidadeAtual,
         quantidade_minima: quantidadeMinima,
+        quantidade_maxima: quantidadeMaxima,
         estado: estadoAtual,
       });
     } else {
@@ -311,6 +324,7 @@ export default function EstoquePage() {
         produto,
         quantidade_atual: quantidadeAtual,
         quantidade_minima: quantidadeMinima,
+        quantidade_maxima: quantidadeMaxima,
         estado: estadoAtual,
       });
     }

@@ -11,6 +11,7 @@ export type EstoqueApi = {
   loja: string;
   quantidade_atual: number;
   quantidade_minima: number;
+  quantidade_maxima: number;
   estado: "NORMAL" | "CONGELADO" | "RESFRIADO";
   atualizado_em?: string;
 };
@@ -20,6 +21,9 @@ export type EstoquePayload = {
   loja: string;
   quantidade_atual: number;
   quantidade_minima: number;
+  // Obrigatorio e sempre maior que o minimo — o back recusa com 400 e o banco
+  // tem CheckConstraint. Teto por LOJA: a Lapa gira mais que a Casa Verde.
+  quantidade_maxima: number;
   estado: "NORMAL" | "CONGELADO" | "RESFRIADO";
 };
 
@@ -33,11 +37,20 @@ export type EstoqueBaixo = {
   unidade_medida: string;
   quantidade_atual: number;
   quantidade_minima: number;
+  quantidade_maxima: number;
 };
 
 export const getEstoquesBaixos = async () => {
   const res = await apiV1("/estoque/baixos/", { method: "GET" });
   if (!res.ok) throw new Error("Erro ao carregar estoque baixo");
+  return (await res.json()) as EstoqueBaixo[];
+};
+
+// Produtos ACIMA do maximo. Mesmo formato da falta de proposito: a tela mostra
+// as duas listas com as mesmas colunas.
+export const getEstoquesExcedidos = async () => {
+  const res = await apiV1("/estoque/excedidos/", { method: "GET" });
+  if (!res.ok) throw new Error("Erro ao carregar excesso de estoque");
   return (await res.json()) as EstoqueBaixo[];
 };
 

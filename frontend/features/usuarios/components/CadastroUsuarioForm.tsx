@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { register } from "@/shared/services/auth";
+import { getContas } from "@/features/admin/services/admin";
 
 type TipoUsuario = "gerente";
 
@@ -37,16 +39,25 @@ export default function CadastroUsuarioForm({
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [conta, setConta] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const texto = textos[tipo];
 
+  // A empresa e obrigatoria no cadastro de gerente: sem conta vinculada ele
+  // entra num sistema vazio (o escopo pergunta a conta do usuario).
+  const { data: contas = [] } = useQuery({
+    queryKey: ["contas"],
+    queryFn: getContas,
+  });
+
   const resetForm = () => {
     setNome("");
     setEmail("");
     setSenha("");
+    setConta("");
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -56,7 +67,7 @@ export default function CadastroUsuarioForm({
     setLoading(true);
 
     try {
-      const data = await register(nome, email, senha, tipo);
+      const data = await register(nome, email, senha, tipo, conta);
       // O backend avisa se a conta precisa de confirmacao por email.
       setSuccess(data.detail || texto.sucesso);
       resetForm();
@@ -90,6 +101,29 @@ export default function CadastroUsuarioForm({
           className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           required
         />
+      </div>
+
+      <div className="space-y-1.5">
+        <label htmlFor={`${tipo}-conta`} className="text-sm font-bold">
+          Empresa
+        </label>
+        <select
+          id={`${tipo}-conta`}
+          value={conta}
+          onChange={(event) => setConta(event.target.value)}
+          className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          required
+        >
+          <option value="">Selecione a empresa</option>
+          {contas.map((empresa) => (
+            <option key={empresa.id} value={empresa.id}>
+              {empresa.nome}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-theme-text-sub">
+          Dois gerentes na mesma empresa compartilham lojas e catalogo.
+        </p>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">

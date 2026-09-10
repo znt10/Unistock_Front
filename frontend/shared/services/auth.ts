@@ -62,6 +62,7 @@ export const register = async (
   email: string,
   password: string,
   tipo_usuario: string,
+  conta?: string,
   id_loja?: number | string
 ) => {
   const response = await apiV1('/user/registrar/', {
@@ -71,6 +72,8 @@ export const register = async (
       email,
       password,
       tipo_usuario,
+      // Obrigatorio para gerente: sem empresa ele loga num sistema vazio.
+      conta: conta || null,
       id_loja: id_loja || null,
     }),
   });
