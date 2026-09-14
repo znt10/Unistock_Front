@@ -36,6 +36,7 @@ export const postProduto = async (
   quantidade_por_embalagem?: number | null,
   estoque_minimo_sugerido = 1,
   estoque_maximo_sugerido?: number,
+  vem_da_fabrica = false,
 ) => {
   const res = await apiV1("/produtos/", {
     method: "POST",
@@ -51,6 +52,7 @@ export const postProduto = async (
         estoque_minimo_sugerido + 1,
       ),
       categoria,
+      vem_da_fabrica,
     }),
   });
 
@@ -66,6 +68,7 @@ export const patchProduto = async (
     estoque_maximo_sugerido: number;
     categoria: string;
     nome_produto: string;
+    vem_da_fabrica: boolean;
   }>,
 ) => {
   const res = await apiV1(`/produtos/${id}/`, {

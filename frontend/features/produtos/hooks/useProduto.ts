@@ -17,6 +17,7 @@ export interface Produto {
   // categoria_nome e o nome pra exibicao — nunca usar categoria como texto.
   categoria?: string;
   categoria_nome?: string;
+  vem_da_fabrica?: boolean;
 }
 
 function normalizarProdutos(data: unknown): Produto[] {

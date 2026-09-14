@@ -1,5 +1,6 @@
 import { ApiError, apiFetch, apiV1 } from "@/shared/services/api";
 
+export type PedidoStatus = "PENDENTE" | "EM_ENTREGA" | "ENTREGUE" | "CANCELADO";
 
 // ======================================================
 // 🔹 PEDIDOS
@@ -51,6 +52,7 @@ export const getPedidos = async (filters?: {
   status?: string;
   data?: string;
   loja?: string;
+  da_fabrica?: boolean;
 }) => {
 
   const params = new URLSearchParams();
@@ -65,6 +67,10 @@ export const getPedidos = async (filters?: {
 
   if (filters?.loja) {
     params.append("loja", filters.loja);
+  }
+
+  if (filters?.da_fabrica !== undefined) {
+    params.append("da_fabrica", String(filters.da_fabrica));
   }
 
   const pedidos: unknown[] = [];
@@ -95,7 +101,7 @@ export const getPedidos = async (filters?: {
 
 export const patchPedidoStatus = async (
   id: string,
-  status: "PENDENTE" | "ENTREGUE" | "CANCELADO",
+  status: PedidoStatus,
 ) => {
   const res = await apiV1(`/pedidos/${id}/status/`, {
     method: "PATCH",
