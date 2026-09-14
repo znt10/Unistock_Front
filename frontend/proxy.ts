@@ -20,7 +20,10 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/estoque-baixo",
     "/produtos",
     "/caixa",
-    "/historico"
+    "/historico",
+    // A fabrica loga como Responsavel; quem pode agir nela quem decide e o
+    // backend (403 para loja comum).
+    "/fabrica",
   ],
   Responsavel: [
     "/novopedido",
@@ -30,7 +33,10 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/notificacoes",
     "/configuracoes",
     "/caixa",
-    "/historico"
+    "/historico",
+    // A fabrica loga como Responsavel; quem pode agir nela quem decide e o
+    // backend (403 para loja comum).
+    "/fabrica",
   ],
 };
 
