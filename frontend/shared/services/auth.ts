@@ -31,6 +31,7 @@ export const login = async (email: string, password: string) => {
     group: userInfo.group,
     loja_id: userInfo.loja?.id ?? null,
     loja_nome: userInfo.loja?.nome ?? null,
+    loja_tipo: userInfo.loja?.tipo ?? null,
   };
 
   useAuthStore.getState().setUser(user);
