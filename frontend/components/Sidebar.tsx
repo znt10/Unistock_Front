@@ -155,6 +155,7 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
     { href: "/historico", label: "Historico", icon: "History" },
+    { href: "/fabrica", label: "Fábrica", icon: "Store" },
   ],
   Responsavel: [
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
@@ -163,6 +164,13 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
     { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
     { href: "/historico", label: "Historico", icon: "History" },
+  ],
+  // O login da fabrica e do grupo Responsavel, mas o trabalho e outro: separar
+  // pedidos, imprimir etiquetas e registrar producao.
+  Fabrica: [
+    { href: "/fabrica", label: "Fila da Fábrica", icon: "List" },
+    { href: "/fabrica/entregas", label: "Em Entrega", icon: "History" },
+    { href: "/estoque", label: "Estoque da Fábrica", icon: "Package" },
   ],
 };
 
@@ -202,7 +210,8 @@ export default function Sidebar() {
     refetchOnWindowFocus: true,
   });
 
-  const role = normalizeRole(user?.group);
+  const role =
+    user?.loja_tipo === "Fabrica" ? "Fabrica" : normalizeRole(user?.group);
   const menuItems = MENU_CONFIG[role] || [];
   const temNotificacoes = notificacoes.some((n) => !n.lida);
 
