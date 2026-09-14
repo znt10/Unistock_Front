@@ -55,10 +55,17 @@ export default function FilaDaFabricaPage() {
     return [...caixasPorProduto.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [pendentes]);
 
+  const modoTodas = lojaAtiva === "TODAS";
+
+  // No modo "Todas as lojas" lista a fila inteira; senao, filtra pela loja
+  // escolhida (ver ruling: "TODAS" nao pode bater com nenhuma loja real).
   const pedidosDaLoja = useMemo(
-    () => pendentes.filter((pedido) => pedido.loja === lojaAtiva),
-    [pendentes, lojaAtiva],
+    () =>
+      modoTodas ? pendentes : pendentes.filter((pedido) => pedido.loja === lojaAtiva),
+    [pendentes, lojaAtiva, modoTodas],
   );
+
+  const colunas = modoTodas ? 7 : 6;
 
   const todosMarcados =
     pedidosDaLoja.length > 0 &&
@@ -167,6 +174,7 @@ export default function FilaDaFabricaPage() {
                       />
                     </th>
                     <th className="p-4">Pedido</th>
+                    {modoTodas && <th className="p-4">Loja</th>}
                     <th className="p-4">Produto</th>
                     <th className="p-4 text-center">Caixas</th>
                     <th className="p-4 text-center">Disponível</th>
@@ -176,14 +184,16 @@ export default function FilaDaFabricaPage() {
                 <tbody className="divide-y divide-theme-border">
                   {isLoading ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center">
+                      <td colSpan={colunas} className="p-8 text-center">
                         Carregando...
                       </td>
                     </tr>
                   ) : pedidosDaLoja.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center">
-                        Nenhum pedido pendente desta loja.
+                      <td colSpan={colunas} className="p-8 text-center">
+                        {modoTodas
+                          ? "Nenhum pedido pendente."
+                          : "Nenhum pedido pendente desta loja."}
                       </td>
                     </tr>
                   ) : (
@@ -204,6 +214,11 @@ export default function FilaDaFabricaPage() {
                           <td className="p-4 font-mono font-black text-theme-text-title">
                             #{pedido.numero}
                           </td>
+                          {modoTodas && (
+                            <td className="p-4 text-sm font-bold text-theme-text-sub">
+                              {pedido.loja_nome ?? "—"}
+                            </td>
+                          )}
                           <td className="p-4 font-black uppercase text-theme-text-title">
                             {item?.produto_nome ?? "—"}
                           </td>
