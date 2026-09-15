@@ -54,6 +54,8 @@ export default function NovoPedidoPage() {
 
   const isGerente = normalizeRole(user?.group) === "Gerente";
 
+  const produtoAtual = produtos.find((produto) => produto.id === produtoSelecionado);
+
   function limparFormulario() {
     setProdutoSelecionado("");
     setQuantidade("");
@@ -232,7 +234,9 @@ export default function NovoPedidoPage() {
 
                 {/* ── QUANTIDADE ── */}
                 <div className="space-y-2">
-                  <label className={labelClass}>Quantidade</label>
+                  <label className={labelClass}>
+                    {produtoAtual?.vem_da_fabrica ? "Caixas" : "Quantidade"}
+                  </label>
                   <input
                     type="number"
                     min={1}

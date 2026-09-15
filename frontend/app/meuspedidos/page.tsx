@@ -104,7 +104,8 @@ function MeusPedidosContent() {
   } = usePedidoStatusActions();
 
   const pedidosPendentesVisiveis = pedidosData.filter(
-    (pedido) => pedido.status === "PENDENTE",
+    // Pedido da fabrica fecha lendo as caixas; "entregar todos" nao pode pular isso.
+    (pedido) => pedido.status === "PENDENTE" && !pedido.da_fabrica,
   );
 
   const marcarPedidosHoje = () => {
@@ -269,6 +270,7 @@ function MeusPedidosContent() {
                           <td className="p-6 text-center">
                             <span className="font-mono text-lg font-black text-blue-500">
                               {item.itens?.[0]?.quantidade ?? "—"}
+                              {item.da_fabrica ? " cx" : ""}
                             </span>
                           </td>
 
@@ -287,21 +289,25 @@ function MeusPedidosContent() {
                                   ${
                                     item.status === "ENTREGUE"
                                       ? "bg-green-500/5 text-green-500 border-green-500/20"
-                                      : item.status === "CANCELADO"
+                                      : item.status === "EM_ENTREGA"
+                                        ? "bg-blue-500/5 text-blue-500 border-blue-500/20"
+                                        : item.status === "CANCELADO"
                                         ? "bg-red-500/5 text-red-500 border-red-500/20"
                                         : "bg-orange-500/5 text-orange-500 border-orange-500/20"
                                   }
                                 `}
                               >
                                 <Icons.Clock />
-                                {item.status || "Pendente"}
+                                {item.status === "EM_ENTREGA"
+                                  ? `Em entrega · ${item.caixas_chegaram}/${item.caixas_total}`
+                                  : item.status || "Pendente"}
                               </span>
                             </div>
                           </td>
                           {podeAtualizarStatus && (
                             <td className="p-6">
                               <div className="flex justify-center gap-2">
-                                {item.status !== "ENTREGUE" && (
+                                {item.status !== "ENTREGUE" && !item.da_fabrica && (
                                   <button
                                     type="button"
                                     disabled={pedidoAtualizando === item.id}
@@ -317,7 +323,10 @@ function MeusPedidosContent() {
                                     Entregar
                                   </button>
                                 )}
-                                {item.status === "PENDENTE" && (
+                                {(item.status === "PENDENTE" ||
+                                  (isGerente &&
+                                    item.status === "EM_ENTREGA" &&
+                                    item.caixas_chegaram === 0)) && (
                                   <button
                                     type="button"
                                     disabled={pedidoAtualizando === item.id}
@@ -373,6 +382,7 @@ function MeusPedidosContent() {
                     <option value="">Todos os Status</option>
                     <option value="ENTREGUE">ENTREGUE</option>
                     <option value="PENDENTE">PENDENTE</option>
+                    <option value="EM_ENTREGA">EM ENTREGA</option>
                     <option value="CANCELADO">CANCELADO</option>
                   </select>
                 </div>

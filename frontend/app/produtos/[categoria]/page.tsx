@@ -37,12 +37,14 @@ function LinhaProduto({ produto }: { produto: Produto }) {
   const [estoqueMin, setEstoqueMin] = useState(
     String(produto.estoque_minimo_sugerido ?? 1),
   );
+  const [vemDaFabrica, setVemDaFabrica] = useState(Boolean(produto.vem_da_fabrica));
   const [salvando, setSalvando] = useState(false);
   const [removendo, setRemovendo] = useState(false);
 
   function cancelarEdicao() {
     setNome(produto.nome_produto);
     setEstoqueMin(String(produto.estoque_minimo_sugerido ?? 1));
+    setVemDaFabrica(Boolean(produto.vem_da_fabrica));
     setEditando(false);
   }
 
@@ -53,6 +55,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
       const atualizado = await patchProduto(produto.id, {
         nome_produto: nome.trim(),
         estoque_minimo_sugerido: Number(estoqueMin),
+        vem_da_fabrica: vemDaFabrica,
       });
       queryClient.setQueryData<Produto[]>(PRODUTOS_QUERY_KEY, (prev = []) =>
         prev.map((p) => (p.id === produto.id ? { ...p, ...atualizado } : p)),
@@ -100,6 +103,14 @@ function LinhaProduto({ produto }: { produto: Produto }) {
         </td>
         <td className="px-5 py-4 text-sm font-semibold text-theme-text-sub">
           {produto.unidade_medida ?? "—"}
+          <label className="mt-2 flex items-center gap-2 text-xs font-bold normal-case">
+            <input
+              type="checkbox"
+              checked={vemDaFabrica}
+              onChange={(evento) => setVemDaFabrica(evento.target.checked)}
+            />
+            Vem da fábrica
+          </label>
         </td>
         <td className="px-5 py-4">
           <label htmlFor={`estoque-${produto.id}`} className="sr-only">
@@ -188,6 +199,11 @@ function LinhaProduto({ produto }: { produto: Produto }) {
         <span className="inline-flex items-center rounded-full border border-theme-border bg-theme-header px-2.5 py-1 text-[11px] font-black uppercase tracking-wide text-theme-text-sub">
           {produto.unidade_medida ?? "—"}
         </span>
+        {produto.vem_da_fabrica && (
+          <span className="ml-2 inline-flex items-center rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[11px] font-black uppercase tracking-wide text-blue-500">
+            Fábrica
+          </span>
+        )}
       </td>
       <td className="px-5 py-5">
         <span className="text-sm font-black text-theme-text-title">

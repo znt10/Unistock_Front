@@ -133,7 +133,9 @@ export default function NovaLoja() {
       toast.success("Unidade salva com sucesso!");
       router.push("/lojas");
     } catch (error: unknown) {
-      toast.error("Erro ao salvar unidade. Tente novamente.");
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao salvar unidade. Tente novamente.",
+      );
       console.error(error);
     } finally {
       setLoading(false);
