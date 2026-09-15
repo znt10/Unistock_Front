@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { logout } from "@/shared/services/auth";
 import { getNotificacoes } from "@/features/notificacoes/services/notificacoes";
 import { useAuthStore } from "@/shared/stores/authStore";
+import { useEmpresaTemFabrica } from "@/features/fabrica/hooks/useEmpresaTemFabrica";
 
 const Icons = {
   Package: () => (
@@ -212,7 +213,14 @@ export default function Sidebar() {
 
   const role =
     user?.loja_tipo === "Fabrica" ? "Fabrica" : normalizeRole(user?.group);
-  const menuItems = MENU_CONFIG[role] || [];
+  // Sem fabrica cadastrada o gerente nao ve o item "Fabrica": a tela dela so
+  // tem o que fazer quando a empresa tem uma.
+  const empresaTemFabrica = useEmpresaTemFabrica({
+    enabled: hydrated && role === "Gerente",
+  });
+  const menuItems = (MENU_CONFIG[role] || []).filter(
+    (item) => role !== "Gerente" || item.href !== "/fabrica" || empresaTemFabrica,
+  );
   const temNotificacoes = notificacoes.some((n) => !n.lida);
 
   const closeMobile = useCallback(() => setIsOpenMobile(false), []);
