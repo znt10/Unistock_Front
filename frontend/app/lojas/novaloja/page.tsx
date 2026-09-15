@@ -95,6 +95,8 @@ export default function NovaLoja() {
   const [endereco, setEndereco] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [senhaAcesso, setSenhaAcesso] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,6 +124,7 @@ export default function NovaLoja() {
         endereco.trim(),
         email.trim(),
         telefone.trim(),
+        senhaAcesso,
       );
       queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
         if (!lojasAtuais) return lojasAtuais;
@@ -130,7 +133,9 @@ export default function NovaLoja() {
       toast.success("Unidade salva com sucesso!");
       router.push("/lojas");
     } catch (error: unknown) {
-      toast.error("Erro ao salvar unidade. Tente novamente.");
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao salvar unidade. Tente novamente.",
+      );
       console.error(error);
     } finally {
       setLoading(false);
@@ -198,6 +203,8 @@ export default function NovaLoja() {
                   </div>
                   <input
                     type="text"
+                    name="nome_loja"
+                    autoComplete="off"
                     value={nomeLoja}
                     onChange={(e) => setNomeLoja(e.target.value)}
                     placeholder="EX: UNIDADE CENTRAL PATOS"
@@ -218,6 +225,8 @@ export default function NovaLoja() {
                     </div>
                     <input
                       type="text"
+                      name="cidade_loja"
+                      autoComplete="off"
                       value={cidade}
                       onChange={(e) => setCidade(e.target.value)}
                       placeholder="CIDADE"
@@ -231,6 +240,8 @@ export default function NovaLoja() {
                   </label>
                   <input
                     type="text"
+                    name="endereco_loja"
+                    autoComplete="off"
                     value={endereco}
                     onChange={(e) => setEndereco(e.target.value)}
                     placeholder="RUA, NÚMERO, BAIRRO"
@@ -251,6 +262,8 @@ export default function NovaLoja() {
                     </div>
                     <input
                       type="email"
+                      name="email_loja"
+                      autoComplete="off"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="contato@unidade.com"
@@ -268,6 +281,8 @@ export default function NovaLoja() {
                     </div>
                     <input
                       type="tel"
+                      name="telefone_loja"
+                      autoComplete="off"
                       value={telefone}
                       onChange={(e) => setTelefone(e.target.value)}
                       placeholder="(83) 99999-8888"
@@ -275,6 +290,39 @@ export default function NovaLoja() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Acesso da loja: opcional, so entra em uso se um e-mail for
+                  informado acima — sem e-mail nao ha login pra prender a
+                  senha. */}
+              <div className="space-y-2">
+                <label htmlFor="senha-acesso" className="text-[11px] font-black text-theme-text-sub/40 uppercase tracking-[2px] ml-1">
+                  Senha de acesso (opcional)
+                </label>
+                <div className="relative">
+                  <input
+                    id="senha-acesso"
+                    type={mostrarSenha ? "text" : "password"}
+                    name="senha_acesso_loja"
+                    autoComplete="new-password"
+                    value={senhaAcesso}
+                    onChange={(e) => setSenhaAcesso(e.target.value)}
+                    placeholder="Deixe em branco para usar o link por e-mail"
+                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-6 pr-24 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMostrarSenha((v) => !v)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black uppercase text-blue-500"
+                  >
+                    {mostrarSenha ? "Ocultar" : "Mostrar"}
+                  </button>
+                </div>
+                <p className="text-xs font-medium text-theme-text-sub">
+                  Em branco, a loja define a propria senha pelo link que chega
+                  por e-mail. Preenchendo, o acesso ja nasce pronto pra usar,
+                  e nenhum e-mail é enviado.
+                </p>
               </div>
 
               {/* Botões */}

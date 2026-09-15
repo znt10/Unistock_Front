@@ -8,6 +8,9 @@ interface User {
   group: string;
   loja_id: string | null;
   loja_nome: string | null;
+  // "Loja" ou "Fabrica". Nulo para quem nao responde por loja (gerente, admin)
+  // e para sessoes gravadas antes deste campo — voltam ao normal no proximo login.
+  loja_tipo: string | null;
 }
 
 interface AuthState {
@@ -63,3 +66,6 @@ export const selectIsResponsavel = (state: AuthState) =>
         state.user.group as (typeof RESPONSAVEL_GROUPS)[number]
       )
     : false;
+
+export const selectIsFabrica = (state: AuthState) =>
+  state.user?.loja_tipo === "Fabrica";

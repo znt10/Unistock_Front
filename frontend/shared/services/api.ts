@@ -38,6 +38,25 @@ const extractApiErrorMessage = (data: unknown): string | null => {
   return null;
 };
 
+/**
+ * Erro de API com o corpo preservado.
+ *
+ * Continua sendo um Error (quem so mostra `message` nao muda), mas carrega
+ * `status` e `data` para os casos em que a resposta de erro e informacao util
+ * e nao so um texto — o aviso de teto de estoque (409) manda a lista de
+ * produtos que estouram, com os numeros que a tela precisa mostrar.
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly data: unknown,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export const apiFetch = async (
   endpoint: string,
   options: RequestInit = {},
@@ -58,6 +77,12 @@ export const apiFetch = async (
   });
 
   if (canRefresh && [401, 403].includes(response.status) && !_isRetry) {
+    // O backend responde token expirado com 403 (nao 401), entao todo 403
+    // passa por aqui. Mas 403 tambem e regra de negocio ("a fabrica nao altera
+    // pedidos das lojas"): so a falha do PROPRIO refresh quer dizer sessao
+    // expirada e manda para o login.
+    let refreshOk = false;
+
     try {
       // O refresh_token HTTP-only vai junto automaticamente; o backend
       // devolve o novo access_token tambem como cookie HTTP-only.
@@ -68,35 +93,38 @@ export const apiFetch = async (
           "Content-Type": "application/json",
         },
       });
-
-      if (!refreshResponse.ok) {
-        throw new Error("Sessao expirada. Faca login novamente.");
-      }
-
-      return await apiFetch(endpoint, options, true);
+      refreshOk = refreshResponse.ok;
     } catch (refreshError) {
       console.error("Erro no refresh:", refreshError);
+    }
 
+    if (!refreshOk) {
       if (typeof window !== "undefined") {
         window.location.href = "/login";
       }
 
-      throw refreshError;
+      throw new Error("Sessao expirada. Faca login novamente.");
     }
+
+    // Sessao valida: tenta de novo uma vez (_isRetry impede laco). Se a
+    // retentativa tambem falhar, o ApiError com a mensagem do backend sobe
+    // intacto para quem chamou, sem redirecionar.
+    return apiFetch(endpoint, options, true);
   }
 
   if (!response.ok) {
     let message = `Erro ${response.status}`;
+    let data: unknown = null;
 
     try {
-      const data = await response.clone().json();
+      data = await response.clone().json();
       message = extractApiErrorMessage(data) || message;
     } catch {
       const errorText = await response.clone().text();
       message = errorText || message;
     }
 
-    throw new Error(message);
+    throw new ApiError(message, response.status, data);
   }
 
   return response;

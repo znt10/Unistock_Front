@@ -1,5 +1,6 @@
-import { apiFetch, apiV1 } from "@/shared/services/api";
+import { ApiError, apiFetch, apiV1 } from "@/shared/services/api";
 
+export type PedidoStatus = "PENDENTE" | "EM_ENTREGA" | "ENTREGUE" | "CANCELADO";
 
 // ======================================================
 // 🔹 PEDIDOS
@@ -14,6 +15,26 @@ export type PedidoData = {
   loja: string;
   descricao: string;
   itens: ItemPedido[];
+  // Resposta ao aviso de teto: reenviar com true registra o pedido mesmo
+  // deixando a loja acima do maximo.
+  confirmar_excesso?: boolean;
+};
+
+/** Um item do pedido que passaria do maximo da loja (corpo do 409). */
+export type AvisoDeExcesso = {
+  produto: string;
+  atual: number;
+  pedido: number;
+  resultante: number;
+  maximo: number;
+  /** Quanto ainda caberia — o numero para corrigir sem fazer conta. */
+  cabe: number;
+};
+
+export const excessoDoErro = (erro: unknown): AvisoDeExcesso[] | null => {
+  if (!(erro instanceof ApiError) || erro.status !== 409) return null;
+  const corpo = erro.data as { excesso?: AvisoDeExcesso[] } | null;
+  return corpo?.excesso ?? null;
 };
 
 export const postPedido = async (
@@ -31,6 +52,7 @@ export const getPedidos = async (filters?: {
   status?: string;
   data?: string;
   loja?: string;
+  da_fabrica?: boolean;
 }) => {
 
   const params = new URLSearchParams();
@@ -45,6 +67,10 @@ export const getPedidos = async (filters?: {
 
   if (filters?.loja) {
     params.append("loja", filters.loja);
+  }
+
+  if (filters?.da_fabrica !== undefined) {
+    params.append("da_fabrica", String(filters.da_fabrica));
   }
 
   const pedidos: unknown[] = [];
@@ -75,7 +101,7 @@ export const getPedidos = async (filters?: {
 
 export const patchPedidoStatus = async (
   id: string,
-  status: "PENDENTE" | "ENTREGUE" | "CANCELADO",
+  status: PedidoStatus,
 ) => {
   const res = await apiV1(`/pedidos/${id}/status/`, {
     method: "PATCH",

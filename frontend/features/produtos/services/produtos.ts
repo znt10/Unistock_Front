@@ -35,6 +35,8 @@ export const postProduto = async (
   categoria: string,
   quantidade_por_embalagem?: number | null,
   estoque_minimo_sugerido = 1,
+  estoque_maximo_sugerido?: number,
+  vem_da_fabrica = false,
 ) => {
   const res = await apiV1("/produtos/", {
     method: "POST",
@@ -43,7 +45,14 @@ export const postProduto = async (
       unidade_medida: "UNIDADE",
       quantidade_por_embalagem,
       estoque_minimo_sugerido,
+      // Piso de minimo+1: o back recusa sugestao <= minimo, e a linha de
+      // estoque nasce desta sugestao.
+      estoque_maximo_sugerido: Math.max(
+        estoque_maximo_sugerido ?? estoque_minimo_sugerido * 3,
+        estoque_minimo_sugerido + 1,
+      ),
       categoria,
+      vem_da_fabrica,
     }),
   });
 
@@ -56,8 +65,10 @@ export const patchProduto = async (
     unidade_medida: string;
     quantidade_por_embalagem: number | null;
     estoque_minimo_sugerido: number;
+    estoque_maximo_sugerido: number;
     categoria: string;
     nome_produto: string;
+    vem_da_fabrica: boolean;
   }>,
 ) => {
   const res = await apiV1(`/produtos/${id}/`, {

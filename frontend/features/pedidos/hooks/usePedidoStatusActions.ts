@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { patchPedidoStatus } from "@/features/pedidos/services/pedidos";
+import type { PedidoStatus } from "@/features/pedidos/services/pedidos";
 
-export type PedidoStatus = "PENDENTE" | "ENTREGUE" | "CANCELADO";
+export type { PedidoStatus };
 
 type AtualizarStatusOptions = {
   mostrarAlerta?: boolean;

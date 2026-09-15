@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Plus,
@@ -38,6 +39,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
     String(produto.estoque_minimo_sugerido ?? 1),
   );
   const [salvando, setSalvando] = useState(false);
+  const [trocandoFabrica, setTrocandoFabrica] = useState(false);
   const [removendo, setRemovendo] = useState(false);
 
   function cancelarEdicao() {
@@ -62,6 +64,38 @@ function LinhaProduto({ produto }: { produto: Produto }) {
       setSalvando(false);
     }
   }
+
+  // A caixa fica sempre visivel e salva no clique: marcar produto por produto
+  // sem abrir a edicao da linha.
+  async function trocarFabrica(vemDaFabrica: boolean) {
+    setTrocandoFabrica(true);
+    try {
+      const atualizado = await patchProduto(produto.id, {
+        vem_da_fabrica: vemDaFabrica,
+      });
+      queryClient.setQueryData<Produto[]>(PRODUTOS_QUERY_KEY, (prev = []) =>
+        prev.map((p) => (p.id === produto.id ? { ...p, ...atualizado } : p)),
+      );
+    } catch {
+      toast.error(`Não foi possível alterar ${produto.nome_produto}.`);
+    } finally {
+      setTrocandoFabrica(false);
+    }
+  }
+
+  const caixaFabrica = (
+    <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold text-theme-text-sub">
+      <input
+        type="checkbox"
+        checked={Boolean(produto.vem_da_fabrica)}
+        disabled={trocandoFabrica}
+        onChange={(evento) => trocarFabrica(evento.target.checked)}
+        className="h-4 w-4 accent-blue-600"
+        aria-label={`${produto.nome_produto} vem da fábrica`}
+      />
+      <span className="sm:hidden">Vem da fábrica</span>
+    </label>
+  );
 
   async function remover() {
     setRemovendo(true);
@@ -101,6 +135,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
         <td className="px-5 py-4 text-sm font-semibold text-theme-text-sub">
           {produto.unidade_medida ?? "—"}
         </td>
+        <td className="px-5 py-4">{caixaFabrica}</td>
         <td className="px-5 py-4">
           <label htmlFor={`estoque-${produto.id}`} className="sr-only">
             Estoque mínimo sugerido
@@ -143,7 +178,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
   if (confirmandoDelete) {
     return (
       <tr style={acento}>
-        <td className="px-5 py-4" colSpan={3}>
+        <td className="px-5 py-4" colSpan={4}>
           <span className="text-sm font-bold text-theme-text-sub">
             Remover{" "}
             <span className="font-black text-theme-text-title">
@@ -189,6 +224,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
           {produto.unidade_medida ?? "—"}
         </span>
       </td>
+      <td className="px-5 py-5">{caixaFabrica}</td>
       <td className="px-5 py-5">
         <span className="text-sm font-black text-theme-text-title">
           {produto.estoque_minimo_sugerido ?? "—"}
@@ -230,6 +266,9 @@ function LinhaEsqueleto() {
         <div className="h-5 w-16 animate-pulse rounded-full bg-theme-header" />
       </td>
       <td className="px-5 py-5">
+        <div className="h-4 w-4 animate-pulse rounded bg-theme-header" />
+      </td>
+      <td className="px-5 py-5">
         <div className="h-4 w-8 animate-pulse rounded-full bg-theme-header" />
       </td>
       <td className="px-5 py-5">
@@ -245,7 +284,9 @@ export default function CategoriaProdutos() {
   const { categoria } = useParams<{ categoria: string }>();
   const { data: produtos = [], isLoading, isError } = useProdutos();
   const { data: categorias = [] } = useCategorias();
+  const queryClient = useQueryClient();
   const [busca, setBusca] = useState("");
+  const [marcandoCategoria, setMarcandoCategoria] = useState(false);
 
   const categoriaAtual = categorias.find((c) => c.id === categoria);
   const cor = corDaCategoria(categoria);
@@ -257,6 +298,45 @@ export default function CategoriaProdutos() {
   };
 
   const produtosDaCategoria = produtos.filter((p) => p.categoria === categoria);
+
+  const todosDaFabrica =
+    produtosDaCategoria.length > 0 &&
+    produtosDaCategoria.every((p) => p.vem_da_fabrica);
+
+  // Marca (ou desmarca) a categoria inteira de uma vez. So envia os produtos
+  // que mudam; se algum falhar, os que deram certo ficam salvos.
+  async function marcarCategoria(vemDaFabrica: boolean) {
+    const alvos = produtosDaCategoria.filter(
+      (p) => Boolean(p.vem_da_fabrica) !== vemDaFabrica,
+    );
+    if (alvos.length === 0) return;
+
+    setMarcandoCategoria(true);
+    const resultados = await Promise.allSettled(
+      alvos.map((p) => patchProduto(p.id, { vem_da_fabrica: vemDaFabrica })),
+    );
+    const atualizados = new Map<string, Produto>();
+    resultados.forEach((resultado, indice) => {
+      if (resultado.status === "fulfilled") {
+        atualizados.set(alvos[indice].id, resultado.value);
+      }
+    });
+    queryClient.setQueryData<Produto[]>(PRODUTOS_QUERY_KEY, (prev = []) =>
+      prev.map((p) => (atualizados.has(p.id) ? { ...p, ...atualizados.get(p.id) } : p)),
+    );
+    setMarcandoCategoria(false);
+
+    const falhas = alvos.length - atualizados.size;
+    if (falhas > 0) {
+      toast.error(`${falhas} produto${falhas !== 1 ? "s" : ""} não ${falhas !== 1 ? "foram alterados" : "foi alterado"}.`);
+    } else {
+      toast.success(
+        vemDaFabrica
+          ? "Todos os produtos da categoria vêm da fábrica."
+          : "Nenhum produto da categoria vem da fábrica agora.",
+      );
+    }
+  }
 
   const produtosFiltrados = produtosDaCategoria.filter((p) =>
     p.nome_produto.toLowerCase().includes(busca.toLowerCase()),
@@ -313,13 +393,31 @@ export default function CategoriaProdutos() {
             </p>
           </div>
 
-          <Link
-            href="/produtos/novo"
-            className="relative inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-4 text-xs font-black uppercase tracking-[1px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
-          >
-            <span className="shrink-0"><Plus size={20} strokeWidth={3} /></span>
-            <span className="truncate">Novo produto</span>
-          </Link>
+          <div className="relative flex w-full min-w-0 flex-col gap-3 sm:w-auto sm:flex-row">
+            {produtosDaCategoria.length > 0 && (
+              <button
+                type="button"
+                onClick={() => marcarCategoria(!todosDaFabrica)}
+                disabled={marcandoCategoria}
+                className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-4 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500 active:scale-95 disabled:opacity-50 sm:w-auto sm:px-6 sm:text-sm sm:tracking-[2px]"
+              >
+                <span className="truncate">
+                  {marcandoCategoria
+                    ? "Salvando..."
+                    : todosDaFabrica
+                      ? "Desmarcar todos da fábrica"
+                      : "Marcar todos como fábrica"}
+                </span>
+              </button>
+            )}
+            <Link
+              href="/produtos/novo"
+              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-4 text-xs font-black uppercase tracking-[1px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
+            >
+              <span className="shrink-0"><Plus size={20} strokeWidth={3} /></span>
+              <span className="truncate">Novo produto</span>
+            </Link>
+          </div>
         </div>
 
         {/* ── Busca ── */}
@@ -385,6 +483,7 @@ export default function CategoriaProdutos() {
                   <tr>
                     <th className="px-5 py-4 text-left">Produto</th>
                     <th className="px-5 py-4 text-left">Unidade</th>
+                    <th className="px-5 py-4 text-left">Vem da fábrica</th>
                     <th className="px-5 py-4 text-left">Estoque mínimo</th>
                     <th className="px-5 py-4 text-center">Ações</th>
                   </tr>
@@ -398,7 +497,7 @@ export default function CategoriaProdutos() {
                     </>
                   ) : produtosFiltrados.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-5 py-16 text-center">
+                      <td colSpan={5} className="px-5 py-16 text-center">
                         <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-theme-border bg-theme-header">
                           <SearchX size={20} strokeWidth={2.5} className="text-theme-text-sub" />
                         </span>

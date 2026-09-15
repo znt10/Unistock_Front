@@ -25,7 +25,7 @@ export default function AdminDashboard() {
               Painel Administrativo
             </span>
             <h1 className="text-3xl font-bold text-theme-text-title">
-              Gerentes e Lojas
+              Empresas e Lojas
             </h1>
           </div>
           <button
@@ -40,23 +40,39 @@ export default function AdminDashboard() {
         {isLoading && <p className="text-theme-text-sub">Carregando...</p>}
 
         <div className="space-y-6">
-          {estrutura.map((gerente) => (
+          {estrutura.map((empresa) => (
             <div
-              key={gerente.id}
+              key={empresa.id}
               className="rounded-2xl border border-theme-border bg-theme-card p-6"
             >
               <h2 className="text-lg font-black text-theme-text-title">
-                {gerente.nome}
+                {empresa.nome}
               </h2>
-              <p className="text-sm text-theme-text-sub">{gerente.email}</p>
 
-              <div className="mt-4 space-y-2">
-                {gerente.lojas.length === 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {empresa.membros.length === 0 && (
                   <p className="text-sm text-theme-text-sub">
-                    Nenhuma loja atribuida.
+                    Nenhum usuario vinculado.
                   </p>
                 )}
-                {gerente.lojas.map((loja) => (
+                {empresa.membros.map((membro) => (
+                  <span
+                    key={membro.id}
+                    className="rounded-full border border-theme-border bg-theme-header/60 px-3 py-1 text-xs font-bold text-theme-text-sub"
+                    title={membro.email}
+                  >
+                    {membro.nome}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {empresa.lojas.length === 0 && (
+                  <p className="text-sm text-theme-text-sub">
+                    Nenhuma loja cadastrada.
+                  </p>
+                )}
+                {empresa.lojas.map((loja) => (
                   <div
                     key={loja.id}
                     className="flex items-center justify-between rounded-lg border border-theme-border bg-theme-header/60 p-3"
@@ -77,7 +93,7 @@ export default function AdminDashboard() {
 
           {!isLoading && estrutura.length === 0 && (
             <p className="text-sm text-theme-text-sub">
-              Nenhum gerente cadastrado ainda.
+              Nenhuma empresa cadastrada ainda.
             </p>
           )}
         </div>

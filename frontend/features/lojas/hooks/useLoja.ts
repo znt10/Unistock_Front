@@ -36,9 +36,10 @@ function normalizarLojas(data: unknown): Loja[] {
   return [];
 }
 
-export function useLojas() {
+export function useLojas({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery<Loja[]>({
     queryKey: LOJAS_QUERY_KEY,
+    enabled,
     queryFn: async () => {
       const data = await getLoja();
   

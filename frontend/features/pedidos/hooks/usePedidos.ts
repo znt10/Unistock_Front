@@ -3,6 +3,12 @@ import { getPedidos } from "@/features/pedidos/services/pedidos";
 
 export interface Pedido {
   id: string;
+  numero: number;
+  loja_nome?: string;
+  // Pedido que segue o fluxo das caixas: nao se marca entregue na mao.
+  da_fabrica: boolean;
+  caixas_total: number;
+  caixas_chegaram: number;
   itens?: {
     produto: string;
     produto_nome?: string;
@@ -22,6 +28,7 @@ interface PedidoFilters {
   status?: string;
   data?: string;
   loja?: string;
+  da_fabrica?: boolean;
 }
 
 function normalizarPedidos(data: unknown): Pedido[] {
@@ -42,6 +49,7 @@ export function usePedidos(filters?: PedidoFilters) {
       filters?.status,
       filters?.data,
       filters?.loja,
+      filters?.da_fabrica,
     ],
 
     queryFn: async () => {

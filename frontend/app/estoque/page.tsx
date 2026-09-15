@@ -16,7 +16,8 @@ import { useCategorias } from "@/features/produtos/hooks/useCategorias";
 import NovaCategoriaModal from "@/features/produtos/components/NovaCategoriaModal";
 import { getEstoques, patchEstoque, postEstoque } from "@/features/estoque/services/estoque";
 import { patchProduto } from "@/features/produtos/services/produtos";
-import { selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
+import { selectIsFabrica, selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
+import RegistrarProducaoModal from "@/features/fabrica/components/RegistrarProducaoModal";
 import type { EstadoProduto, EstoqueLocal } from "@/features/estoque/data/estruturaEstoque";
 
 const SEM_CATEGORIA = "Sem categoria";
@@ -58,6 +59,8 @@ export default function EstoquePage() {
   const usuario = useAuthStore((state) => state.user);
   const lojaIdUsuario = usuario?.loja_id;
   const isGerente = useAuthStore(selectIsGerente);
+  const isFabrica = useAuthStore(selectIsFabrica);
+  const [modalProducaoAberto, setModalProducaoAberto] = useState(false);
   const { data: lojasQuery = [], isLoading: carregandoLojas } = useLojas();
   const { data: produtosQuery = [], isLoading: carregandoProdutos } =
     useProdutos();
@@ -114,6 +117,7 @@ export default function EstoquePage() {
           unidade_medida?: string;
           quantidade_por_embalagem?: number | null;
           estoque_minimo_sugerido?: number;
+          estoque_maximo_sugerido?: number;
         }
       >
     >();
@@ -127,6 +131,7 @@ export default function EstoquePage() {
         unidade_medida: produto.unidade_medida,
         quantidade_por_embalagem: produto.quantidade_por_embalagem,
         estoque_minimo_sugerido: produto.estoque_minimo_sugerido,
+        estoque_maximo_sugerido: produto.estoque_maximo_sugerido,
       });
       agrupadas.set(nomeCategoria, produtosCategoria);
     });
@@ -281,7 +286,7 @@ export default function EstoquePage() {
   const salvarEstoqueApi = useCallback(async (
     loja: string,
     produto: string,
-    data: { qtd?: number; minimo?: number; estado?: EstadoProduto },
+    data: { qtd?: number; minimo?: number; maximo?: number; estado?: EstadoProduto },
   ) => {
     const produtoDados = produtoPorId.get(produto);
     const itemAtual =
@@ -297,12 +302,23 @@ export default function EstoquePage() {
       registro?.quantidade_minima ??
       produtoDados?.estoque_minimo_sugerido ??
       1;
+    // O teto e obrigatorio e sempre acima do minimo: o back recusa com 400 e
+    // o banco tem CheckConstraint. Quando a linha ainda nao existe, parte da
+    // sugestao do produto; o piso de minimo+1 evita mandar um valor invalido
+    // quando alguem sobe o minimo acima da sugestao.
+    const maximoBase =
+      data.maximo ??
+      registro?.quantidade_maxima ??
+      produtoDados?.estoque_maximo_sugerido ??
+      quantidadeMinima * 3;
+    const quantidadeMaxima = Math.max(maximoBase, quantidadeMinima + 1);
     const estadoAtual = estadoParaApi(data.estado ?? itemAtual?.estado);
 
     if (registro) {
       await patchEstoque(registro.id, {
         quantidade_atual: quantidadeAtual,
         quantidade_minima: quantidadeMinima,
+        quantidade_maxima: quantidadeMaxima,
         estado: estadoAtual,
       });
     } else {
@@ -311,6 +327,7 @@ export default function EstoquePage() {
         produto,
         quantidade_atual: quantidadeAtual,
         quantidade_minima: quantidadeMinima,
+        quantidade_maxima: quantidadeMaxima,
         estado: estadoAtual,
       });
     }
@@ -410,14 +427,26 @@ export default function EstoquePage() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setModalCategoriaAberto(true)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500 active:scale-95 md:w-auto"
-            >
-              <Plus size={16} strokeWidth={3} />
-              Nova categoria
-            </button>
+            <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
+              {isFabrica && (
+                <button
+                  type="button"
+                  onClick={() => setModalProducaoAberto(true)}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-xs font-black uppercase tracking-[1px] text-white transition hover:bg-blue-700 active:scale-95 md:w-auto"
+                >
+                  <Plus size={16} strokeWidth={3} />
+                  Registrar produção
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setModalCategoriaAberto(true)}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500 active:scale-95 md:w-auto"
+              >
+                <Plus size={16} strokeWidth={3} />
+                Nova categoria
+              </button>
+            </div>
           </div>
 
           <BarraLojas
@@ -556,6 +585,13 @@ export default function EstoquePage() {
         <NovaCategoriaModal
           onClose={() => setModalCategoriaAberto(false)}
           onCriada={() => {}}
+        />
+      )}
+
+      {modalProducaoAberto && (
+        <RegistrarProducaoModal
+          produtos={produtos}
+          onClose={() => setModalProducaoAberto(false)}
         />
       )}
     </div>

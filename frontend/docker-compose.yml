@@ -1,9 +1,13 @@
+# O nome do projeto vem da pasta ('frontend') se nao for fixado aqui —
+# era isso que aparecia no Docker. Fixado para casar com o unistock_back.
+name: unistock_front
+
 services:
-  frontend:
+  front:
     build:
       context: .
       target: dev
-    container_name: unistock_frontend
+    container_name: unistock_front
     ports:
       - "3000:3000"
     volumes:

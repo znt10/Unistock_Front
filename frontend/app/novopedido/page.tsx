@@ -2,11 +2,16 @@
 
 import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
-import { postPedido } from "@/features/pedidos/services/pedidos";
+import {
+  excessoDoErro,
+  postPedido,
+  type AvisoDeExcesso,
+} from "@/features/pedidos/services/pedidos";
 import { useAuthStore } from "@/shared/stores/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProdutos } from "@/features/produtos/hooks/useProduto";
 import { useLojas } from "@/features/lojas/hooks/useLoja";
+import { useEmpresaTemFabrica } from "@/features/fabrica/hooks/useEmpresaTemFabrica";
 import AutocompleteProduto from "@/shared/components/HeroUI/AutocompleteP";
 import AutocompleteLoja from "@/shared/components/HeroUI/AutocompleteLoja";
 
@@ -32,6 +37,8 @@ export default function NovoPedidoPage() {
   const { data: produtos = [] } = useProdutos();
   const { data: lojas = [] } = useLojas();
   const user = useAuthStore((state) => state.user);
+  // Sem fabrica cadastrada o pedido de salgado segue como sempre, em quantidade.
+  const empresaTemFabrica = useEmpresaTemFabrica();
 
   const [produtoSelecionado, setProdutoSelecionado] = useState("");
   const [quantidade, setQuantidade] = useState<number | "">("");
@@ -40,11 +47,17 @@ export default function NovoPedidoPage() {
   const [loading, setLoading] = useState(false);
   const [sucesso, setSucesso] = useState(false);
   const [erroMsg, setErroMsg] = useState("");
+  // Aviso de teto: a primeira tentativa volta aqui em vez de criar o pedido.
+  // Trava avisada e nao dura de proposito — trava dura empurra quem esta na
+  // loja a subir o maximo so para conseguir pedir, e nunca mais abaixar.
+  const [excesso, setExcesso] = useState<AvisoDeExcesso[] | null>(null);
 
   // Incrementar a chave força os componentes Autocomplete a remontarem (reset visual)
   const [resetKey, setResetKey] = useState(0);
 
   const isGerente = normalizeRole(user?.group) === "Gerente";
+
+  const produtoAtual = produtos.find((produto) => produto.id === produtoSelecionado);
 
   function limparFormulario() {
     setProdutoSelecionado("");
@@ -74,6 +87,10 @@ export default function NovoPedidoPage() {
       return;
     }
 
+    await enviarPedido(lojaId, false);
+  };
+
+  const enviarPedido = async (lojaId: string, confirmandoExcesso: boolean) => {
     try {
       setLoading(true);
 
@@ -83,16 +100,25 @@ export default function NovoPedidoPage() {
         itens: [
           { produto: produtoSelecionado, quantidade: Number(quantidade) },
         ],
+        confirmar_excesso: confirmandoExcesso,
       });
 
       await queryClient.invalidateQueries({ queryKey: ["pedidos"] });
 
       limparFormulario();
+      setExcesso(null);
       setSucesso(true);
 
       // Some o banner de sucesso depois de 4 segundos
       setTimeout(() => setSucesso(false), 4000);
     } catch (error: unknown) {
+      const aviso = excessoDoErro(error);
+      if (aviso) {
+        // Nao e erro: o pedido esta correto, so passa do maximo da loja.
+        setExcesso(aviso);
+        return;
+      }
+
       setErroMsg(
         error instanceof Error ? error.message : "Erro ao criar pedido.",
       );
@@ -141,6 +167,52 @@ export default function NovoPedidoPage() {
                   </div>
                 )}
 
+                {/* ── Aviso de teto ──
+                    Ambar e nao vermelho: nao e erro, e um alerta. O pedido
+                    esta correto; o que ele faz e passar do maximo da loja. */}
+                {excesso && (
+                  <div className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-amber-900">
+                    <p className="text-sm font-black uppercase tracking-[2px]">
+                      Isso passa do máximo da loja
+                    </p>
+                    <ul className="mt-3 space-y-1.5 text-sm font-medium">
+                      {excesso.map((item) => (
+                        <li key={item.produto}>
+                          <b>{item.produto}</b>: ficaria com {item.resultante},
+                          e o máximo é {item.maximo}.{" "}
+                          {item.cabe > 0
+                            ? `Ainda cabem ${item.cabe}.`
+                            : "Não cabe mais nenhum."}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-3 text-xs font-medium text-amber-800">
+                      Produto parado demais estraga. Ajuste a quantidade, ou
+                      confirme se você sabe que vale a pena desta vez.
+                    </p>
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                      <button
+                        type="button"
+                        onClick={() => setExcesso(null)}
+                        className="rounded-xl border border-amber-400 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-amber-800 transition hover:bg-amber-100"
+                      >
+                        Ajustar quantidade
+                      </button>
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => {
+                          const lojaId = lojaSelecionada || user?.loja_id;
+                          if (lojaId) enviarPedido(lojaId, true);
+                        }}
+                        className="rounded-xl bg-amber-600 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white transition hover:bg-amber-700 disabled:opacity-60"
+                      >
+                        {loading ? "Enviando..." : "Pedir mesmo assim"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* ── LOJA (só Gerente) ── */}
                 {isGerente && (
                   <div className="space-y-2">
@@ -165,7 +237,9 @@ export default function NovoPedidoPage() {
 
                 {/* ── QUANTIDADE ── */}
                 <div className="space-y-2">
-                  <label className={labelClass}>Quantidade</label>
+                  <label className={labelClass}>
+                    {empresaTemFabrica && produtoAtual?.vem_da_fabrica ? "Caixas" : "Quantidade"}
+                  </label>
                   <input
                     type="number"
                     min={1}
