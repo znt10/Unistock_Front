@@ -1,0 +1,23 @@
+# Compose de PRODUCAO (Coolify / VPS). O docker-compose.yml e o de
+# desenvolvimento: alvo "dev", codigo por bind mount e a rede externa do
+# compose do backend, que so existe na maquina de desenvolvimento.
+#
+# No Coolify: Base Directory = /frontend e Docker Compose Location =
+# /docker-compose.prod.yml. Dominio no servico "front", porta 3000.
+#
+# API_PROXY_URL = URL publica da api (ex. https://api.unistock.com.br), sem
+# barra no fim. Vai no build E no container: o rewrite /backend e gravado no
+# build, e o proxy.ts usa a mesma variavel para renovar o token.
+
+services:
+  front:
+    build:
+      context: .
+      target: prod
+      args:
+        API_PROXY_URL: ${API_PROXY_URL:?defina API_PROXY_URL}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      API_PROXY_URL: ${API_PROXY_URL:?defina API_PROXY_URL}
