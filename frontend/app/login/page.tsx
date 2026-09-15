@@ -51,7 +51,10 @@ export default function LoginPage() {
     try {
       const user = await login(email, password);
 
-      router.push(getHomeByGroup(user?.group));
+      // A fabrica loga no grupo Responsavel, mas o trabalho dela e a fila.
+      router.push(
+        user?.loja_tipo === "Fabrica" ? "/fabrica" : getHomeByGroup(user?.group),
+      );
     } catch (err: unknown) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Erro ao fazer login");

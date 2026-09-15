@@ -11,6 +11,7 @@ import { useAuthStore } from "@/shared/stores/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProdutos } from "@/features/produtos/hooks/useProduto";
 import { useLojas } from "@/features/lojas/hooks/useLoja";
+import { useEmpresaTemFabrica } from "@/features/fabrica/hooks/useEmpresaTemFabrica";
 import AutocompleteProduto from "@/shared/components/HeroUI/AutocompleteP";
 import AutocompleteLoja from "@/shared/components/HeroUI/AutocompleteLoja";
 
@@ -36,6 +37,8 @@ export default function NovoPedidoPage() {
   const { data: produtos = [] } = useProdutos();
   const { data: lojas = [] } = useLojas();
   const user = useAuthStore((state) => state.user);
+  // Sem fabrica cadastrada o pedido de salgado segue como sempre, em quantidade.
+  const empresaTemFabrica = useEmpresaTemFabrica();
 
   const [produtoSelecionado, setProdutoSelecionado] = useState("");
   const [quantidade, setQuantidade] = useState<number | "">("");
@@ -235,7 +238,7 @@ export default function NovoPedidoPage() {
                 {/* ── QUANTIDADE ── */}
                 <div className="space-y-2">
                   <label className={labelClass}>
-                    {produtoAtual?.vem_da_fabrica ? "Caixas" : "Quantidade"}
+                    {empresaTemFabrica && produtoAtual?.vem_da_fabrica ? "Caixas" : "Quantidade"}
                   </label>
                   <input
                     type="number"
