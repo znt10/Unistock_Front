@@ -31,6 +31,10 @@ CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
 # ---------------------------------------------------------------------------
 FROM base AS builder
 ENV NODE_ENV=production
+# O Next grava o destino do rewrite /backend (next.config.ts) no build, entao
+# a URL da API precisa chegar AQUI, e nao so no container em execucao.
+ARG API_PROXY_URL
+ARG NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
