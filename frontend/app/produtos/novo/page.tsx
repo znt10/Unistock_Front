@@ -31,6 +31,7 @@ export default function NovoProduto() {
   const [nomeProduto, setNomeProduto] = useState("");
   const [estoqueMinimo, setEstoqueMinimo] = useState("1");
   const [categoria, setCategoria] = useState("");
+  const [vemDaFabrica, setVemDaFabrica] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -61,6 +62,8 @@ export default function NovoProduto() {
         categoria,
         null,
         Number(estoqueMinimo),
+        undefined,
+        vemDaFabrica,
       );
       queryClient.setQueryData<Produto[] | undefined>(
         PRODUTOS_QUERY_KEY,
@@ -81,6 +84,7 @@ export default function NovoProduto() {
       setNomeProduto("");
       setEstoqueMinimo("1");
       setCategoria("");
+      setVemDaFabrica(false);
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "Erro ao cadastrar produto.",
@@ -189,6 +193,15 @@ export default function NovoProduto() {
                   />
                 </div>
 
+                <label className="flex items-center gap-3 rounded-2xl border border-theme-border bg-theme-header px-5 py-4 text-sm font-bold text-theme-text-title">
+                  <input
+                    type="checkbox"
+                    checked={vemDaFabrica}
+                    onChange={(evento) => setVemDaFabrica(evento.target.checked)}
+                  />
+                  Vem da fábrica (pedido e estoque em caixas com etiqueta)
+                </label>
+
                 {/* Categoria em chips */}
                 <div className="space-y-2">
                   <span className={labelClass}>Categoria</span>
@@ -240,6 +253,7 @@ export default function NovoProduto() {
                       setNomeProduto("");
                       setEstoqueMinimo("1");
                       setCategoria("");
+                      setVemDaFabrica(false);
                       setError(null);
                       setSuccess(null);
                     }}

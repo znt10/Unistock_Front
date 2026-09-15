@@ -134,7 +134,9 @@ export default function EditarLoja() {
       router.push(`/lojas/detalhes/${id}`);
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao atualizar unidade. Tente novamente.");
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao atualizar unidade. Tente novamente.",
+      );
     } finally {
       setSalvando(false);
     }
