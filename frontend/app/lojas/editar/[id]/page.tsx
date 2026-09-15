@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
-import { getLojaById, patchLoja } from "@/features/lojas/services/lojas";
+import { deleteLoja, getLojaById, patchLoja } from "@/features/lojas/services/lojas";
 import NiveisDaLoja from "@/features/estoque/components/NiveisDaLoja";
 
 const Icons = {
@@ -131,7 +131,7 @@ export default function EditarLoja() {
       queryClient.setQueryData(["lojas", id], lojaAtualizada);
       setSenhaAcesso("");
       toast.success("Unidade atualizada com sucesso!");
-      router.push(`/lojas/detalhes/${id}`);
+      router.push("/lojas");
     } catch (error) {
       console.error(error);
       toast.error(
@@ -139,6 +139,22 @@ export default function EditarLoja() {
       );
     } finally {
       setSalvando(false);
+    }
+  };
+
+  // Remover mora aqui desde que a tela de detalhes da loja saiu.
+  const handleDeletar = async () => {
+    if (!confirm("Tem certeza que deseja remover esta unidade?")) return;
+    const resultado = await deleteLoja(id);
+    if (resultado.ok) {
+      queryClient.setQueryData<Loja[] | undefined>(LOJAS_QUERY_KEY, (lojasAtuais) => {
+        if (!lojasAtuais) return lojasAtuais;
+        return lojasAtuais.filter((item) => item.id !== id);
+      });
+      queryClient.removeQueries({ queryKey: ["lojas", id] });
+      router.push("/lojas");
+    } else {
+      toast.error(resultado.mensagem);
     }
   };
 
@@ -159,7 +175,7 @@ export default function EditarLoja() {
 
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="mb-12">
-            <Link href={`/lojas/detalhes/${id}`} className="inline-flex items-center gap-2 text-theme-text-sub hover:text-blue-500 mb-6 transition-all group">
+            <Link href="/lojas" className="inline-flex items-center gap-2 text-theme-text-sub hover:text-blue-500 mb-6 transition-all group">
               <span className="p-1.5 bg-theme-header rounded-lg group-hover:bg-theme-hover transition-all border border-theme-border shadow-sm">
                 <Icons.ChevronLeft />
               </span>
@@ -348,7 +364,7 @@ export default function EditarLoja() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2 sm:gap-6">
-                <Link href={`/lojas/detalhes/${id}`} className="flex justify-center items-center py-4 rounded-2xl border border-red-500/20 text-red-500/70 font-black text-[12px] uppercase tracking-widest hover:bg-red-500/10 hover:border-red-500/40 transition-all active:scale-95">
+                <Link href="/lojas" className="flex justify-center items-center py-4 rounded-2xl border border-red-500/20 text-red-500/70 font-black text-[12px] uppercase tracking-widest hover:bg-red-500/10 hover:border-red-500/40 transition-all active:scale-95">
                   Descartar
                 </Link>
                 <button
@@ -369,6 +385,19 @@ export default function EditarLoja() {
               eles moram aqui e nao na tela de estoque. */}
           <div className="mt-8">
             <NiveisDaLoja lojaId={id} nomeLoja={nomeLoja || "Esta loja"} />
+          </div>
+
+          <div className="mt-12 flex justify-center border-t border-theme-border pt-8">
+            <button
+              type="button"
+              onClick={handleDeletar}
+              className="group flex items-center gap-2 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub transition-all hover:text-red-500"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-theme-border text-lg leading-none transition-all group-hover:border-red-500 group-hover:bg-red-500/10">
+                ×
+              </span>
+              Remover Unidade do Sistema
+            </button>
           </div>
         </div>
       </main>

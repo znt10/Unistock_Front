@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { useProdutos } from "@/features/produtos/hooks/useProduto";
+import { useCategorias } from "@/features/produtos/hooks/useCategorias";
 import {
   getEstoques,
   patchEstoque,
@@ -29,6 +30,9 @@ type Props = {
 export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
   const queryClient = useQueryClient();
   const { data: produtos = [] } = useProdutos();
+  const { data: categorias = [] } = useCategorias();
+  const [categoriaFiltro, setCategoriaFiltro] = useState("");
+  const [busca, setBusca] = useState("");
   const { data: estoques = [] } = useQuery({
     queryKey: ["estoque"],
     queryFn: getEstoques,
@@ -74,6 +78,36 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
           a.produto.nome_produto.localeCompare(b.produto.nome_produto),
         ),
     [produtos, registroPorProduto],
+  );
+
+  // Lista unica ficava enorme: agrupa por categoria (na ordem do catalogo) e
+  // deixa filtrar por categoria e buscar pelo nome.
+  const grupos = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+    const visiveis = linhas.filter(
+      (linha) =>
+        (!categoriaFiltro || linha.produto.categoria === categoriaFiltro) &&
+        (!termo || linha.produto.nome_produto.toLowerCase().includes(termo)),
+    );
+    const ordem = [
+      ...categorias.map((categoria) => ({ id: categoria.id, nome: categoria.nome })),
+      { id: "", nome: "Sem categoria" },
+    ];
+    const conhecidas = new Set(categorias.map((categoria) => categoria.id));
+    return ordem
+      .map((grupo) => ({
+        ...grupo,
+        linhas: visiveis.filter((linha) =>
+          grupo.id
+            ? linha.produto.categoria === grupo.id
+            : !linha.produto.categoria || !conhecidas.has(linha.produto.categoria),
+        ),
+      }))
+      .filter((grupo) => grupo.linhas.length > 0);
+  }, [linhas, categorias, categoriaFiltro, busca]);
+
+  const categoriasComProduto = categorias.filter((categoria) =>
+    linhas.some((linha) => linha.produto.categoria === categoria.id),
   );
 
   const salvar = async (linha: (typeof linhas)[number]) => {
@@ -148,6 +182,30 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
         </p>
       </header>
 
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+        <input
+          type="text"
+          value={busca}
+          onChange={(event) => setBusca(event.target.value)}
+          placeholder="Buscar produto..."
+          aria-label="Buscar produto"
+          className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500 sm:flex-1"
+        />
+        <select
+          value={categoriaFiltro}
+          onChange={(event) => setCategoriaFiltro(event.target.value)}
+          aria-label="Filtrar por categoria"
+          className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500 sm:w-56"
+        >
+          <option value="">Todas as categorias</option>
+          {categoriasComProduto.map((categoria) => (
+            <option key={categoria.id} value={categoria.id}>
+              {categoria.nome}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] text-left">
           <thead className="bg-theme-header text-[11px] uppercase tracking-[1px] text-theme-text-sub">
@@ -158,85 +216,104 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
               <th className="px-3 py-3 w-28 text-center">Máximo</th>
             </tr>
           </thead>
-          <tbody className="[&>tr:nth-child(even)]:bg-theme-hover/60">
-            {linhas.map((linha) => {
-              const id = linha.produto.id;
-              const minimo = rascunho[id]?.minimo ?? linha.minimo;
-              const maximo = rascunho[id]?.maximo ?? linha.maximo;
-              const acima = linha.atual > maximo;
-              const abaixo = linha.atual <= minimo;
-
-              return (
-                <tr key={id} className="border-b border-theme-border/60">
-                  <td className="px-4 py-3">
-                    <span className="font-bold text-theme-text-title">
-                      {linha.produto.nome_produto}
-                    </span>
-                    {erro[id] && (
-                      <p className="mt-1 text-xs font-bold text-red-500">
-                        {erro[id]}
-                      </p>
-                    )}
-                  </td>
+          <tbody>
+            {grupos.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-sm font-bold text-theme-text-sub">
+                  Nenhum produto encontrado.
+                </td>
+              </tr>
+            )}
+            {grupos.map((grupo) => (
+              <React.Fragment key={grupo.id || "sem-categoria"}>
+                <tr className="bg-theme-header/60">
                   <td
-                    className={`px-3 py-3 text-center font-black tabular-nums ${
-                      acima
-                        ? "text-amber-600"
-                        : abaixo
-                          ? "text-red-500"
-                          : "text-theme-text-sub"
-                    }`}
-                    title={
-                      acima
-                        ? "Acima do máximo"
-                        : abaixo
-                          ? "No/abaixo do mínimo"
-                          : undefined
-                    }
+                    colSpan={4}
+                    className="px-4 py-2 text-[11px] font-black uppercase tracking-[2px] text-blue-500"
                   >
-                    {linha.atual}
-                  </td>
-                  <td className="px-3 py-3">
-                    <input
-                      type="number"
-                      min={0}
-                      value={minimo}
-                      disabled={salvando === id}
-                      onChange={(event) =>
-                        setRascunho((atual) => ({
-                          ...atual,
-                          [id]: {
-                            ...atual[id],
-                            minimo: Number(event.target.value),
-                          },
-                        }))
-                      }
-                      onBlur={() => salvar(linha)}
-                      className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-center font-bold tabular-nums text-theme-text-title outline-none focus:border-blue-500"
-                    />
-                  </td>
-                  <td className="px-3 py-3">
-                    <input
-                      type="number"
-                      min={1}
-                      value={maximo}
-                      disabled={salvando === id}
-                      onChange={(event) =>
-                        setRascunho((atual) => ({
-                          ...atual,
-                          [id]: {
-                            ...atual[id],
-                            maximo: Number(event.target.value),
-                          },
-                        }))
-                      }
-                      onBlur={() => salvar(linha)}
-                      className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-center font-bold tabular-nums text-theme-text-title outline-none focus:border-blue-500"
-                    />
+                    {grupo.nome}
                   </td>
                 </tr>
-              );
-            })}
+                {grupo.linhas.map((linha) => {
+                  const id = linha.produto.id;
+                  const minimo = rascunho[id]?.minimo ?? linha.minimo;
+                  const maximo = rascunho[id]?.maximo ?? linha.maximo;
+                  const acima = linha.atual > maximo;
+                  const abaixo = linha.atual <= minimo;
+
+                  return (
+                    <tr key={id} className="border-b border-theme-border/60">
+                      <td className="px-4 py-3">
+                        <span className="font-bold text-theme-text-title">
+                          {linha.produto.nome_produto}
+                        </span>
+                        {erro[id] && (
+                          <p className="mt-1 text-xs font-bold text-red-500">
+                            {erro[id]}
+                          </p>
+                        )}
+                      </td>
+                      <td
+                        className={`px-3 py-3 text-center font-black tabular-nums ${
+                          acima
+                            ? "text-amber-600"
+                            : abaixo
+                              ? "text-red-500"
+                              : "text-theme-text-sub"
+                        }`}
+                        title={
+                          acima
+                            ? "Acima do máximo"
+                            : abaixo
+                              ? "No/abaixo do mínimo"
+                              : undefined
+                        }
+                      >
+                        {linha.atual}
+                      </td>
+                      <td className="px-3 py-3">
+                        <input
+                          type="number"
+                          min={0}
+                          value={minimo}
+                          disabled={salvando === id}
+                          onChange={(event) =>
+                            setRascunho((atual) => ({
+                              ...atual,
+                              [id]: {
+                                ...atual[id],
+                                minimo: Number(event.target.value),
+                              },
+                            }))
+                          }
+                          onBlur={() => salvar(linha)}
+                          className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-center font-bold tabular-nums text-theme-text-title outline-none focus:border-blue-500"
+                        />
+                      </td>
+                      <td className="px-3 py-3">
+                        <input
+                          type="number"
+                          min={1}
+                          value={maximo}
+                          disabled={salvando === id}
+                          onChange={(event) =>
+                            setRascunho((atual) => ({
+                              ...atual,
+                              [id]: {
+                                ...atual[id],
+                                maximo: Number(event.target.value),
+                              },
+                            }))
+                          }
+                          onBlur={() => salvar(linha)}
+                          className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-center font-bold tabular-nums text-theme-text-title outline-none focus:border-blue-500"
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </React.Fragment>
+            ))}
           </tbody>
         </table>
       </div>
