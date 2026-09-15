@@ -157,6 +157,7 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
     { href: "/historico", label: "Historico", icon: "History" },
     { href: "/fabrica", label: "Fábrica", icon: "Store" },
+    { href: "/fabrica/entregas", label: "Em Entrega", icon: "History" },
   ],
   Responsavel: [
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
@@ -213,13 +214,14 @@ export default function Sidebar() {
 
   const role =
     user?.loja_tipo === "Fabrica" ? "Fabrica" : normalizeRole(user?.group);
-  // Sem fabrica cadastrada o gerente nao ve o item "Fabrica": a tela dela so
-  // tem o que fazer quando a empresa tem uma.
+  // Sem fabrica cadastrada o gerente nao ve os itens da fabrica: as telas dela
+  // so tem o que fazer quando a empresa tem uma.
   const empresaTemFabrica = useEmpresaTemFabrica({
     enabled: hydrated && role === "Gerente",
   });
   const menuItems = (MENU_CONFIG[role] || []).filter(
-    (item) => role !== "Gerente" || item.href !== "/fabrica" || empresaTemFabrica,
+    (item) =>
+      role !== "Gerente" || !item.href.startsWith("/fabrica") || empresaTemFabrica,
   );
   const temNotificacoes = notificacoes.some((n) => !n.lida);
 
