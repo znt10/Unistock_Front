@@ -60,10 +60,15 @@ export function useLeituraDeCaixa({ onMudou }: { onMudou?: () => void } = {}) {
   const mostrarErro = useCallback(
     (erro: unknown) => {
       if (erro instanceof ApiError) {
-        mostrar({ tipo: "erro", titulo: erro.message, leitura: null });
-      } else {
-        // fetch rejeitado = sem rede. Nada fica guardado para depois.
+        // 5xx nao tem mensagem de negocio para mostrar: texto generico em vez
+        // do corpo cru do erro do servidor.
+        const titulo = erro.status >= 500 ? "Erro no servidor — tente de novo" : erro.message;
+        mostrar({ tipo: "erro", titulo, leitura: null });
+      } else if (erro instanceof TypeError) {
+        // fetch rejeitado (TypeError) = sem rede. Nada fica guardado para depois.
         mostrar({ tipo: "erro", titulo: "Sem conexão — leia de novo", leitura: null });
+      } else {
+        mostrar({ tipo: "erro", titulo: "Erro inesperado — tente de novo", leitura: null });
       }
     },
     [mostrar],
@@ -131,6 +136,11 @@ export function useLeituraDeCaixa({ onMudou }: { onMudou?: () => void } = {}) {
   const desfazer = useCallback(async () => {
     const leitura = faixa?.leitura;
     if (!leitura) return;
+    // Mesmo guarda de `ler`: um toque duplo no botao Desfazer nao pode
+    // disparar dois POSTs (e ler e desfazer tambem nao podem se sobrepor).
+    if (ocupadoRef.current) return;
+    ocupadoRef.current = true;
+    setOcupado(true);
     try {
       const resultado = await desfazerLeitura(leitura);
       let detalhe = `${descrever(resultado.caixa)} voltou para ${resultado.caixa.situacao.replace("_", " ")}`;
@@ -144,6 +154,9 @@ export function useLeituraDeCaixa({ onMudou }: { onMudou?: () => void } = {}) {
       onMudou?.();
     } catch (erro) {
       mostrarErro(erro);
+    } finally {
+      ocupadoRef.current = false;
+      setOcupado(false);
     }
   }, [faixa, mostrar, mostrarErro, onMudou]);
 
