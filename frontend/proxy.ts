@@ -169,7 +169,10 @@ async function refreshAccessToken(request: NextRequest) {
 export const config = {
   // "backend" fica fora do matcher: as chamadas de API same-origin passam
   // direto para o rewrite do next.config sem sofrer redirect de navegacao.
+  // Os arquivos do PWA tambem: o navegador os baixa sem login, e com eles no
+  // matcher viravam redirect para /login — sem icone e sem manifest nao ha
+  // instalacao.
   matcher: [
-    "/((?!backend|_next/static|_next/image|favicon\\.ico|favicon\\.svg|icon\\.svg).*)",
+    "/((?!backend|_next/static|_next/image|icones/|sw\\.js|manifest\\.webmanifest|favicon\\.ico|favicon\\.svg|icon\\.svg).*)",
   ],
 };
