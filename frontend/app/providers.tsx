@@ -5,6 +5,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { ThemeProvider } from "next-themes";
 import { useState, useSyncExternalStore } from "react";
 import { Toaster } from "sonner";
+import { RegistrarPWA } from "@/shared/components/RegistrarPWA";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -42,6 +43,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       >
         <HydrationGuard>{children}</HydrationGuard>
         <Toaster position="top-right" richColors />
+        <RegistrarPWA />
       </ThemeProvider>
     </PersistQueryClientProvider>
   );
