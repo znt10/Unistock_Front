@@ -90,6 +90,9 @@ export function useLeituraDeCaixa({ onMudou }: { onMudou?: () => void } = {}) {
             detalhe: descrever(caixa),
             leitura: null,
           });
+          // A caixa so chega em ACABOU por uma leitura de outro aparelho: a
+          // pagina esta desatualizada, recarrega como se algo tivesse mudado.
+          onMudou?.();
           return;
         }
 
@@ -115,6 +118,11 @@ export function useLeituraDeCaixa({ onMudou }: { onMudou?: () => void } = {}) {
           vibrar(60);
         } else {
           mostrarErro(erro);
+          if (erro instanceof ApiError) {
+            // Erro de negocio (caixa de outra loja, ja lida por outro
+            // aparelho, etc): a pagina pode estar desatualizada, recarrega.
+            onMudou?.();
+          }
         }
       } finally {
         ocupadoRef.current = false;
