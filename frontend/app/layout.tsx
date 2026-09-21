@@ -15,6 +15,15 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
+    // O iOS ignora os icones do manifest e so olha para esta.
+    apple: "/icones/apple-touch-icon.png",
+  },
+  // O Safari nao implementa o manifest inteiro: sem isto, "Adicionar a Tela
+  // de Inicio" abre o site dentro do navegador, com barra de endereco.
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Unistock",
   },
 };
 
