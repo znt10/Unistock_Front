@@ -161,6 +161,7 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
   ],
   Responsavel: [
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
+    { href: "/caixa/ler", label: "Ler caixas", icon: "Package" },
     { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
@@ -214,15 +215,27 @@ export default function Sidebar() {
 
   const role =
     user?.loja_tipo === "Fabrica" ? "Fabrica" : normalizeRole(user?.group);
-  // Sem fabrica cadastrada o gerente nao ve os itens da fabrica: as telas dela
-  // so tem o que fazer quando a empresa tem uma.
+  // Sem fabrica cadastrada nao existe caixa: o gerente nao ve as telas da
+  // fabrica e a loja nao ve "Ler caixas".
   const empresaTemFabrica = useEmpresaTemFabrica({
-    enabled: hydrated && role === "Gerente",
+    enabled: hydrated && (role === "Gerente" || role === "Responsavel"),
   });
   const menuItems = (MENU_CONFIG[role] || []).filter(
     (item) =>
-      role !== "Gerente" || !item.href.startsWith("/fabrica") || empresaTemFabrica,
+      empresaTemFabrica ||
+      ((role !== "Gerente" || !item.href.startsWith("/fabrica")) &&
+        item.href !== "/caixa/ler"),
   );
+  // So o item mais especifico acende: sem isso "/caixa/ler" acenderia tambem
+  // o "Caixa PDV" (/caixa), que casa por prefixo.
+  const casaComPathname = (href: string) =>
+    pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+  const hrefAtivo = menuItems
+    .filter((item) => casaComPathname(item.href))
+    .reduce<string | null>(
+      (maior, item) => (!maior || item.href.length > maior.length ? item.href : maior),
+      null,
+    );
   const temNotificacoes = notificacoes.some((n) => !n.lida);
 
   const closeMobile = useCallback(() => setIsOpenMobile(false), []);
@@ -341,9 +354,7 @@ export default function Sidebar() {
             <ul className="space-y-0.5">
               {menuItems.map((item) => {
                 const IconComponent = Icons[item.icon];
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/" && pathname.startsWith(item.href + "/"));
+                const isActive = item.href === hrefAtivo;
                 return (
                   <li key={item.href}>
                     <Link
