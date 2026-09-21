@@ -11,18 +11,25 @@ import { useLeitorQR } from "@/features/leitura/hooks/useLeitorQR";
 import { useLeituraDeCaixa } from "@/features/leitura/hooks/useLeituraDeCaixa";
 import { getACaminho } from "@/features/leitura/services/leitura";
 
-// A camera ve o mesmo QR varias vezes por segundo: o mesmo codigo e ignorado
-// por este tempo. Leitura repetida de verdade cai na confirmacao do servidor.
+// A camera ve o mesmo QR varias vezes por segundo. So conta como uma nova
+// visao depois que o QR passa este tempo fora da camera: enquanto ele
+// continua na frente (ou o dialogo de confirmacao dele esta aberto), cada
+// avistamento so atualiza o relogio, sem repetir a leitura.
 const PAUSA_DO_MESMO_QR_MS = 4000;
 
 export default function LerCaixasPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const ultimo = useRef<{ codigo: string; em: number } | null>(null);
+  // Ultima vez que cada codigo (ou texto bruto, se nao for caixa) foi visto.
+  const vistoEm = useRef<Map<string, number>>(new Map());
   const [terminando, setTerminando] = useState(false);
 
-  const { data: aCaminho = [] } = useQuery({
+  const {
+    data: aCaminho = [],
+    isPending: aCaminhoPendente,
+    isError: aCaminhoComErro,
+  } = useQuery({
     queryKey: ["caixas-a-caminho"],
     queryFn: getACaminho,
     staleTime: 0,
@@ -34,26 +41,35 @@ export default function LerCaixasPage() {
   }, [queryClient]);
 
   const leitura = useLeituraDeCaixa({ onMudou });
-  const { ler, confirmacao, mostrarQrInvalido } = leitura;
+  const { ler, confirmacao, mostrarQrInvalido, ocupado } = leitura;
 
   const onLido = useCallback(
     (texto: string) => {
-      // Com o dialogo de confirmacao aberto, a camera nao dispara nada.
-      if (confirmacao) return;
       const codigo = extrairCodigo(texto);
       const chave = codigo ?? texto;
       const agora = Date.now();
-      if (ultimo.current?.codigo === chave && agora - ultimo.current.em < PAUSA_DO_MESMO_QR_MS) {
+      const ultimaVez = vistoEm.current.get(chave);
+
+      // Com o dialogo de confirmacao aberto ou o mesmo QR visto ha pouco, so
+      // atualiza o relogio: a pausa so acaba quando o QR sumir da camera por
+      // PAUSA_DO_MESMO_QR_MS seguidos.
+      if (confirmacao || (ultimaVez !== undefined && agora - ultimaVez < PAUSA_DO_MESMO_QR_MS)) {
+        vistoEm.current.set(chave, agora);
         return;
       }
-      ultimo.current = { codigo: chave, em: agora };
+
+      // Leitura (ou desfazer) anterior ainda em voo: nao registra este
+      // avistamento, para o proximo (250ms depois) poder realmente comecar.
+      if (ocupado) return;
+
+      vistoEm.current.set(chave, agora);
       if (codigo) {
         void ler(codigo);
       } else {
         mostrarQrInvalido();
       }
     },
-    [confirmacao, ler, mostrarQrInvalido],
+    [confirmacao, ler, mostrarQrInvalido, ocupado],
   );
 
   const { estado } = useLeitorQR(videoRef, onLido);
@@ -64,7 +80,9 @@ export default function LerCaixasPage() {
   const totalQueFalta = aCaminho.reduce((soma, pedido) => soma + pedido.faltam.length, 0);
 
   const terminar = () => {
-    if (totalQueFalta > 0) {
+    // Sem saber o que falta (carregando ou erro), nao da pra garantir que
+    // nao falta nada: melhor avisar do que deixar ir direto.
+    if (aCaminhoPendente || aCaminhoComErro || totalQueFalta > 0) {
       setTerminando(true);
     } else {
       router.push("/novopedido");
@@ -170,7 +188,9 @@ export default function LerCaixasPage() {
         >
           <div className="w-full max-w-md rounded-[24px] border border-theme-border bg-theme-card p-6">
             <p className="text-lg font-black text-theme-text-title">
-              Faltam {totalQueFalta} {totalQueFalta === 1 ? "caixa" : "caixas"}: {faltam.join(", ")}.
+              {aCaminhoPendente || aCaminhoComErro
+                ? "Não foi possível conferir o que falta chegar."
+                : `Faltam ${totalQueFalta} ${totalQueFalta === 1 ? "caixa" : "caixas"}: ${faltam.join(", ")}.`}
             </p>
             <p className="mt-2 text-sm">Ficam pendentes e podem ser lidas quando chegarem.</p>
             <div className="mt-6 flex gap-3">
