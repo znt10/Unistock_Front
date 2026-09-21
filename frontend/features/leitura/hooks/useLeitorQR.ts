@@ -12,7 +12,11 @@ import { type RefObject, useEffect, useRef, useState } from "react";
 type BarcodeDetectorLike = {
   detect: (fonte: CanvasImageSource) => Promise<{ rawValue: string }[]>;
 };
-type BarcodeDetectorCtor = new (opcoes: { formats: string[] }) => BarcodeDetectorLike;
+type BarcodeDetectorCtor = {
+  new (opcoes: { formats: string[] }): BarcodeDetectorLike;
+  // Nem todo BarcodeDetector nativo le QR (alguns so leem codigo de barras).
+  getSupportedFormats?: () => Promise<string[]>;
+};
 
 export type EstadoDaCamera = "iniciando" | "lendo" | "negada" | "indisponivel";
 
@@ -64,7 +68,19 @@ export function useLeitorQR(
 
       const Nativo = (window as unknown as { BarcodeDetector?: BarcodeDetectorCtor })
         .BarcodeDetector;
-      const detector = Nativo ? new Nativo({ formats: ["qr_code"] }) : null;
+      let detector: BarcodeDetectorLike | null = null;
+      if (Nativo) {
+        try {
+          // Sem getSupportedFormats, assume que o construtor sabe (Chrome
+          // atual sabe); com a lista, so usa nativo se "qr_code" estiver nela.
+          const formatos = await Nativo.getSupportedFormats?.();
+          if (formatos === undefined || formatos.includes("qr_code")) {
+            detector = new Nativo({ formats: ["qr_code"] });
+          }
+        } catch {
+          detector = null;
+        }
+      }
       const jsQR = detector ? null : (await import("jsqr")).default;
       const canvas = document.createElement("canvas");
       const contexto = canvas.getContext("2d", { willReadFrequently: true });

@@ -29,6 +29,10 @@ export default function CaixaPage({ params }: { params: Promise<{ codigo: string
   const onMudou = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["caixa", codigo] });
     queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+    // Ler uma caixa mexe no estoque (fabrica/loja) e pode disparar aviso de
+    // estoque baixo: mesmas chaves que usePedidoStatusActions invalida.
+    queryClient.invalidateQueries({ queryKey: ["estoque"] });
+    queryClient.invalidateQueries({ queryKey: ["notificacoes"] });
   }, [queryClient, codigo]);
 
   const leitura = useLeituraDeCaixa({ onMudou });
