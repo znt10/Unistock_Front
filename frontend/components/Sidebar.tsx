@@ -228,8 +228,12 @@ export default function Sidebar() {
   );
   // So o item mais especifico acende: sem isso "/caixa/ler" acenderia tambem
   // o "Caixa PDV" (/caixa), que casa por prefixo.
+  // A reserva do QR (/caixa/<codigo>) tambem deve acender "Ler caixas", nao
+  // "Caixa PDV": trata "/caixa/ler" como prefixo de qualquer "/caixa/...".
   const casaComPathname = (href: string) =>
-    pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+    href === "/caixa/ler"
+      ? pathname === href || pathname.startsWith("/caixa/")
+      : pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
   const hrefAtivo = menuItems
     .filter((item) => casaComPathname(item.href))
     .reduce<string | null>(
