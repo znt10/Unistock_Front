@@ -147,11 +147,13 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
   Admin: [
     { href: "/admin", label: "Dashboard Admin", icon: "UserCircle" },
   ],
+  // O PDV (/caixa) ficou fora do menu de proposito: a rota continua no ar,
+  // mas nao e oferecida. As telas de leitura das caixas (/caixa/ler e
+  // /caixa/<codigo>) seguem no menu e no proxy.
   Gerente: [
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
-    { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
     { href: "/produtos", label: "Produtos", icon: "Tag" },
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
@@ -165,7 +167,6 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
-    { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
     { href: "/historico", label: "Historico", icon: "History" },
   ],
   // O login da fabrica e do grupo Responsavel, mas o trabalho e outro: separar
