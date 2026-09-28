@@ -8,6 +8,10 @@
 # API_PROXY_URL = URL publica da api (ex. https://api.unistock.com.br), sem
 # barra no fim. Vai no build E no container: o rewrite /backend e gravado no
 # build, e o proxy.ts usa a mesma variavel para renovar o token.
+#
+# PROXY_SEGREDO = o mesmo do backend (openssl rand -hex 32). So no container,
+# nunca no build nem com NEXT_PUBLIC_: vai junto com o IP do visitante em cada
+# chamada a api, e sem ele o site inteiro divide o limite de um IP so.
 
 services:
   front:
@@ -21,3 +25,4 @@ services:
       - "3000"
     environment:
       API_PROXY_URL: ${API_PROXY_URL:?defina API_PROXY_URL}
+      PROXY_SEGREDO: ${PROXY_SEGREDO:?defina PROXY_SEGREDO}
