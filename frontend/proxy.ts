@@ -71,7 +71,46 @@ const normalizeRole = (role?: string) => {
   return undefined;
 };
 
+// O rewrite de /backend/* vai para a URL publica da api, entao o Django ve o
+// IP deste servidor para todo visitante. O IP de verdade segue num cabecalho,
+// e o segredo prova ao Django que foi este servidor que o escreveu (ver
+// app/middleware.py no back). O IP confiavel e o ultimo do X-Forwarded-For:
+// o que o Traefik acrescentou; o comeco da lista quem escreve e o navegador.
+function cabecalhosDoCliente(request: NextRequest): Record<string, string> {
+  const segredo = process.env.PROXY_SEGREDO;
+  const ip = request.headers
+    .get("x-forwarded-for")
+    ?.split(",")
+    .at(-1)
+    ?.trim();
+
+  if (!segredo || !ip) {
+    return {};
+  }
+
+  return { "x-cliente-ip": ip, "x-proxy-segredo": segredo };
+}
+
+function repassarParaApi(request: NextRequest) {
+  const headers = new Headers(request.headers);
+  // Os que vierem de fora sao descartados: so este servidor escreve estes.
+  headers.delete("x-cliente-ip");
+  headers.delete("x-proxy-segredo");
+
+  for (const [nome, valor] of Object.entries(cabecalhosDoCliente(request))) {
+    headers.set(nome, valor);
+  }
+
+  return NextResponse.next({ request: { headers } });
+}
+
 export default function proxy(request: NextRequest) {
+  // Chamadas de API: so os cabecalhos do IP, sem redirect de navegacao nem
+  // normalizacao da barra final (o Django precisa dela).
+  if (request.nextUrl.pathname.startsWith("/backend/")) {
+    return repassarParaApi(request);
+  }
+
   const token = request.cookies.get("access_token")?.value;
   const refreshToken = request.cookies.get("refresh_token")?.value;
   const role = normalizeRole(request.cookies.get("role")?.value);
@@ -144,6 +183,9 @@ async function refreshAccessToken(request: NextRequest) {
     method: "POST",
     headers: {
       Cookie: request.headers.get("cookie") ?? "",
+      // Sem isto a renovacao de todo mundo dividiria o limite do IP deste
+      // servidor.
+      ...cabecalhosDoCliente(request),
     },
   });
 
@@ -167,12 +209,12 @@ async function refreshAccessToken(request: NextRequest) {
 }
 
 export const config = {
-  // "backend" fica fora do matcher: as chamadas de API same-origin passam
-  // direto para o rewrite do next.config sem sofrer redirect de navegacao.
+  // "backend" entra no matcher so para ganhar os cabecalhos do IP; o inicio
+  // do proxy() devolve essas chamadas antes de qualquer redirect.
   // Os arquivos do PWA tambem: o navegador os baixa sem login, e com eles no
   // matcher viravam redirect para /login — sem icone e sem manifest nao ha
   // instalacao.
   matcher: [
-    "/((?!backend|_next/static|_next/image|icones/|sw\\.js|manifest\\.webmanifest|favicon\\.ico|favicon\\.svg|icon\\.svg).*)",
+    "/((?!_next/static|_next/image|icones/|sw\\.js|manifest\\.webmanifest|favicon\\.ico|favicon\\.svg|icon\\.svg).*)",
   ],
 };
