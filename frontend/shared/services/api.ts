@@ -1,6 +1,8 @@
 // Todas as chamadas passam pelo rewrite same-origin do Next (/backend/...),
 // entao os cookies HTTP-only de autenticacao sao enviados automaticamente
 // pelo navegador. Nenhum token e lido ou gravado via JavaScript.
+import { useAuthStore } from "@/shared/stores/authStore";
+
 const API_URL = "/backend";
 
 const NO_REFRESH_ENDPOINTS = [
@@ -99,7 +101,11 @@ export const apiFetch = async (
     }
 
     if (!refreshOk) {
-      if (typeof window !== "undefined") {
+      // Limpa o usuario guardado: sem isso, quem pergunta "mudou?" a cada 5s
+      // (SincronizarAoVivo) continuaria ativo na tela de login, levaria outro
+      // 403 e recarregaria a /login sem parar.
+      useAuthStore.getState().clearUser();
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
 

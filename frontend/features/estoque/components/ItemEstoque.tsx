@@ -58,6 +58,14 @@ export default function ItemEstoque({
   onUpdate,
 }: Props) {
   const [valorQtd, setValorQtd] = useState(String(item.qtd));
+  // Ultimo valor vindo do servidor. Quando outro aparelho muda a quantidade,
+  // o campo acompanha — a nao ser que a pessoa esteja editando aqui (valor
+  // diferente do que veio antes), para nao apagar o que ela digitou.
+  const [qtdServidor, setQtdServidor] = useState(item.qtd);
+  if (item.qtd !== qtdServidor) {
+    setQtdServidor(item.qtd);
+    if (Number(valorQtd || 0) === qtdServidor) setValorQtd(String(item.qtd));
+  }
   const estoqueBaixo = item.qtd <= quantidadeMinima;
   const semEstoque = item.qtd <= 0;
   const nivelMaximo = Math.max(quantidadeMinima * 3, item.qtd, 1);
