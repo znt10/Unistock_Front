@@ -1,11 +1,15 @@
 "use client";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, defaultShouldDehydrateQuery } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { ThemeProvider } from "next-themes";
 import { useState, useSyncExternalStore } from "react";
 import { Toaster } from "sonner";
 import { RegistrarPWA } from "@/shared/components/RegistrarPWA";
+import {
+  MUDANCAS_QUERY_KEY,
+  SincronizarAoVivo,
+} from "@/shared/components/SincronizarAoVivo";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -29,7 +33,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <PersistQueryClientProvider
       client={queryClient}
-      persistOptions={{ persister }}
+      persistOptions={{
+        persister,
+        dehydrateOptions: {
+          // A versao do ao vivo nao vai para o sessionStorage: depois de um
+          // F5 ela tem que vir fresca do servidor, nao da sessao anterior.
+          shouldDehydrateQuery: (query) =>
+            defaultShouldDehydrateQuery(query) &&
+            query.queryKey[0] !== MUDANCAS_QUERY_KEY[0],
+        },
+      }}
     >
       <ThemeProvider
         attribute="data-theme"
@@ -44,6 +57,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <HydrationGuard>{children}</HydrationGuard>
         <Toaster position="top-right" richColors />
         <RegistrarPWA />
+        <SincronizarAoVivo />
       </ThemeProvider>
     </PersistQueryClientProvider>
   );
