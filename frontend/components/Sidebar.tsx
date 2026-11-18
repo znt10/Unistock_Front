@@ -8,6 +8,7 @@ import { logout } from "@/shared/services/auth";
 import { getNotificacoes } from "@/features/notificacoes/services/notificacoes";
 import { useAuthStore } from "@/shared/stores/authStore";
 import { useEmpresaTemFabrica } from "@/features/fabrica/hooks/useEmpresaTemFabrica";
+import { LogoSimbolo, LogoUnistock } from "@/shared/components/Logo";
 
 const Icons = {
   Package: () => (
@@ -281,14 +282,7 @@ export default function Sidebar() {
         >
           {isOpenMobile ? <Icons.X /> : <Icons.Menu />}
         </button>
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path fill="currentColor" fillRule="evenodd" d="M11.218.878a1.5 1.5 0 0 1 1.564 0l8.742 5.342A1.5 1.5 0 0 1 22.3 7.5v8.608a1.5 1.5 0 0 1-.776 1.28l-8.742 5.342a1.5 1.5 0 0 1-1.564 0l-8.742-5.342A1.5 1.5 0 0 1 1.7 16.108V7.5a1.5 1.5 0 0 1 .776-1.28zM12 2.659l7.442 4.548l-7.442 4.547l-7.442-4.547zM3.2 8.878v7.23l7.3 4.46V13.338zM13.5 20.569v-7.231l7.3-4.46v7.23z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <span className="text-base font-bold text-white tracking-tight">UniStock</span>
-        </div>
+        <LogoUnistock fundoEscuro className="h-7 w-auto text-white" />
       </div>
 
       {/* Overlay Mobile */}
@@ -316,17 +310,15 @@ export default function Sidebar() {
         <Link
           href="/lojas"
           prefetch={false}
+          aria-label="Unistock"
           className={`hidden lg:flex items-center gap-3 px-4 py-5 overflow-hidden whitespace-nowrap border-b border-slate-800/60 ${
             isCollapsed ? "justify-center" : ""
           }`}
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-900/50">
-            <Icons.Package />
-          </div>
-          {!isCollapsed && (
-            <span className="text-[18px] font-bold tracking-tight text-white">
-              UniStock
-            </span>
+          {isCollapsed ? (
+            <LogoSimbolo fundoEscuro className="h-8 w-8 shrink-0" />
+          ) : (
+            <LogoUnistock fundoEscuro className="h-8 w-auto shrink-0 text-white" />
           )}
         </Link>
 
