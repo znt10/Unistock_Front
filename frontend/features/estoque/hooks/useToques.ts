@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { notifyManager, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@/shared/services/api";
 import type { FaixaDoToqueDados } from "@/features/estoque/components/FaixaDoToque";
 import {
@@ -8,6 +8,8 @@ import {
   type MinhaLoja,
   type RespostaDoToque,
   desfazerToque,
+  toqueComecou,
+  toqueTerminou,
   tocar,
 } from "@/features/estoque/services/toques";
 
@@ -42,8 +44,11 @@ export function useToques(loja: string) {
   const naFila = useRef<Record<string, number>>({});
   // Ref alem do state: dois toques em Desfazer no mesmo quadro nao passam juntos.
   const desfazendo = useRef(false);
-  // Produto de cada toque confirmado: o desfazer entra na fila do mesmo produto.
-  const produtoDoToque = useRef<Record<string, string>>({});
+  // Cada toque confirmado: o desfazer entra na fila do mesmo produto e, se
+  // foi producao, tira de "hoje" o que o toque tinha somado.
+  const toquesFeitos = useRef<
+    Record<string, { produto: string; delta: number; significado: RespostaDoToque["significado"] }>
+  >({});
 
   const gravar = useCallback(
     (produto: string, quantidade: number, somaHoje = 0) => {
@@ -61,13 +66,20 @@ export function useToques(loja: string) {
     [queryClient],
   );
 
-  // Entra na mesma fila de notificacao do cache: a quantidade nova e o delta
-  // retirado chegam juntos na tela, sem um quadro com o numero errado.
+  // Logo depois de `gravar`: o setQueryData atualiza o resultado do
+  // observador na hora, entao os dois chegam juntos na mesma renderizacao.
   const tirarPendente = useCallback((produto: string, delta: number) => {
-    notifyManager.schedule(() =>
-      setPendentes((p) => ({ ...p, [produto]: (p[produto] ?? 0) - delta })),
-    );
+    setPendentes((p) => ({ ...p, [produto]: (p[produto] ?? 0) - delta }));
   }, []);
+
+  // Cancela leituras da tela em andamento: uma que leu o banco antes do toque
+  // e chegasse depois da resposta voltaria o numero para tras. Leituras novas
+  // esperam os toques terminarem (ver getMinhaLoja), entao nenhuma passa
+  // entre a resposta do servidor e a gravacao no cache.
+  const cancelarLeituras = useCallback(
+    () => queryClient.cancelQueries({ queryKey: MINHA_LOJA_QUERY_KEY }),
+    [queryClient],
+  );
 
   const enfileirar = useCallback((produto: string, tarefa: () => Promise<void>) => {
     naFila.current[produto] = (naFila.current[produto] ?? 0) + 1;
@@ -84,44 +96,52 @@ export function useToques(loja: string) {
     (item: ItemDaLoja, delta: 1 | -1) => {
       const { produto, produto_nome: nome } = item;
       setPendentes((p) => ({ ...p, [produto]: (p[produto] ?? 0) + delta }));
+      toqueComecou();
+      void cancelarLeituras();
       void enfileirar(produto, async () => {
         try {
+          await cancelarLeituras();
           const r = await tocar(loja, produto, delta);
+          await cancelarLeituras();
           gravar(produto, r.quantidade, r.significado === "PRODUCAO" ? delta : 0);
           tirarPendente(produto, delta);
-          produtoDoToque.current[r.toque] = produto;
+          toquesFeitos.current[r.toque] = { produto, delta, significado: r.significado };
           setFaixa({ tipo: "ok", texto: texto(delta, nome, r), toque: r.toque });
         } catch (erro) {
           tirarPendente(produto, delta);
           setFaixa({ tipo: "erro", texto: mensagemDoErro(erro), toque: null });
+        } finally {
+          toqueTerminou();
         }
       });
     },
-    [loja, enfileirar, gravar, tirarPendente],
+    [loja, enfileirar, gravar, tirarPendente, cancelarLeituras],
   );
 
   const desfazer = useCallback(() => {
     const toque = faixa?.toque;
     if (!toque || desfazendo.current) return;
     desfazendo.current = true;
-    const produto = produtoDoToque.current[toque] ?? "";
+    const feito = toquesFeitos.current[toque];
+    const produto = feito?.produto ?? "";
+    toqueComecou();
+    void cancelarLeituras();
     void enfileirar(produto, async () => {
       try {
+        await cancelarLeituras();
         const r = await desfazerToque(toque);
-        gravar(r.produto, r.quantidade);
+        await cancelarLeituras();
+        gravar(r.produto, r.quantidade, feito?.significado === "PRODUCAO" ? -feito.delta : 0);
+        delete toquesFeitos.current[toque];
         setFaixa({ tipo: "aviso", texto: "Desfeito", toque: null });
-        // "hoje" da fabrica nao vem na resposta: so recarrega se mais nada
-        // deste produto esta a caminho (senao o numero contaria em dobro).
-        if ((naFila.current[produto] ?? 0) <= 1) {
-          void queryClient.invalidateQueries({ queryKey: MINHA_LOJA_QUERY_KEY });
-        }
       } catch (erro) {
         setFaixa({ tipo: "erro", texto: mensagemDoErro(erro), toque: null });
       } finally {
+        toqueTerminou();
         desfazendo.current = false;
       }
     });
-  }, [faixa, queryClient, enfileirar, gravar]);
+  }, [faixa, enfileirar, gravar, cancelarLeituras]);
 
   const fecharFaixa = useCallback(() => setFaixa(null), []);
 

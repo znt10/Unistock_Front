@@ -69,7 +69,7 @@ function Lista({ dados }: { dados: MinhaLoja }) {
         ))}
       </div>
 
-      <div className="sticky bottom-4 z-20 px-5 md:px-8">
+      <div className="fixed inset-x-0 bottom-4 z-30 px-5 lg:left-64">
         <FaixaDoToque faixa={faixa} onDesfazer={desfazer} onFechar={fecharFaixa} />
       </div>
     </>

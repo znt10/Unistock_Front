@@ -27,8 +27,20 @@ export type RespostaDoToque = {
   caixa: { numero: number; total: number } | null;
 };
 
+// Toques ainda indo ao servidor. Uma leitura da tela que comecasse agora
+// poderia trazer um numero velho (ou ja com o toque, antes da resposta dele):
+// por isso ela espera todos os toques terminarem antes de consultar.
+let emVoo = 0;
+export const toqueComecou = () => {
+  emVoo += 1;
+};
+export const toqueTerminou = () => {
+  emVoo -= 1;
+};
+
 // Em erro o apiV1 lanca ApiError (subclasse de Error) com a mensagem do servidor.
 export const getMinhaLoja = async () => {
+  while (emVoo > 0) await new Promise((r) => setTimeout(r, 50));
   const res = await apiV1("/estoque/minha-loja/", { method: "GET" });
   return (await res.json()) as MinhaLoja;
 };
