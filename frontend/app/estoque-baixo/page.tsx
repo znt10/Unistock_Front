@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { useQuery } from "@tanstack/react-query";
 import { getEstoquesBaixos, type EstoqueBaixo } from "@/features/estoque/services/estoque";
@@ -128,6 +128,23 @@ export default function EstoqueBaixoPage() {
 
   const grupos = agruparPorLoja(estoques);
 
+  // Por loja_id: sobrevive à atualização ao vivo. Sem escolha, o gerente
+  // (várias lojas) vê tudo fechado e a loja (uma só) vê aberto.
+  const [abertas, setAbertas] = useState<Record<string, boolean>>({});
+  // A loja que apareceu sozinha (e por isso aberta) continua aberta quando
+  // outra loja entra na lista pela atualização ao vivo.
+  const [lojaSozinha, setLojaSozinha] = useState<string | null>(null);
+  if (grupos.length === 1 && lojaSozinha !== grupos[0].loja_id) {
+    setLojaSozinha(grupos[0].loja_id);
+  }
+  const estaAberta = (lojaId: string) =>
+    abertas[lojaId] ?? (grupos.length === 1 || lojaId === lojaSozinha);
+  const todasAbertas = grupos.every((g) => estaAberta(g.loja_id));
+  const abrirOuFecharTodas = () =>
+    setAbertas(
+      Object.fromEntries(grupos.map((g) => [g.loja_id, !todasAbertas])),
+    );
+
   return (
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
       <Sidebar />
@@ -175,36 +192,67 @@ export default function EstoqueBaixoPage() {
                   {estoques.length === 1 ? "produto" : "produtos"}
                 </span>
                 <div className="h-[1px] flex-1 bg-theme-border transition-colors" />
+                {grupos.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={abrirOuFecharTodas}
+                    className="shrink-0 rounded-full border border-theme-border px-4 py-1.5 text-xs font-black uppercase tracking-[2px] text-theme-text-sub transition hover:border-amber-500/50 hover:text-amber-500"
+                  >
+                    {todasAbertas ? "Fechar todas" : "Abrir todas"}
+                  </button>
+                )}
               </div>
 
               <div className="space-y-4">
-                {grupos.map((grupo) => (
-                  <section
-                    key={grupo.loja_id}
-                    className="overflow-hidden rounded-[24px] border border-theme-border bg-theme-card shadow-sm"
-                  >
-                    <header className="flex items-center justify-between gap-4 border-b border-theme-border bg-theme-header px-5 py-4">
-                      <div className="flex min-w-0 items-center gap-3 text-theme-text-title">
-                        <span className="text-theme-text-sub">
-                          <StoreIcon />
-                        </span>
-                        <h3 className="truncate text-[13px] font-black uppercase tracking-[1.5px]">
-                          {grupo.loja_nome}
-                        </h3>
-                      </div>
-                      <span className="shrink-0 text-[11px] font-black uppercase tracking-wide text-theme-text-sub">
-                        {grupo.itens.length}{" "}
-                        {grupo.itens.length === 1 ? "item" : "itens"}
-                      </span>
-                    </header>
+                {grupos.map((grupo) => {
+                  const aberta = estaAberta(grupo.loja_id);
+                  return (
+                    <section
+                      key={grupo.loja_id}
+                      className="overflow-hidden rounded-[24px] border border-theme-border bg-theme-card shadow-sm"
+                    >
+                      <button
+                        type="button"
+                        aria-expanded={aberta}
+                        onClick={() =>
+                          setAbertas((atual) => ({
+                            ...atual,
+                            [grupo.loja_id]: !aberta,
+                          }))
+                        }
+                        className={`flex w-full items-center justify-between gap-4 bg-theme-header px-5 py-4 text-left ${
+                          aberta ? "border-b border-theme-border" : ""
+                        }`}
+                      >
+                        <div className="flex min-w-0 items-center gap-3 text-theme-text-title">
+                          <span className="text-theme-text-sub">
+                            <StoreIcon />
+                          </span>
+                          <h3 className="truncate text-[13px] font-black uppercase tracking-[1.5px]">
+                            {grupo.loja_nome}
+                          </h3>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-3">
+                          <span className="text-[11px] font-black uppercase tracking-wide text-theme-text-sub">
+                            {grupo.itens.length}{" "}
+                            {grupo.itens.length === 1 ? "item" : "itens"}
+                          </span>
+                          <span className="w-4 text-center text-xl font-black leading-none text-theme-text-sub">
+                            {aberta ? "−" : "+"}
+                          </span>
+                        </div>
+                      </button>
 
-                    <div>
-                      {grupo.itens.map((item) => (
-                        <LinhaProduto key={item.id} item={item} />
-                      ))}
-                    </div>
-                  </section>
-                ))}
+                      {aberta && (
+                        <div>
+                          {grupo.itens.map((item) => (
+                            <LinhaProduto key={item.id} item={item} />
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })}
               </div>
             </>
           )}

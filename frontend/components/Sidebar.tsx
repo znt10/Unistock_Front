@@ -143,6 +143,13 @@ const SIDEBAR_WIDTH_COLLAPSED = "lg:w-[72px]";
 
 const NOTIFICACOES_QUERY_KEY = ["notificacoes"];
 
+// Caixa PDV guardado: ninguém usa por agora; true traz de volta ao menu.
+// A página /caixa continua funcionando.
+const MOSTRAR_PDV = false;
+
+// O Histórico fica no rodapé, junto de Notificações/Configurações.
+const ROLES_COM_HISTORICO = ["Gerente", "Responsavel"];
+
 const MENU_CONFIG: Record<string, MenuItem[]> = {
   Admin: [
     { href: "/admin", label: "Dashboard Admin", icon: "UserCircle" },
@@ -155,7 +162,6 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/produtos", label: "Produtos", icon: "Tag" },
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
-    { href: "/historico", label: "Historico", icon: "History" },
     { href: "/fabrica", label: "Fábrica", icon: "Store" },
     { href: "/fabrica/entregas", label: "Em Entrega", icon: "History" },
   ],
@@ -166,7 +172,6 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
     { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
-    { href: "/historico", label: "Historico", icon: "History" },
   ],
   // O login da fabrica e do grupo Responsavel, mas o trabalho e outro: separar
   // pedidos, imprimir etiquetas e registrar producao.
@@ -222,9 +227,10 @@ export default function Sidebar() {
   });
   const menuItems = (MENU_CONFIG[role] || []).filter(
     (item) =>
-      empresaTemFabrica ||
-      ((role !== "Gerente" || !item.href.startsWith("/fabrica")) &&
-        item.href !== "/caixa/ler"),
+      (MOSTRAR_PDV || item.href !== "/caixa") &&
+      (empresaTemFabrica ||
+        ((role !== "Gerente" || !item.href.startsWith("/fabrica")) &&
+          item.href !== "/caixa/ler")),
   );
   // So o item mais especifico acende: sem isso "/caixa/ler" acenderia tambem
   // o "Caixa PDV" (/caixa), que casa por prefixo.
@@ -422,6 +428,28 @@ export default function Sidebar() {
                   <span className={`text-[13px] ${isCollapsed ? "lg:hidden" : ""}`}>Notificações</span>
                 </Link>
               </li>
+
+              {/* Histórico */}
+              {ROLES_COM_HISTORICO.includes(role) && (
+                <li>
+                  <Link
+                    href="/historico"
+                    prefetch={false}
+                    className={`flex items-center gap-3 rounded-lg py-2 transition-all ${
+                      isCollapsed ? "lg:justify-center lg:px-0" : ""
+                    } px-3 ${
+                      pathname.startsWith("/historico")
+                        ? "text-blue-400 bg-blue-600/10"
+                        : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+                    }`}
+                  >
+                    <div className="shrink-0 [&>svg]:h-[18px] [&>svg]:w-[18px]">
+                      <Icons.History />
+                    </div>
+                    <span className={`text-[13px] font-medium ${isCollapsed ? "lg:hidden" : ""}`}>Histórico</span>
+                  </Link>
+                </li>
+              )}
 
               {/* Configurações */}
               <li>
