@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@/shared/services/api";
 import type { FaixaDoToqueDados } from "@/features/estoque/components/FaixaDoToque";
@@ -66,10 +67,12 @@ export function useToques(loja: string) {
     [queryClient],
   );
 
-  // Logo depois de `gravar`: o setQueryData atualiza o resultado do
-  // observador na hora, entao os dois chegam juntos na mesma renderizacao.
+  // Chamado logo depois de `gravar`. O setQueryData ja atualiza o resultado do
+  // observador na hora (so o aviso as telas e adiado), e o flushSync renderiza
+  // agora: a tela le a quantidade nova e o delta retirado na MESMA renderizacao,
+  // sem um quadro com o numero a menos ou a mais.
   const tirarPendente = useCallback((produto: string, delta: number) => {
-    setPendentes((p) => ({ ...p, [produto]: (p[produto] ?? 0) - delta }));
+    flushSync(() => setPendentes((p) => ({ ...p, [produto]: (p[produto] ?? 0) - delta })));
   }, []);
 
   // Cancela leituras da tela em andamento: uma que leu o banco antes do toque

@@ -5,14 +5,13 @@ import Sidebar from "@/components/Sidebar";
 import BotaoMaisMenos from "@/features/estoque/components/BotaoMaisMenos";
 import FaixaDoToque from "@/features/estoque/components/FaixaDoToque";
 import { useToques } from "@/features/estoque/hooks/useToques";
-import {
-  MINHA_LOJA_QUERY_KEY,
-  type MinhaLoja,
-  getMinhaLoja,
-} from "@/features/estoque/services/toques";
+import { type MinhaLoja, minhaLojaQuery } from "@/features/estoque/services/toques";
 
 function Lista({ dados }: { dados: MinhaLoja }) {
-  const { loja, itens } = dados;
+  // Le o cache aqui (nao so pelo pai): o numero e a retirada do delta pendente
+  // precisam ser lidos na mesma renderizacao (ver tirarPendente em useToques).
+  const { data = dados } = useQuery(minhaLojaQuery);
+  const { loja, itens } = data;
   const { pendentes, tocarItem, faixa, desfazer, fecharFaixa } = useToques(loja.id);
 
   // O servidor ja manda os itens na ordem; so agrupa por categoria.
@@ -77,10 +76,7 @@ function Lista({ dados }: { dados: MinhaLoja }) {
 }
 
 export default function EstoqueDaLoja() {
-  const { data, error, isPending } = useQuery({
-    queryKey: MINHA_LOJA_QUERY_KEY,
-    queryFn: getMinhaLoja,
-  });
+  const { data, error, isPending } = useQuery(minhaLojaQuery);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-theme-base pb-24 font-sans text-theme-text-sub">

@@ -39,10 +39,22 @@ export const toqueTerminou = () => {
 };
 
 // Em erro o apiV1 lanca ApiError (subclasse de Error) com a mensagem do servidor.
-export const getMinhaLoja = async () => {
-  while (emVoo > 0) await new Promise((r) => setTimeout(r, 50));
-  const res = await apiV1("/estoque/minha-loja/", { method: "GET" });
+export const getMinhaLoja = async (signal?: AbortSignal) => {
+  // Cancelada (cancelQueries): para de esperar e nao chega a enviar o GET.
+  const cancelada = () => new DOMException("Aborted", "AbortError");
+  while (emVoo > 0) {
+    if (signal?.aborted) throw cancelada();
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  if (signal?.aborted) throw cancelada();
+  const res = await apiV1("/estoque/minha-loja/", { method: "GET", signal });
   return (await res.json()) as MinhaLoja;
+};
+
+// Mesmas opcoes nos dois lugares que leem a loja (EstoqueDaLoja e Lista).
+export const minhaLojaQuery = {
+  queryKey: MINHA_LOJA_QUERY_KEY,
+  queryFn: ({ signal }: { signal: AbortSignal }) => getMinhaLoja(signal),
 };
 
 export const tocar = async (loja: string, produto: string, delta: 1 | -1) => {
