@@ -93,6 +93,29 @@ function formatarData(data: string) {
   }).format(new Date(data));
 }
 
+type Aba = "pedidos" | "estoque";
+
+// Tipo desconhecido (ou futuro) cai em Pedidos novos: nenhum aviso some.
+function abaDoTipo(tipo: string): Aba {
+  return tipo.startsWith("estoque") ? "estoque" : "pedidos";
+}
+
+// Classes completas (o Tailwind não enxerga nome de cor montado em runtime).
+const ABAS: { id: Aba; rotulo: string; ativa: string; contador: string }[] = [
+  {
+    id: "pedidos",
+    rotulo: "Pedidos novos",
+    ativa: "border-blue-500/40 bg-blue-500/10 text-blue-400",
+    contador: "bg-blue-500 text-white",
+  },
+  {
+    id: "estoque",
+    rotulo: "Estoque",
+    ativa: "border-amber-500/40 bg-amber-500/10 text-amber-400",
+    contador: "bg-amber-500 text-white",
+  },
+];
+
 type GrupoLoja = {
   loja_id: string | null;
   loja_nome: string;
@@ -144,10 +167,10 @@ function NotificacaoItem({
       bg: "bg-blue-500/10",
       borda: "border-blue-500/20",
     },
-    pedido_criado: {
-      cor: "text-emerald-400",
-      bg: "bg-emerald-500/10",
-      borda: "border-emerald-500/20",
+    estoque_excedido: {
+      cor: "text-orange-400",
+      bg: "bg-orange-500/10",
+      borda: "border-orange-500/20",
     },
   }[n.tipo] ?? {
     cor: "text-theme-text-sub",
@@ -209,6 +232,7 @@ function NotificacaoItem({
 export default function NotificacoesPage() {
   const queryClient = useQueryClient();
   const [lojaAtiva, setLojaAtiva] = useState<string | null>(null);
+  const [abaEscolhida, setAbaEscolhida] = useState<Aba | null>(null);
 
   const {
     data: notificacoes = [],
@@ -220,7 +244,19 @@ export default function NotificacoesPage() {
     refetchOnWindowFocus: true,
   });
 
-  const grupos = agruparPorLoja(notificacoes);
+  const naoLidasDaAba = (aba: Aba) =>
+    notificacoes.filter((n) => !n.lida && abaDoTipo(n.tipo) === aba).length;
+  // Abre na primeira aba com não lidas (Pedidos antes de Estoque).
+  const abaAtiva =
+    abaEscolhida ?? ABAS.find((a) => naoLidasDaAba(a.id) > 0)?.id ?? "pedidos";
+  const escolherAba = (aba: Aba) => {
+    setAbaEscolhida(aba);
+    setLojaAtiva(null);
+  };
+
+  const grupos = agruparPorLoja(
+    notificacoes.filter((n) => abaDoTipo(n.tipo) === abaAtiva),
+  );
   const totalNaoLidas = notificacoes.filter((n) => !n.lida).length;
 
   // Seleciona a primeira loja com não lidas se nenhuma estiver ativa
@@ -240,7 +276,12 @@ export default function NotificacoesPage() {
     );
   };
 
+  // Ao mexer na lista, a aba fica onde está: sem isto, ler o último pedido
+  // pulava sozinho para a aba Estoque.
+  const fixarAba = () => setAbaEscolhida(abaAtiva);
+
   const marcarLida = async (id: string) => {
+    fixarAba();
     await marcarNotificacaoLida(id);
     atualizarLista((atual) =>
       atual.map((n) => (n.id === id ? { ...n, lida: true } : n)),
@@ -248,11 +289,13 @@ export default function NotificacoesPage() {
   };
 
   const marcarTodasLidas = async () => {
+    fixarAba();
     await marcarTodasNotificacoesLidas();
     atualizarLista((atual) => atual.map((n) => ({ ...n, lida: true })));
   };
 
   const excluir = async (id: string) => {
+    fixarAba();
     await excluirNotificacao(id);
     atualizarLista((atual) => atual.filter((n) => n.id !== id));
   };
@@ -326,6 +369,46 @@ export default function NotificacoesPage() {
               </div>
               <p className="text-theme-text-sub/40 font-bold uppercase tracking-widest text-sm">
                 Nenhuma notificacao por aqui
+              </p>
+            </div>
+          )}
+
+          {!isLoading && !isError && notificacoes.length > 0 && (
+            <div className="mb-6 flex flex-wrap gap-2" role="tablist">
+              {ABAS.map((aba) => {
+                const ativa = aba.id === abaAtiva;
+                const naoLidas = naoLidasDaAba(aba.id);
+                return (
+                  <button
+                    key={aba.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={ativa}
+                    onClick={() => escolherAba(aba.id)}
+                    className={`flex items-center gap-2 rounded-2xl border px-5 py-3 text-[12px] font-black uppercase tracking-[2px] transition-all ${
+                      ativa
+                        ? aba.ativa
+                        : "border-theme-border bg-theme-card text-theme-text-sub hover:text-theme-text-title"
+                    }`}
+                  >
+                    {aba.rotulo}
+                    {naoLidas > 0 && (
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-black ${aba.contador}`}
+                      >
+                        {naoLidas}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {!isLoading && !isError && notificacoes.length > 0 && grupos.length === 0 && (
+            <div className="rounded-[28px] border border-theme-border bg-theme-card p-16 text-center">
+              <p className="text-theme-text-sub/40 font-bold uppercase tracking-widest text-sm">
+                Nenhum aviso aqui
               </p>
             </div>
           )}
