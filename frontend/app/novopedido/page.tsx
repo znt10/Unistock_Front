@@ -139,7 +139,7 @@ export default function NovoPedidoPage() {
 
       {/* Abas no mesmo lugar do Meus pedidos (alto, à esquerda, mesma
           margem): antes o formulário centralizado arrastava as abas junto. */}
-      <main className="flex min-w-0 flex-1 flex-col p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:min-h-screen lg:pt-12">
+      <main className="flex min-w-0 flex-1 flex-col p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:min-h-screen sm:pt-24 md:pt-24 lg:pt-12">
         <div className="mx-auto w-full max-w-7xl">
           <AbasDoPedido ativa="novo" />
         </div>

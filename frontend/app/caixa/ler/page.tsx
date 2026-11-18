@@ -97,7 +97,7 @@ export default function LerCaixasPage() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased">
       <Sidebar />
 
-      <main className="min-w-0 flex-1 p-5 pt-20 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="min-w-0 flex-1 p-5 pt-20 sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
         <div className="mx-auto max-w-xl space-y-5">
           <header>
             <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-orange-500">

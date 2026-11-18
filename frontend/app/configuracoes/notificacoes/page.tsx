@@ -104,7 +104,7 @@ export default function NotificacoesAlertas() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
         <BotaoVoltar href="/configuracoes" rotulo="Voltar" className="mb-6" />
 
         <div className="mb-14 flex flex-col items-start gap-6">

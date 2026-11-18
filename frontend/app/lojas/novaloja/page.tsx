@@ -147,7 +147,7 @@ export default function NovaLoja() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="max-w-3xl mx-auto relative z-10">

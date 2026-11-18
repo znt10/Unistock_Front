@@ -314,7 +314,7 @@ export default function NotificacoesPage() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="relative min-w-0 flex-1 p-5 pt-20 transition-all sm:p-6 lg:ml-64 lg:pt-6">
+      <main className="relative min-w-0 flex-1 p-5 pt-20 transition-all sm:p-6 lg:ml-64 sm:pt-24 lg:pt-6">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-64 bg-orange-500/5 blur-[100px] pointer-events-none" />
 
         <div className="relative z-10 mx-auto mt-4 max-w-5xl lg:mt-10">

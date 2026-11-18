@@ -103,7 +103,7 @@ export default function NovoProduto() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex min-w-0 flex-1 items-center justify-center p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:min-h-screen lg:pt-12">
+      <main className="flex min-w-0 flex-1 items-center justify-center p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:min-h-screen sm:pt-24 md:pt-24 lg:pt-12">
         <div className="mx-auto w-full max-w-2xl">
           <BotaoVoltar href="/produtos" rotulo="Voltar para Produtos" className="mb-8" />
 

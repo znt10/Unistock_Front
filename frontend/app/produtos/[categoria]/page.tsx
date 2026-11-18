@@ -346,7 +346,7 @@ export default function CategoriaProdutos() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="w-full min-w-0 max-w-full flex-1 p-4 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="w-full min-w-0 max-w-full flex-1 p-4 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
 
         {/* ── Cabeçalho ── */}
         <div className="relative mb-10 flex flex-col gap-6 overflow-hidden md:flex-row md:items-end md:justify-between">

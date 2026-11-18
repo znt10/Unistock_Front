@@ -82,7 +82,7 @@ export default function EstoqueDaLoja() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-theme-base pb-24 font-sans text-theme-text-sub">
       <Sidebar />
-      <main className="min-w-0 pt-16 lg:ml-64 lg:pt-0">
+      <main className="min-w-0 pt-20 lg:ml-64 lg:pt-0">
         {data ? (
           <Lista dados={data} />
         ) : (

@@ -407,7 +407,7 @@ function EstoqueGerencia() {
     <div className="min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub">
       <Sidebar />
 
-      <main className="min-w-0 pt-16 lg:ml-64 lg:pt-0">
+      <main className="min-w-0 pt-20 lg:ml-64 lg:pt-0">
         <header className="sticky top-0 z-20 border-b border-theme-border bg-theme-base/95 px-5 py-4 backdrop-blur md:px-8">
           <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
