@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import BarraLojas from "@/features/estoque/components/BarraLojas";
+import EmEntregaLista from "@/features/fabrica/components/EmEntregaLista";
 import {
   carregarPdfNaAba,
   getDisponivel,
@@ -125,7 +126,7 @@ export default function FilaDaFabricaPage() {
               Fábrica
             </span>
             <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">
-              Fila de pedidos
+              Imprimir etiquetas
             </h1>
             <p className="mt-3 font-medium text-theme-text-sub/60">
               Escolha a loja, marque os pedidos e imprima as etiquetas.
@@ -159,6 +160,10 @@ export default function FilaDaFabricaPage() {
             notificacoesExternas={0}
             mostrarTodas={true}
           />
+
+          <h2 className="text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub/50">
+            Para imprimir
+          </h2>
 
           <section className="overflow-hidden rounded-[24px] border border-theme-border bg-theme-card">
             <div className="overflow-x-auto">
@@ -252,6 +257,8 @@ export default function FilaDaFabricaPage() {
           >
             {imprimindo ? "Imprimindo..." : `Imprimir etiquetas (${marcados.length})`}
           </button>
+
+          <EmEntregaLista lojaId={modoTodas ? null : lojaAtiva} />
         </div>
       </main>
     </div>
