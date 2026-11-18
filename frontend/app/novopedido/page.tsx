@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import AbasDoPedido from "@/features/pedidos/components/AbasDoPedido";
 import {
   excessoDoErro,
   postPedido,
@@ -138,6 +139,7 @@ export default function NovoPedidoPage() {
 
       <main className="flex min-w-0 flex-1 items-center justify-center p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-60 lg:min-h-screen lg:pt-12">
         <div className="mx-auto w-full max-w-3xl">
+          <AbasDoPedido ativa="novo" />
 
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">

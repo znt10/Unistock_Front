@@ -8,6 +8,7 @@ import { logout } from "@/shared/services/auth";
 import { getNotificacoes } from "@/features/notificacoes/services/notificacoes";
 import { useAuthStore } from "@/shared/stores/authStore";
 import { useEmpresaTemFabrica } from "@/features/fabrica/hooks/useEmpresaTemFabrica";
+import { LogoSimbolo, LogoUnistock } from "@/shared/components/Logo";
 
 const Icons = {
   Package: () => (
@@ -148,7 +149,7 @@ const NOTIFICACOES_QUERY_KEY = ["notificacoes"];
 const MOSTRAR_PDV = false;
 
 // O Histórico fica no rodapé, junto de Notificações/Configurações.
-const ROLES_COM_HISTORICO = ["Gerente", "Responsavel"];
+const ROLES_COM_HISTORICO = ["Gerente"];
 
 const MENU_CONFIG: Record<string, MenuItem[]> = {
   Admin: [
@@ -162,23 +163,18 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/produtos", label: "Produtos", icon: "Tag" },
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
-    { href: "/fabrica", label: "Fábrica", icon: "Store" },
-    { href: "/fabrica/entregas", label: "Em Entrega", icon: "History" },
+    { href: "/fabrica", label: "Imprimir etiquetas", icon: "Store" },
   ],
   Responsavel: [
-    { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
-    { href: "/caixa/ler", label: "Ler caixas", icon: "Package" },
-    { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
-    { href: "/estoque", label: "Controle Estoque", icon: "Package" },
-    { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
-    { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
+    { href: "/novopedido", label: "Fazer pedido", icon: "ShoppingCart" },
+    { href: "/caixa/ler", label: "Ler QR", icon: "Package" },
+    { href: "/estoque", label: "Estoque", icon: "Package" },
   ],
-  // O login da fabrica e do grupo Responsavel, mas o trabalho e outro: separar
-  // pedidos, imprimir etiquetas e registrar producao.
+  // O login da fabrica e do grupo Responsavel, mas o trabalho e outro: registrar
+  // producao e imprimir etiquetas.
   Fabrica: [
-    { href: "/fabrica", label: "Fila da Fábrica", icon: "List" },
-    { href: "/fabrica/entregas", label: "Em Entrega", icon: "History" },
-    { href: "/estoque", label: "Estoque da Fábrica", icon: "Package" },
+    { href: "/estoque", label: "Produção do dia", icon: "Package" },
+    { href: "/fabrica", label: "Imprimir etiquetas", icon: "List" },
   ],
 };
 
@@ -236,9 +232,12 @@ export default function Sidebar() {
   // o "Caixa PDV" (/caixa), que casa por prefixo.
   // A reserva do QR (/caixa/<codigo>) tambem deve acender "Ler caixas", nao
   // "Caixa PDV": trata "/caixa/ler" como prefixo de qualquer "/caixa/...".
+  // "Fazer pedido" tambem acende em "/meuspedidos" (segunda aba do pedido).
   const casaComPathname = (href: string) =>
     href === "/caixa/ler"
       ? pathname === href || pathname.startsWith("/caixa/")
+      : href === "/novopedido"
+      ? pathname === href || pathname.startsWith(href + "/") || pathname === "/meuspedidos"
       : pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
   const hrefAtivo = menuItems
     .filter((item) => casaComPathname(item.href))
@@ -281,14 +280,7 @@ export default function Sidebar() {
         >
           {isOpenMobile ? <Icons.X /> : <Icons.Menu />}
         </button>
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path fill="currentColor" fillRule="evenodd" d="M11.218.878a1.5 1.5 0 0 1 1.564 0l8.742 5.342A1.5 1.5 0 0 1 22.3 7.5v8.608a1.5 1.5 0 0 1-.776 1.28l-8.742 5.342a1.5 1.5 0 0 1-1.564 0l-8.742-5.342A1.5 1.5 0 0 1 1.7 16.108V7.5a1.5 1.5 0 0 1 .776-1.28zM12 2.659l7.442 4.548l-7.442 4.547l-7.442-4.547zM3.2 8.878v7.23l7.3 4.46V13.338zM13.5 20.569v-7.231l7.3-4.46v7.23z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <span className="text-base font-bold text-white tracking-tight">UniStock</span>
-        </div>
+        <LogoUnistock fundoEscuro className="h-7 w-auto text-white" />
       </div>
 
       {/* Overlay Mobile */}
@@ -316,17 +308,15 @@ export default function Sidebar() {
         <Link
           href="/lojas"
           prefetch={false}
+          aria-label="Unistock"
           className={`hidden lg:flex items-center gap-3 px-4 py-5 overflow-hidden whitespace-nowrap border-b border-slate-800/60 ${
             isCollapsed ? "justify-center" : ""
           }`}
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-900/50">
-            <Icons.Package />
-          </div>
-          {!isCollapsed && (
-            <span className="text-[18px] font-bold tracking-tight text-white">
-              UniStock
-            </span>
+          {isCollapsed ? (
+            <LogoSimbolo fundoEscuro className="h-8 w-8 shrink-0" />
+          ) : (
+            <LogoUnistock fundoEscuro className="h-8 w-auto shrink-0 text-white" />
           )}
         </Link>
 

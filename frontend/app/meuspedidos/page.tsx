@@ -2,6 +2,7 @@
 
 import React, { Suspense, useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import AbasDoPedido from "@/features/pedidos/components/AbasDoPedido";
 import { usePedidos } from "@/features/pedidos/hooks/usePedidos";
 import { usePedidoStatusActions } from "@/features/pedidos/hooks/usePedidoStatusActions";
 import {
@@ -131,6 +132,7 @@ function MeusPedidosContent() {
       <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
         <Sidebar />
         <main className="min-w-0 flex-1 p-5 pt-20 transition-all sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+          <AbasDoPedido ativa="meus" />
           Carregando...
         </main>
       </div>
@@ -145,6 +147,7 @@ function MeusPedidosContent() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
+          <AbasDoPedido ativa="meus" />
           <Link
             href={isGerente ? "/painel_unidade" : "/novopedido"}
             className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
