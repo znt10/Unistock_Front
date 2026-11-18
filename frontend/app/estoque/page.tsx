@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useEffect, useState } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Boxes, CheckCircle2, Plus, TrendingDown } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
@@ -443,6 +444,14 @@ function EstoqueGerencia() {
             notificacoesExternas={notificacoesExternas}
             mostrarTodas={isGerente}
           />
+          {isGerente && lojaAtiva && lojaAtiva !== "TODAS" && (
+            <Link
+              href={`/lojas/${lojaAtiva}/niveis`}
+              className="mt-3 inline-block text-[11px] font-black uppercase tracking-[2px] text-orange-500 hover:underline"
+            >
+              Mínimo e máximo desta loja →
+            </Link>
+          )}
         </header>
 
         <div className="space-y-5 px-5 py-6 md:px-8">

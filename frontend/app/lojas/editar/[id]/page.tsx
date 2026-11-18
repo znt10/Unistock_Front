@@ -8,7 +8,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
 import { deleteLoja, getLojaById, patchLoja } from "@/features/lojas/services/lojas";
-import NiveisDaLoja from "@/features/estoque/components/NiveisDaLoja";
 
 const Icons = {
   ChevronLeft: () => (
@@ -380,12 +379,14 @@ export default function EditarLoja() {
             </form>
           </div>
 
-          {/* Niveis por loja: a pergunta que estes numeros respondem e sobre a
-              loja (quanto a Lapa gira, quanto cabe antes de estragar), entao
-              eles moram aqui e nao na tela de estoque. */}
-          <div className="mt-8">
-            <NiveisDaLoja lojaId={id} nomeLoja={nomeLoja || "Esta loja"} />
-          </div>
+          {/* Minimo e maximo ganharam tela propria (/lojas/<id>/niveis). */}
+          <Link
+            href={`/lojas/${id}/niveis`}
+            className="mt-8 flex items-center justify-between rounded-[24px] border border-theme-border bg-theme-card px-6 py-5 text-sm font-black uppercase tracking-[2px] text-theme-text-title transition hover:border-orange-500/40 hover:text-orange-500"
+          >
+            Mínimo e máximo desta loja
+            <span aria-hidden>→</span>
+          </Link>
 
           <div className="mt-12 flex justify-center border-t border-theme-border pt-8">
             <button
