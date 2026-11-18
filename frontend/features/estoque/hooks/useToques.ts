@@ -26,7 +26,7 @@ const mensagemDoErro = (erro: unknown) => {
   if (erro instanceof ApiError) {
     return erro.status >= 500 ? "Erro no servidor — tente de novo" : erro.message;
   }
-  if (erro instanceof TypeError) return "Sem conexão — tente de novo";
+  if (erro instanceof TypeError) return "Sem conexão — confira o número";
   return "Erro inesperado — tente de novo";
 };
 
@@ -112,21 +112,25 @@ export function useToques(loja: string) {
           setFaixa({ tipo: "ok", texto: texto(delta, nome, r), toque: r.toque });
         } catch (erro) {
           tirarPendente(produto, delta);
+          // Pode ter sido gravado sem a resposta chegar: busca o numero real
+          // (espera a fila de toques esvaziar, ver getMinhaLoja).
+          void queryClient.invalidateQueries({ queryKey: MINHA_LOJA_QUERY_KEY });
           setFaixa({ tipo: "erro", texto: mensagemDoErro(erro), toque: null });
         } finally {
           toqueTerminou();
         }
       });
     },
-    [loja, enfileirar, gravar, tirarPendente, cancelarLeituras],
+    [loja, queryClient, enfileirar, gravar, tirarPendente, cancelarLeituras],
   );
 
   const desfazer = useCallback(() => {
     const toque = faixa?.toque;
     if (!toque || desfazendo.current) return;
-    desfazendo.current = true;
     const feito = toquesFeitos.current[toque];
-    const produto = feito?.produto ?? "";
+    if (!feito) return;
+    desfazendo.current = true;
+    const produto = feito.produto;
     toqueComecou();
     void cancelarLeituras();
     void enfileirar(produto, async () => {
@@ -134,17 +138,19 @@ export function useToques(loja: string) {
         await cancelarLeituras();
         const r = await desfazerToque(toque);
         await cancelarLeituras();
-        gravar(r.produto, r.quantidade, feito?.significado === "PRODUCAO" ? -feito.delta : 0);
+        // r.produto e o NOME do produto; o cache e por id, que vem de `feito`.
+        gravar(produto, r.quantidade, feito.significado === "PRODUCAO" ? -feito.delta : 0);
         delete toquesFeitos.current[toque];
         setFaixa({ tipo: "aviso", texto: "Desfeito", toque: null });
       } catch (erro) {
+        void queryClient.invalidateQueries({ queryKey: MINHA_LOJA_QUERY_KEY });
         setFaixa({ tipo: "erro", texto: mensagemDoErro(erro), toque: null });
       } finally {
         toqueTerminou();
         desfazendo.current = false;
       }
     });
-  }, [faixa, enfileirar, gravar, cancelarLeituras]);
+  }, [faixa, queryClient, enfileirar, gravar, cancelarLeituras]);
 
   const fecharFaixa = useCallback(() => setFaixa(null), []);
 

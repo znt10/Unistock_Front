@@ -57,6 +57,7 @@ function Lista({ dados }: { dados: MinhaLoja }) {
                     </div>
                     <BotaoMaisMenos
                       valor={valor}
+                      nome={item.produto_nome}
                       onMenos={() => tocarItem(item, -1)}
                       onMais={() => tocarItem(item, 1)}
                     />
