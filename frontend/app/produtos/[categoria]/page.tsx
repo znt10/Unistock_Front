@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import BotaoVoltar from "@/shared/components/BotaoVoltar";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
   Plus,
   Search,
   X,
@@ -346,7 +346,7 @@ export default function CategoriaProdutos() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="w-full min-w-0 max-w-full flex-1 p-4 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="w-full min-w-0 max-w-full flex-1 p-4 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
 
         {/* ── Cabeçalho ── */}
         <div className="relative mb-10 flex flex-col gap-6 overflow-hidden md:flex-row md:items-end md:justify-between">
@@ -358,17 +358,7 @@ export default function CategoriaProdutos() {
 
           <div className="relative min-w-0">
             {/* Botão Voltar */}
-            <Link
-              href="/produtos"
-              className="mb-4 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
-            >
-              <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
-                <ArrowLeft size={14} strokeWidth={2.5} />
-              </span>
-              <span className="text-[11px] font-black uppercase tracking-[2px]">
-                Voltar para Produtos
-              </span>
-            </Link>
+            <BotaoVoltar href="/produtos" rotulo="Voltar para Produtos" className="mb-4" />
 
             <div className="flex items-center gap-4">
               <span

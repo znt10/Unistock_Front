@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import Link from "next/link";
+import BotaoVoltar from "@/shared/components/BotaoVoltar";
 import { useQueryClient } from "@tanstack/react-query";
 import { Check, Package, Plus } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
@@ -103,21 +103,9 @@ export default function NovoProduto() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex min-w-0 flex-1 items-center justify-center p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:min-h-screen lg:pt-12">
+      <main className="flex min-w-0 flex-1 items-center justify-center p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:min-h-screen sm:pt-24 md:pt-24 lg:pt-12">
         <div className="mx-auto w-full max-w-2xl">
-          <Link
-            href="/produtos"
-            className="mb-8 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
-          >
-            <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            </span>
-            <span className="text-[11px] font-black uppercase tracking-[2px]">
-              Voltar para Produtos
-            </span>
-          </Link>
+          <BotaoVoltar href="/produtos" rotulo="Voltar para Produtos" className="mb-8" />
 
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">

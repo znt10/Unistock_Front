@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useEffect, useState } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Boxes, CheckCircle2, Plus, TrendingDown } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
@@ -406,7 +407,7 @@ function EstoqueGerencia() {
     <div className="min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub">
       <Sidebar />
 
-      <main className="min-w-0 pt-16 lg:ml-64 lg:pt-0">
+      <main className="min-w-0 pt-20 lg:ml-64 lg:pt-0">
         <header className="sticky top-0 z-20 border-b border-theme-border bg-theme-base/95 px-5 py-4 backdrop-blur md:px-8">
           <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
@@ -443,6 +444,14 @@ function EstoqueGerencia() {
             notificacoesExternas={notificacoesExternas}
             mostrarTodas={isGerente}
           />
+          {isGerente && lojaAtiva && lojaAtiva !== "TODAS" && (
+            <Link
+              href={`/lojas/niveis?loja=${lojaAtiva}`}
+              className="mt-3 inline-block text-[11px] font-black uppercase tracking-[2px] text-orange-500 hover:underline"
+            >
+              Mínimo e máximo desta loja →
+            </Link>
+          )}
         </header>
 
         <div className="space-y-5 px-5 py-6 md:px-8">

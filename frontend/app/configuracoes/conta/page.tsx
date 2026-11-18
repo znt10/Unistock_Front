@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
+import BotaoVoltar from "@/shared/components/BotaoVoltar";
 import Sidebar from "@/components/Sidebar";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { logout } from "@/shared/services/auth";
 import { useAuthStore } from "@/shared/stores/authStore";
@@ -135,17 +135,9 @@ export default function GerenciarConta() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
         {/* Header */}
-        <Link
-          href="/configuracoes"
-          className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
-        >
-          <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
-            <Icons.ChevronLeft />
-          </span>
-          <span className="text-[11px] font-black uppercase tracking-[2px]">Voltar</span>
-        </Link>
+        <BotaoVoltar href="/configuracoes" rotulo="Voltar" className="mb-6" />
 
         <div className="mb-14 flex flex-col items-start gap-6">
           <div>

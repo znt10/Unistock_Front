@@ -118,7 +118,7 @@ export default function HistoricoPage() {
     <div className="min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub">
       <Sidebar />
 
-      <main className="min-w-0 pt-16 lg:ml-64 lg:pt-0">
+      <main className="min-w-0 pt-20 lg:ml-64 lg:pt-0">
         <header className="sticky top-0 z-20 border-b border-theme-border bg-theme-base/95 px-5 py-4 backdrop-blur md:px-8">
           <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-orange-500">
             Auditoria

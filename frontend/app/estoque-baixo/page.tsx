@@ -71,7 +71,7 @@ function LinhaProduto({ item }: { item: EstoqueBaixo }) {
   return (
     <div className="flex flex-col gap-3 border-t border-theme-border px-5 py-4 transition-colors first:border-t-0 hover:bg-theme-hover sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0 flex-1">
-        <h4 className="truncate text-[15px] font-bold text-theme-text-title">
+        <h4 className="truncate text-lg font-bold text-theme-text-title">
           {item.produto_nome}
         </h4>
         {zerado && (
@@ -81,13 +81,13 @@ function LinhaProduto({ item }: { item: EstoqueBaixo }) {
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-5 sm:gap-7">
+      <div className="flex shrink-0 items-center gap-6 sm:gap-9">
         <div className="text-center">
-          <span className="block text-[9px] font-black uppercase tracking-[1.5px] text-theme-text-sub">
+          <span className="block text-xs font-black uppercase tracking-[1.5px] text-theme-text-sub">
             Tem
           </span>
           <span
-            className={`block text-lg font-black tabular-nums ${
+            className={`block text-3xl font-black leading-tight tabular-nums ${
               zerado ? "text-red-500" : "text-amber-500"
             }`}
           >
@@ -95,18 +95,18 @@ function LinhaProduto({ item }: { item: EstoqueBaixo }) {
           </span>
         </div>
         <div className="text-center">
-          <span className="block text-[9px] font-black uppercase tracking-[1.5px] text-theme-text-sub">
+          <span className="block text-xs font-black uppercase tracking-[1.5px] text-theme-text-sub">
             Mínimo
           </span>
-          <span className="block text-lg font-black tabular-nums text-theme-text-sub">
+          <span className="block text-3xl font-black leading-tight tabular-nums text-theme-text-sub">
             {item.quantidade_minima}
           </span>
         </div>
         <div className="text-center">
-          <span className="block text-[9px] font-black uppercase tracking-[1.5px] text-theme-text-sub">
+          <span className="block text-xs font-black uppercase tracking-[1.5px] text-theme-text-sub">
             Repor
           </span>
-          <span className="block text-lg font-black tabular-nums text-emerald-500">
+          <span className="block text-3xl font-black leading-tight tabular-nums text-emerald-500">
             {repor}
           </span>
         </div>
@@ -149,7 +149,7 @@ export default function EstoqueBaixoPage() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
         <div className="mb-10">
           <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-amber-500">
             Reposição

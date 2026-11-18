@@ -278,7 +278,7 @@ export default function GerenciaPedidos() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub transition-colors duration-300">
       <Sidebar />
 
-      <main className="min-w-0 flex-1 p-5 pt-20 transition-all sm:p-6 md:p-10 lg:ml-64 lg:pt-10">
+      <main className="min-w-0 flex-1 p-5 pt-20 transition-all sm:p-6 md:p-10 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-10">
         {/* ── Cabeçalho ── */}
         <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>

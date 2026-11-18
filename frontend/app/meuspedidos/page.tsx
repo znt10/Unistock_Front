@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useState } from "react";
+import BotaoVoltar from "@/shared/components/BotaoVoltar";
 import Sidebar from "@/components/Sidebar";
 import AbasDoPedido from "@/features/pedidos/components/AbasDoPedido";
 import { usePedidos } from "@/features/pedidos/hooks/usePedidos";
@@ -11,7 +12,6 @@ import {
   useAuthStore,
 } from "@/shared/stores/authStore";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 
 const Icons = {
   ChevronLeft: () => (
@@ -131,7 +131,7 @@ function MeusPedidosContent() {
     return (
       <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
         <Sidebar />
-        <main className="min-w-0 flex-1 p-5 pt-20 transition-all sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+        <main className="min-w-0 flex-1 p-5 pt-20 transition-all sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
           <AbasDoPedido ativa="meus" />
           Carregando...
         </main>
@@ -143,7 +143,7 @@ function MeusPedidosContent() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
@@ -151,15 +151,7 @@ function MeusPedidosContent() {
           {/* Para a loja as abas ja fazem o papel do Voltar; o gerente
               continua com o atalho para o Painel unidade. */}
           {isGerente && (
-            <Link
-              href="/painel_unidade"
-              className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
-            >
-              <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
-                <Icons.ChevronLeft />
-              </span>
-              <span className="text-[11px] font-black uppercase tracking-[2px]">Voltar</span>
-            </Link>
+            <BotaoVoltar href="/painel_unidade" rotulo="Voltar" className="mb-6" />
           )}
 
           <header className="mb-10">

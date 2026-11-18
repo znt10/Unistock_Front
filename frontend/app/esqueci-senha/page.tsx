@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import BotaoVoltar from "@/shared/components/BotaoVoltar";
 import {
-  ArrowLeftIcon,
   ArrowRightIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
@@ -101,15 +100,7 @@ export default function ForgotPasswordPage() {
               <ArrowRightIcon className="h-5 w-5" />
             </button>
 
-            <Link
-              href="/login"
-              className="mx-auto inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
-            >
-              <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
-                <ArrowLeftIcon className="h-3.5 w-3.5" />
-              </span>
-              <span className="text-[11px] font-black uppercase tracking-[2px]">Voltar para login</span>
-            </Link>
+            <BotaoVoltar href="/login" rotulo="Voltar para login" className="mx-auto" />
           </form>
         </div>
       </main>

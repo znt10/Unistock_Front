@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import BotaoVoltar from "@/shared/components/BotaoVoltar";
 import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
@@ -8,7 +9,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { LOJAS_QUERY_KEY, type Loja } from "@/features/lojas/hooks/useLoja";
 import { deleteLoja, getLojaById, patchLoja } from "@/features/lojas/services/lojas";
-import NiveisDaLoja from "@/features/estoque/components/NiveisDaLoja";
 
 const Icons = {
   ChevronLeft: () => (
@@ -170,19 +170,12 @@ export default function EditarLoja() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base text-theme-text-sub font-sans antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 sm:pt-24 md:pt-24 lg:pt-12">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="mb-12">
-            <Link href="/lojas" className="inline-flex items-center gap-2 text-theme-text-sub hover:text-orange-500 mb-6 transition-all group">
-              <span className="p-1.5 bg-theme-header rounded-lg group-hover:bg-theme-hover transition-all border border-theme-border shadow-sm">
-                <Icons.ChevronLeft />
-              </span>
-              <span className="text-[11px] font-black uppercase tracking-[2px]">
-                Cancelar e Voltar
-              </span>
-            </Link>
+            <BotaoVoltar href="/lojas" rotulo="Cancelar e Voltar" className="mb-6" />
             <h1 className="text-3xl font-black tracking-tighter text-theme-text-title uppercase leading-none sm:text-4xl">
               Editar Unidade
             </h1>
@@ -380,12 +373,14 @@ export default function EditarLoja() {
             </form>
           </div>
 
-          {/* Niveis por loja: a pergunta que estes numeros respondem e sobre a
-              loja (quanto a Lapa gira, quanto cabe antes de estragar), entao
-              eles moram aqui e nao na tela de estoque. */}
-          <div className="mt-8">
-            <NiveisDaLoja lojaId={id} nomeLoja={nomeLoja || "Esta loja"} />
-          </div>
+          {/* Minimo e maximo ganharam tela propria (/lojas/niveis). */}
+          <Link
+            href={`/lojas/niveis?loja=${id}`}
+            className="mt-8 flex items-center justify-between rounded-[24px] border border-theme-border bg-theme-card px-6 py-5 text-sm font-black uppercase tracking-[2px] text-theme-text-title transition hover:border-orange-500/40 hover:text-orange-500"
+          >
+            Mínimo e máximo desta loja
+            <span aria-hidden>→</span>
+          </Link>
 
           <div className="mt-12 flex justify-center border-t border-theme-border pt-8">
             <button
