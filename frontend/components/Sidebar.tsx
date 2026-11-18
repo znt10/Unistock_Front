@@ -159,6 +159,7 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/lojas", label: "Gerenciar Lojas", icon: "Store" },
     { href: "/estoque", label: "Controle Estoque", icon: "Package" },
     { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
+    { href: "/lojas/niveis", label: "Mínimo e máximo", icon: "List" },
     { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
     { href: "/produtos", label: "Produtos", icon: "Tag" },
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },

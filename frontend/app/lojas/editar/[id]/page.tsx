@@ -379,9 +379,9 @@ export default function EditarLoja() {
             </form>
           </div>
 
-          {/* Minimo e maximo ganharam tela propria (/lojas/<id>/niveis). */}
+          {/* Minimo e maximo ganharam tela propria (/lojas/niveis). */}
           <Link
-            href={`/lojas/${id}/niveis`}
+            href={`/lojas/niveis?loja=${id}`}
             className="mt-8 flex items-center justify-between rounded-[24px] border border-theme-border bg-theme-card px-6 py-5 text-sm font-black uppercase tracking-[2px] text-theme-text-title transition hover:border-orange-500/40 hover:text-orange-500"
           >
             Mínimo e máximo desta loja

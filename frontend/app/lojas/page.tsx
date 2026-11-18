@@ -276,7 +276,7 @@ export default function LojasGerencia() {
                             <Icons.Edit />
                           </Link>
                           <Link
-                            href={`/lojas/${loja.id}/niveis`}
+                            href={`/lojas/niveis?loja=${loja.id}`}
                             className="whitespace-nowrap rounded-xl border border-theme-border bg-theme-header px-3 py-3 text-[11px] font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-orange-500/40 hover:text-orange-500"
                           >
                             Mínimo e máximo

@@ -446,7 +446,7 @@ function EstoqueGerencia() {
           />
           {isGerente && lojaAtiva && lojaAtiva !== "TODAS" && (
             <Link
-              href={`/lojas/${lojaAtiva}/niveis`}
+              href={`/lojas/niveis?loja=${lojaAtiva}`}
               className="mt-3 inline-block text-[11px] font-black uppercase tracking-[2px] text-orange-500 hover:underline"
             >
               Mínimo e máximo desta loja →
