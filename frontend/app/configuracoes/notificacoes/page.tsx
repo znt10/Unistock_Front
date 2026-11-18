@@ -83,7 +83,7 @@ function Toggle({
       disabled={disabled}
       aria-pressed={ativo}
       className={`h-6 w-12 rounded-full p-1 transition-all duration-300 ${
-        ativo ? "bg-blue-600" : "bg-theme-border"
+        ativo ? "bg-orange-600" : "bg-theme-border"
       } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
     >
       <div
@@ -107,7 +107,7 @@ export default function NotificacoesAlertas() {
       <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <Link
           href="/configuracoes"
-          className="group mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500"
+          className="group mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500"
         >
           <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
             <Icons.ChevronLeft />
@@ -117,7 +117,7 @@ export default function NotificacoesAlertas() {
 
         <div className="mb-14 flex flex-col items-start gap-6">
           <div>
-            <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-blue-500">
+            <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-orange-500">
               Comunicações do Sistema
             </span>
             <h1 className="text-3xl font-bold tracking-tight text-theme-text-title transition-colors">
@@ -133,7 +133,7 @@ export default function NotificacoesAlertas() {
             </span>
             <div className="h-[1px] flex-1 bg-theme-border transition-colors"></div>
             {salvando && (
-              <span className="text-[10px] font-black uppercase tracking-[2px] text-blue-500">
+              <span className="text-[10px] font-black uppercase tracking-[2px] text-orange-500">
                 Salvando...
               </span>
             )}
@@ -148,7 +148,7 @@ export default function NotificacoesAlertas() {
               {/* Alertas por email */}
               <div className="flex w-full flex-col items-start justify-between gap-5 rounded-[24px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all sm:flex-row sm:items-center sm:p-6">
                 <div className="flex items-center gap-4 md:gap-7">
-                  <div className="rounded-[20px] border border-theme-border bg-theme-header p-4 text-blue-500 transition-all">
+                  <div className="rounded-[20px] border border-theme-border bg-theme-header p-4 text-orange-500 transition-all">
                     <Icons.Mail />
                   </div>
                   <div className="text-left">
@@ -170,7 +170,7 @@ export default function NotificacoesAlertas() {
               {/* Resumo diario: por loja, horario fixo — informativo */}
               <div className="w-full rounded-[24px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all sm:p-6">
                 <div className="flex items-center gap-4 md:gap-7">
-                  <div className="rounded-[20px] border border-theme-border bg-theme-header p-4 text-blue-500 transition-all">
+                  <div className="rounded-[20px] border border-theme-border bg-theme-header p-4 text-orange-500 transition-all">
                     <Icons.Clock />
                   </div>
                   <div className="text-left">
@@ -190,7 +190,7 @@ export default function NotificacoesAlertas() {
               <div className="w-full rounded-[24px] border border-theme-border bg-theme-card p-5 shadow-sm transition-all sm:p-6">
                 <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-4 md:gap-7">
-                    <div className="rounded-[20px] border border-theme-border bg-theme-header p-4 text-blue-500 transition-all">
+                    <div className="rounded-[20px] border border-theme-border bg-theme-header p-4 text-orange-500 transition-all">
                       <Icons.Smartphone />
                     </div>
                     <div className="text-left">
@@ -227,7 +227,7 @@ export default function NotificacoesAlertas() {
                         setTelefone(null);
                       }
                     }}
-                    className="w-full max-w-xs rounded-lg border border-theme-border bg-theme-base px-4 py-2 text-sm font-bold text-theme-text-title outline-none transition placeholder:font-medium placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full max-w-xs rounded-lg border border-theme-border bg-theme-base px-4 py-2 text-sm font-bold text-theme-text-title outline-none transition placeholder:font-medium placeholder:text-theme-text-sub/60 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   />
                 </div>
               </div>

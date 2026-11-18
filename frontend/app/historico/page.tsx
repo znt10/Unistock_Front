@@ -38,7 +38,7 @@ const TIPOS: Record<
   TRANSFERENCIA: {
     rotulo: "Transferência",
     icone: <ArrowRightLeft size={16} />,
-    classe: "bg-blue-500/10 text-blue-600",
+    classe: "bg-orange-500/10 text-orange-600",
   },
   AJUSTE: {
     rotulo: "Ajuste",
@@ -120,7 +120,7 @@ export default function HistoricoPage() {
 
       <main className="min-w-0 pt-16 lg:ml-64 lg:pt-0">
         <header className="sticky top-0 z-20 border-b border-theme-border bg-theme-base/95 px-5 py-4 backdrop-blur md:px-8">
-          <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-blue-500">
+          <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-orange-500">
             Auditoria
           </span>
           <h1 className="break-words text-2xl font-black uppercase tracking-tight text-theme-text-title sm:text-3xl md:text-4xl">
@@ -147,7 +147,7 @@ export default function HistoricoPage() {
                       onClick={() => setLojaSelecionada(loja.id)}
                       className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-bold transition ${
                         lojaAtiva === loja.id
-                          ? "border-blue-500 bg-blue-500/10 text-blue-500"
+                          ? "border-orange-500 bg-orange-500/10 text-orange-500"
                           : "border-theme-border bg-theme-card text-theme-text-sub hover:text-theme-text-title"
                       }`}
                     >
@@ -160,7 +160,7 @@ export default function HistoricoPage() {
 
               <section className="overflow-hidden rounded-2xl border border-theme-border bg-theme-card shadow-sm">
                 <header className="flex items-center gap-3 border-b border-theme-border px-5 py-4 md:px-6">
-                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-500/10 text-blue-500">
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-orange-500/10 text-orange-500">
                     <History size={20} />
                   </span>
                   <div>

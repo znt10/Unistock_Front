@@ -113,7 +113,7 @@ export default function LoginPage() {
                           ? setEmail(e.target.value)
                           : setPassword(e.target.value)
                       }
-                      className="w-full rounded-lg border border-theme-border bg-theme-card text-theme-text-title px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-theme-text-sub"
+                      className="w-full rounded-lg border border-theme-border bg-theme-card text-theme-text-title px-4 py-2.5 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 placeholder:text-theme-text-sub"
                     />
 
                     {field.id === "password" && (
@@ -139,7 +139,7 @@ export default function LoginPage() {
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 rounded border-theme-border text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 rounded border-theme-border text-orange-600 focus:ring-orange-500"
                 />
                 <span className="text-sm text-theme-text-sub group-hover:text-theme-text-title transition">
                   Lembrar de mim
@@ -148,7 +148,7 @@ export default function LoginPage() {
 
               <Link
                 href="/esqueci-senha"
-                className="text-sm font-medium text-blue-600 hover:underline"
+                className="text-sm font-medium text-orange-600 hover:underline"
               >
                 Esqueceu a senha?
               </Link>
@@ -165,7 +165,7 @@ export default function LoginPage() {
                 type="submit"
                 data-testid="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98] disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-orange-700 active:scale-[0.98] disabled:opacity-60"
               >
                 {loading ? "Entrando..." : "Continuar"}
                 <svg

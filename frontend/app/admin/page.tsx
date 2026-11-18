@@ -21,7 +21,7 @@ export default function AdminDashboard() {
       <main className="min-w-0 flex-1 p-5 pt-20 sm:p-8 lg:ml-64 lg:pt-12">
         <div className="mb-10 flex items-center justify-between">
           <div>
-            <span className="mb-2 block text-[11px] font-black uppercase tracking-[4px] text-blue-500">
+            <span className="mb-2 block text-[11px] font-black uppercase tracking-[4px] text-orange-500">
               Painel Administrativo
             </span>
             <h1 className="text-3xl font-bold text-theme-text-title">
@@ -31,7 +31,7 @@ export default function AdminDashboard() {
           <button
             type="button"
             onClick={() => setCriarGerenteAberto(true)}
-            className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-md hover:bg-blue-700"
+            className="rounded-lg bg-orange-600 px-5 py-3 text-sm font-bold text-white shadow-md hover:bg-orange-700"
           >
             + Criar gerente
           </button>

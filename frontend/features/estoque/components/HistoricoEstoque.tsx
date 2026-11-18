@@ -41,7 +41,7 @@ export default function HistoricoEstoque({
     <section className="overflow-hidden rounded-2xl border border-theme-border bg-theme-card shadow-sm">
       <header className="flex items-center justify-between gap-4 border-b border-theme-border px-5 py-4 md:px-6">
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-500/10 text-blue-500">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-orange-500/10 text-orange-500">
             <History size={20} />
           </span>
           <div>

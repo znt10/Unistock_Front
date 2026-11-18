@@ -41,7 +41,7 @@ export default function CadastroUsuarioModal({ tipo, onClose }: Props) {
       <div className="w-full max-w-2xl rounded-2xl border border-theme-border bg-theme-card p-6 text-theme-text-title shadow-2xl">
         <div className="mb-6 flex items-start justify-between gap-4 rounded-lg border border-theme-border bg-theme-header/60 p-5">
           <div>
-            <span className="text-[11px] font-black uppercase tracking-[3px] text-blue-500">
+            <span className="text-[11px] font-black uppercase tracking-[3px] text-orange-500">
               Gestao de usuarios
             </span>
             <h2 className="mt-2 text-2xl font-black tracking-tight">

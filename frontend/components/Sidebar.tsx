@@ -275,7 +275,7 @@ export default function Sidebar() {
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center gap-3 bg-[#0c1120]/95 backdrop-blur-md px-4 py-3 border-b border-slate-800/60 lg:hidden">
         <button
           onClick={() => setIsOpenMobile(!isOpenMobile)}
-          className="rounded-lg bg-blue-600 p-2 text-white shadow-lg shadow-blue-900/40 active:scale-95 transition-transform"
+          className="rounded-lg bg-orange-600 p-2 text-white shadow-lg shadow-orange-900/40 active:scale-95 transition-transform"
           aria-label={isOpenMobile ? "Fechar menu" : "Abrir menu"}
         >
           {isOpenMobile ? <Icons.X /> : <Icons.Menu />}
@@ -365,12 +365,12 @@ export default function Sidebar() {
                         isCollapsed ? "lg:justify-center lg:px-0" : ""
                       } px-3 ${
                         isActive
-                          ? "bg-blue-600/20 text-blue-400"
+                          ? "bg-orange-600/20 text-orange-400"
                           : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-100"
                       }`}
                     >
                       {isActive && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-blue-500" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-orange-500" />
                       )}
                       <div className="shrink-0">
                         <IconComponent />
@@ -402,7 +402,7 @@ export default function Sidebar() {
                     isCollapsed ? "lg:justify-center lg:px-0" : ""
                   } px-3 ${
                     pathname === "/notificacoes"
-                      ? "text-blue-400 bg-blue-600/10"
+                      ? "text-orange-400 bg-orange-600/10"
                       : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
                   }`}
                 >
@@ -429,7 +429,7 @@ export default function Sidebar() {
                       isCollapsed ? "lg:justify-center lg:px-0" : ""
                     } px-3 ${
                       pathname.startsWith("/historico")
-                        ? "text-blue-400 bg-blue-600/10"
+                        ? "text-orange-400 bg-orange-600/10"
                         : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
                     }`}
                   >
@@ -450,7 +450,7 @@ export default function Sidebar() {
                     isCollapsed ? "lg:justify-center lg:px-0" : ""
                   } px-3 ${
                     pathname.startsWith("/configuracoes")
-                      ? "text-blue-400 bg-blue-600/10"
+                      ? "text-orange-400 bg-orange-600/10"
                       : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
                   }`}
                 >

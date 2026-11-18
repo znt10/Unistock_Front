@@ -43,7 +43,7 @@ export default function BarraLojas({
             value={busca}
             onChange={(event) => setBusca(event.target.value)}
             placeholder="Buscar loja..."
-            className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-4 text-sm font-bold text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+            className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-4 text-sm font-bold text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10"
           />
         </div>
 
@@ -52,7 +52,7 @@ export default function BarraLojas({
           onClick={() => onChange("TODAS")}
           className={`relative h-11 shrink-0 rounded-lg border px-4 text-sm font-black uppercase tracking-[1px] transition ${
             lojaAtiva === "TODAS"
-              ? "border-blue-600 bg-blue-600 text-white"
+              ? "border-orange-600 bg-orange-600 text-white"
               : "border-theme-border bg-theme-header text-theme-text-sub hover:text-theme-text-title"
           }`}
         >
@@ -73,7 +73,7 @@ export default function BarraLojas({
             onClick={() => onChange(loja.id)}
             className={`min-h-11 rounded-lg border px-3 py-2 text-left text-xs font-black uppercase tracking-[1px] transition ${
               lojaAtiva === loja.id
-                ? "border-blue-600 bg-blue-600 text-white"
+                ? "border-orange-600 bg-orange-600 text-white"
                 : "border-theme-border bg-theme-header text-theme-text-sub hover:text-theme-text-title"
             }`}
           >

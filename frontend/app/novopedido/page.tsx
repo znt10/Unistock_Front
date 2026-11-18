@@ -129,7 +129,7 @@ export default function NovoPedidoPage() {
   };
 
   const inputClass =
-    "w-full rounded-2xl border border-theme-border bg-theme-header py-4 px-5 text-sm font-bold text-theme-text-title placeholder:text-theme-text-sub/25 transition-all focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/5";
+    "w-full rounded-2xl border border-theme-border bg-theme-header py-4 px-5 text-sm font-bold text-theme-text-title placeholder:text-theme-text-sub/25 transition-all focus:border-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-600/5";
   const labelClass =
     "ml-1 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub/50";
 
@@ -291,7 +291,7 @@ export default function NovoPedidoPage() {
                     type="button"
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="rounded-2xl border-none bg-blue-600 py-4 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-900/20 transition-all hover:bg-blue-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-2xl border-none bg-orange-600 py-4 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-orange-900/20 transition-all hover:bg-orange-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {loading ? "Enviando..." : "Confirmar Pedido"}
                   </button>

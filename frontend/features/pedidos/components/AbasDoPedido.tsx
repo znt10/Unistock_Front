@@ -17,8 +17,8 @@ export default function AbasDoPedido({ ativa }: { ativa: "novo" | "meus" }) {
             aria-current={isAtiva ? "page" : undefined}
             className={`flex-1 rounded-xl px-4 py-3 text-center text-sm font-bold transition-colors sm:flex-none ${
               isAtiva
-                ? "bg-blue-600 text-white"
-                : "border border-theme-border bg-theme-card text-theme-text-sub hover:text-blue-500"
+                ? "bg-orange-600 text-white"
+                : "border border-theme-border bg-theme-card text-theme-text-sub hover:text-orange-500"
             }`}
           >
             {aba.label}

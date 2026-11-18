@@ -233,7 +233,7 @@ export default function CaixaPDV() {
         <div className="mx-auto max-w-7xl">
           <header className="mb-6 flex flex-col gap-4 border-b border-theme-border pb-5 md:flex-row md:items-end md:justify-between">
             <div>
-              <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-blue-500">
+              <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-orange-500">
                 PDV fake
               </span>
               <h1 className="text-3xl font-black uppercase tracking-tight text-theme-text-title">
@@ -261,7 +261,7 @@ export default function CaixaPDV() {
                     value={lojaAtiva}
                     onChange={(event) => trocarLoja(event.target.value)}
                     disabled={!isGerente || lojasVisiveis.length <= 1}
-                    className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-3 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500"
+                    className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-3 text-sm font-bold text-theme-text-title outline-none focus:border-orange-500"
                   >
                     {lojasVisiveis.map((loja) => (
                       <option key={loja.id} value={loja.id}>
@@ -280,7 +280,7 @@ export default function CaixaPDV() {
                     onChange={(event) =>
                       setProdutoSelecionado(event.target.value)
                     }
-                    className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-3 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500"
+                    className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-3 text-sm font-bold text-theme-text-title outline-none focus:border-orange-500"
                   >
                     <option value="">Selecione</option>
                     {produtosDisponiveis.map((produto) => (
@@ -306,7 +306,7 @@ export default function CaixaPDV() {
                       setQuantidade(valor === "" ? "" : Number(valor));
                     }}
                     onWheel={(event) => event.currentTarget.blur()}
-                    className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-3 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500"
+                    className="h-11 w-full rounded-lg border border-theme-border bg-theme-header px-3 text-sm font-bold text-theme-text-title outline-none focus:border-orange-500"
                   />
                 </label>
 
@@ -316,7 +316,7 @@ export default function CaixaPDV() {
                   disabled={
                     !produtoAtual || !quantidade || Number(quantidade) < 1
                   }
-                  className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-xs font-black uppercase tracking-[1px] text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-orange-600 px-4 text-xs font-black uppercase tracking-[1px] text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Plus size={17} /> Adicionar
                 </button>
@@ -355,9 +355,9 @@ export default function CaixaPDV() {
                               key={produto.id}
                               type="button"
                               onClick={() => setProdutoSelecionado(produto.id)}
-                              className={`rounded-lg border p-4 text-left transition hover:border-blue-500 ${
+                              className={`rounded-lg border p-4 text-left transition hover:border-orange-500 ${
                                 produtoSelecionado === produto.id
-                                  ? "border-blue-500 bg-blue-500/5"
+                                  ? "border-orange-500 bg-orange-500/5"
                                   : "border-theme-border bg-theme-header"
                               }`}
                             >
@@ -386,7 +386,7 @@ export default function CaixaPDV() {
                 <h2 className="text-lg font-black uppercase text-theme-text-title">
                   Carrinho
                 </h2>
-                <span className="rounded-lg bg-theme-header px-3 py-2 text-sm font-black text-blue-500">
+                <span className="rounded-lg bg-theme-header px-3 py-2 text-sm font-black text-orange-500">
                   {totalItens}
                 </span>
               </div>

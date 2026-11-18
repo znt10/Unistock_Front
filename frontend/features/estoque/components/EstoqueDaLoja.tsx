@@ -34,7 +34,7 @@ function Lista({ dados }: { dados: MinhaLoja }) {
       <div className="space-y-6 px-5 py-4 md:px-8">
         {grupos.map((grupo) => (
           <section key={grupo.categoria}>
-            <h2 className="mb-2 text-xs font-black uppercase tracking-[3px] text-blue-500">
+            <h2 className="mb-2 text-xs font-black uppercase tracking-[3px] text-orange-500">
               {grupo.categoria}
             </h2>
             <ul className="space-y-2">

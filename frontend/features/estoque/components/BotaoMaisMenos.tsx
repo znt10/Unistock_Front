@@ -33,7 +33,7 @@ export default function BotaoMaisMenos({
         type="button"
         aria-label={`Pôr um de ${nome}`}
         onClick={onMais}
-        className={`${BASE} bg-blue-600 text-white hover:bg-blue-700`}
+        className={`${BASE} bg-orange-600 text-white hover:bg-orange-700`}
       >
         +
       </button>

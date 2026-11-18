@@ -144,7 +144,7 @@ function MeusPedidosContent() {
       <Sidebar />
 
       <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
           <AbasDoPedido ativa="meus" />
@@ -153,7 +153,7 @@ function MeusPedidosContent() {
           {isGerente && (
             <Link
               href="/painel_unidade"
-              className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
+              className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
             >
               <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
                 <Icons.ChevronLeft />
@@ -163,7 +163,7 @@ function MeusPedidosContent() {
           )}
 
           <header className="mb-10">
-            <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
+            <span className="text-orange-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
               Histórico de Requisições
             </span>
             <h1 className="text-3xl font-black tracking-tighter text-theme-text-title uppercase leading-none sm:text-4xl">
@@ -181,7 +181,7 @@ function MeusPedidosContent() {
               <button
                 type="button"
                 onClick={marcarPedidosHoje}
-                className="rounded-2xl border border-theme-border bg-theme-header px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-title transition hover:border-blue-500/40 hover:text-blue-500"
+                className="rounded-2xl border border-theme-border bg-theme-header px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-title transition hover:border-orange-500/40 hover:text-orange-500"
               >
                 Pedidos de hoje
               </button>
@@ -269,13 +269,13 @@ function MeusPedidosContent() {
                           </td>
 
                           <td className="p-6">
-                            <span className="text-[15px] font-black text-theme-text-title group-hover:text-blue-500 transition-colors uppercase">
+                            <span className="text-[15px] font-black text-theme-text-title group-hover:text-orange-500 transition-colors uppercase">
                               {item.itens?.[0]?.produto_nome ?? "—"}
                             </span>
                           </td>
 
                           <td className="p-6 text-center">
-                            <span className="font-mono text-lg font-black text-blue-500">
+                            <span className="font-mono text-lg font-black text-orange-500">
                               {item.itens?.[0]?.quantidade ?? "—"}
                               {item.da_fabrica ? " cx" : ""}
                             </span>
@@ -367,7 +367,7 @@ function MeusPedidosContent() {
             {/* FILTROS */}
             <aside className="rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl lg:sticky lg:top-8 sm:p-8">
               <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-blue-600/10 rounded-lg text-blue-500">
+                <div className="p-2 bg-orange-600/10 rounded-lg text-orange-500">
                   <Icons.Filter />
                 </div>
                 <h2 className="text-lg font-black text-theme-text-title uppercase tracking-tighter">
@@ -384,7 +384,7 @@ function MeusPedidosContent() {
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="w-full bg-theme-header border border-theme-border text-theme-text-title rounded-2xl py-4 px-5 text-xs font-bold outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all appearance-none cursor-pointer uppercase"
+                    className="w-full bg-theme-header border border-theme-border text-theme-text-title rounded-2xl py-4 px-5 text-xs font-bold outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5 transition-all appearance-none cursor-pointer uppercase"
                   >
                     <option value="">Todos os Status</option>
                     <option value="ENTREGUE">ENTREGUE</option>
@@ -403,7 +403,7 @@ function MeusPedidosContent() {
                     type="date"
                     value={data}
                     onChange={(e) => setData(e.target.value)}
-                    className="w-full bg-theme-header border border-theme-border text-theme-text-title rounded-2xl py-4 px-5 text-xs font-bold outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all uppercase"
+                    className="w-full bg-theme-header border border-theme-border text-theme-text-title rounded-2xl py-4 px-5 text-xs font-bold outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5 transition-all uppercase"
                   />
                 </div>
 
@@ -412,7 +412,7 @@ function MeusPedidosContent() {
                     setStatus("");
                     setData("");
                   }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl text-white text-[12px] font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 active:scale-95 mt-4"
+                  className="w-full bg-orange-600 hover:bg-orange-700 py-4 rounded-2xl text-white text-[12px] font-black uppercase tracking-widest transition-all shadow-xl shadow-orange-900/20 active:scale-95 mt-4"
                 >
                   Limpar Filtros
                 </button>
