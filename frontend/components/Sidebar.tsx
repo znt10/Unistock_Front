@@ -148,7 +148,7 @@ const NOTIFICACOES_QUERY_KEY = ["notificacoes"];
 const MOSTRAR_PDV = false;
 
 // O Histórico fica no rodapé, junto de Notificações/Configurações.
-const ROLES_COM_HISTORICO = ["Gerente", "Responsavel"];
+const ROLES_COM_HISTORICO = ["Gerente"];
 
 const MENU_CONFIG: Record<string, MenuItem[]> = {
   Admin: [
@@ -162,23 +162,18 @@ const MENU_CONFIG: Record<string, MenuItem[]> = {
     { href: "/produtos", label: "Produtos", icon: "Tag" },
     { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
     { href: "/painel_unidade", label: "Painel unidade", icon: "List" },
-    { href: "/fabrica", label: "Fábrica", icon: "Store" },
-    { href: "/fabrica/entregas", label: "Em Entrega", icon: "History" },
+    { href: "/fabrica", label: "Imprimir etiquetas", icon: "Store" },
   ],
   Responsavel: [
-    { href: "/novopedido", label: "Novo Pedido", icon: "ShoppingCart" },
-    { href: "/caixa/ler", label: "Ler caixas", icon: "Package" },
-    { href: "/meuspedidos", label: "Meus Pedidos", icon: "List" },
-    { href: "/estoque", label: "Controle Estoque", icon: "Package" },
-    { href: "/estoque-baixo", label: "Estoque Baixo", icon: "AlertTriangle" },
-    { href: "/caixa", label: "Caixa PDV", icon: "CashRegister" },
+    { href: "/novopedido", label: "Fazer pedido", icon: "ShoppingCart" },
+    { href: "/caixa/ler", label: "Ler QR", icon: "Package" },
+    { href: "/estoque", label: "Estoque", icon: "Package" },
   ],
-  // O login da fabrica e do grupo Responsavel, mas o trabalho e outro: separar
-  // pedidos, imprimir etiquetas e registrar producao.
+  // O login da fabrica e do grupo Responsavel, mas o trabalho e outro: registrar
+  // producao e imprimir etiquetas.
   Fabrica: [
-    { href: "/fabrica", label: "Fila da Fábrica", icon: "List" },
-    { href: "/fabrica/entregas", label: "Em Entrega", icon: "History" },
-    { href: "/estoque", label: "Estoque da Fábrica", icon: "Package" },
+    { href: "/estoque", label: "Produção do dia", icon: "Package" },
+    { href: "/fabrica", label: "Imprimir etiquetas", icon: "List" },
   ],
 };
 
@@ -236,9 +231,12 @@ export default function Sidebar() {
   // o "Caixa PDV" (/caixa), que casa por prefixo.
   // A reserva do QR (/caixa/<codigo>) tambem deve acender "Ler caixas", nao
   // "Caixa PDV": trata "/caixa/ler" como prefixo de qualquer "/caixa/...".
+  // "Fazer pedido" tambem acende em "/meuspedidos" (segunda aba do pedido).
   const casaComPathname = (href: string) =>
     href === "/caixa/ler"
       ? pathname === href || pathname.startsWith("/caixa/")
+      : href === "/novopedido"
+      ? pathname === href || pathname.startsWith(href + "/") || pathname === "/meuspedidos"
       : pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
   const hrefAtivo = menuItems
     .filter((item) => casaComPathname(item.href))
