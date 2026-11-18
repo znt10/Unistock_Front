@@ -64,15 +64,3 @@ export const carregarPdfNaAba = async (aba: Window | null, pedidos: string[]) =>
     throw erro;
   }
 };
-
-export const registrarProducao = async (produto: string, caixas: number) => {
-  const res = await apiV1("/fabrica/producao/", {
-    method: "POST",
-    body: JSON.stringify({ produto, caixas }),
-  });
-  return (await res.json()) as {
-    produto: string;
-    produto_nome: string;
-    quantidade_atual: number;
-  };
-};

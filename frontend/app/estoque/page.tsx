@@ -16,8 +16,8 @@ import { useCategorias } from "@/features/produtos/hooks/useCategorias";
 import NovaCategoriaModal from "@/features/produtos/components/NovaCategoriaModal";
 import { getEstoques, patchEstoque, postEstoque } from "@/features/estoque/services/estoque";
 import { patchProduto } from "@/features/produtos/services/produtos";
-import { selectIsFabrica, selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
-import RegistrarProducaoModal from "@/features/fabrica/components/RegistrarProducaoModal";
+import { selectIsAdmin, selectIsGerente, useAuthStore } from "@/shared/stores/authStore";
+import EstoqueDaLoja from "@/features/estoque/components/EstoqueDaLoja";
 import type { EstadoProduto, EstoqueLocal } from "@/features/estoque/data/estruturaEstoque";
 
 const SEM_CATEGORIA = "Sem categoria";
@@ -52,15 +52,13 @@ function formatarData(data?: string) {
   }).format(new Date(data));
 }
 
-export default function EstoquePage() {
+function EstoqueGerencia() {
   const queryClient = useQueryClient();
   const [lojaSelecionada, setLojaSelecionada] = useState<string>("TODAS");
   const [agora, setAgora] = useState(() => Date.now());
   const usuario = useAuthStore((state) => state.user);
   const lojaIdUsuario = usuario?.loja_id;
   const isGerente = useAuthStore(selectIsGerente);
-  const isFabrica = useAuthStore(selectIsFabrica);
-  const [modalProducaoAberto, setModalProducaoAberto] = useState(false);
   const { data: lojasQuery = [], isLoading: carregandoLojas } = useLojas();
   const { data: produtosQuery = [], isLoading: carregandoProdutos } =
     useProdutos();
@@ -427,16 +425,6 @@ export default function EstoquePage() {
             </div>
 
             <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
-              {isFabrica && (
-                <button
-                  type="button"
-                  onClick={() => setModalProducaoAberto(true)}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-xs font-black uppercase tracking-[1px] text-white transition hover:bg-blue-700 active:scale-95 md:w-auto"
-                >
-                  <Plus size={16} strokeWidth={3} />
-                  Registrar produção
-                </button>
-              )}
               <button
                 type="button"
                 onClick={() => setModalCategoriaAberto(true)}
@@ -586,13 +574,16 @@ export default function EstoquePage() {
           onCriada={() => {}}
         />
       )}
-
-      {modalProducaoAberto && (
-        <RegistrarProducaoModal
-          produtos={produtos}
-          onClose={() => setModalProducaoAberto(false)}
-        />
-      )}
     </div>
   );
+}
+
+export default function EstoquePage() {
+  const hydrated = useAuthStore((state) => state.hydrated);
+  const isGerente = useAuthStore(selectIsGerente);
+  const isAdmin = useAuthStore(selectIsAdmin);
+
+  // Espera o usuario carregar: sem isso o gerente veria a tela da loja por um instante.
+  if (!hydrated) return null;
+  return isGerente || isAdmin ? <EstoqueGerencia /> : <EstoqueDaLoja />;
 }
