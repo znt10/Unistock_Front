@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login } from "@/shared/services/auth";
+import { LogoUnistock } from "@/shared/components/Logo";
 
-import { CubeIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const getHomeByGroup = (group?: string) => {
   const normalized = group
@@ -67,24 +68,16 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full overflow-x-hidden bg-theme-base text-theme-text-title font-sans">
       {/* LADO ESQUERDO */}
       <div className="hidden w-1/2 flex-col items-center justify-center bg-theme-header lg:flex">
-        <div className="flex items-center gap-4">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-600">
-            <CubeIcon className="h-12 w-12 text-white" />
-          </div>
-          <h1 className="text-6xl font-bold tracking-tight">UniStock</h1>
-        </div>
+        <h1>
+          <LogoUnistock className="h-20 w-auto" />
+        </h1>
       </div>
 
       {/* LADO DIREITO */}
       <div className="flex w-full items-center justify-center p-5 sm:p-8 lg:w-1/2">
         <div className="w-full max-w-md">
           <header className="mb-10 flex flex-col items-center text-center">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                <CubeIcon className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold">UniStock</span>
-            </div>
+            <LogoUnistock className="mb-4 h-10 w-auto" />
 
             <h2 className="text-2xl font-bold">Entre na sua conta</h2>
 

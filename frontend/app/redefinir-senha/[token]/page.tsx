@@ -6,11 +6,11 @@ import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
   CheckCircleIcon,
-  CubeIcon,
   EyeIcon,
   EyeSlashIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
+import { LogoUnistock } from "@/shared/components/Logo";
 import { definirSenha } from "@/shared/services/auth";
 
 export default function ResetPasswordPage() {
@@ -58,12 +58,9 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen w-full overflow-x-hidden bg-theme-base font-sans text-theme-text-title">
       <aside className="hidden w-1/2 items-center justify-center bg-theme-header px-10 lg:flex">
         <div className="w-full max-w-lg">
-          <div className="mb-10 flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-600">
-              <CubeIcon className="h-10 w-10 text-white" />
-            </div>
-            <h1 className="text-5xl font-bold tracking-tight">UniStock</h1>
-          </div>
+          <h1 className="mb-10">
+            <LogoUnistock className="h-16 w-auto" />
+          </h1>
 
           <div className="space-y-4 border-l-4 border-emerald-500 pl-6">
             <p className="text-sm font-semibold uppercase tracking-wide text-emerald-500">
