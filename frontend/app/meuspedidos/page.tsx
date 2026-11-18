@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useState } from "react";
+import BotaoVoltar from "@/shared/components/BotaoVoltar";
 import Sidebar from "@/components/Sidebar";
 import AbasDoPedido from "@/features/pedidos/components/AbasDoPedido";
 import { usePedidos } from "@/features/pedidos/hooks/usePedidos";
@@ -11,7 +12,6 @@ import {
   useAuthStore,
 } from "@/shared/stores/authStore";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 
 const Icons = {
   ChevronLeft: () => (
@@ -151,15 +151,7 @@ function MeusPedidosContent() {
           {/* Para a loja as abas ja fazem o papel do Voltar; o gerente
               continua com o atalho para o Painel unidade. */}
           {isGerente && (
-            <Link
-              href="/painel_unidade"
-              className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
-            >
-              <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
-                <Icons.ChevronLeft />
-              </span>
-              <span className="text-[11px] font-black uppercase tracking-[2px]">Voltar</span>
-            </Link>
+            <BotaoVoltar href="/painel_unidade" rotulo="Voltar" className="mb-6" />
           )}
 
           <header className="mb-10">

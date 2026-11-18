@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import BotaoVoltar from "@/shared/components/BotaoVoltar";
 import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
@@ -152,17 +153,7 @@ export default function NovaLoja() {
         <div className="max-w-3xl mx-auto relative z-10">
           {/* Header */}
           <div className="mb-12">
-            <Link
-              href="/lojas"
-              className="inline-flex items-center gap-2 text-theme-text-sub hover:text-orange-500 mb-6 transition-all group"
-            >
-              <span className="p-1.5 bg-theme-header rounded-lg group-hover:bg-theme-hover transition-all border border-theme-border shadow-sm">
-                <Icons.ChevronLeft />
-              </span>
-              <span className="text-[11px] font-black uppercase tracking-[2px]">
-                Cancelar e Voltar
-              </span>
-            </Link>
+            <BotaoVoltar href="/lojas" rotulo="Cancelar e Voltar" className="mb-6" />
             <h1 className="text-3xl font-black tracking-tighter text-theme-text-title uppercase leading-none sm:text-4xl">
               Adicionar Unidade
             </h1>
