@@ -21,7 +21,7 @@ function Conteudo() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased">
       <Sidebar />
 
-      <main className="min-w-0 flex-1 p-5 pt-20 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
+      <main className="min-w-0 flex-1 p-5 pt-28 sm:p-8 sm:pt-28 md:p-12 md:pt-28 lg:ml-64 lg:pt-12">
         <div className="mx-auto max-w-5xl">
           {lojaId && (
             <Link

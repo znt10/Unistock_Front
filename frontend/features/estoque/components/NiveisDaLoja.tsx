@@ -28,6 +28,19 @@ type Props = {
  * precisa de niveis maiores; ao mesmo tempo nao pode acumular, porque estraga.
  * Ver os dois lado a lado, loja a loja, e o que deixa comparar de relance.
  */
+/** Produto (ou categoria com produto) que ainda nao esta no estoque da loja. */
+function Interrogacao() {
+  return (
+    <span
+      title="Ainda não está no estoque desta loja"
+      aria-label="Ainda não está no estoque desta loja"
+      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400 text-xs font-black text-black"
+    >
+      ?
+    </span>
+  );
+}
+
 export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
   const queryClient = useQueryClient();
   const { data: produtos = [] } = useProdutos();
@@ -51,6 +64,9 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
   const [aplicandoCategoria, setAplicandoCategoria] = useState<string | null>(
     null,
   );
+  // Categorias comecam recolhidas (a lista inteira e longa); com busca
+  // digitada, as que tem resultado abrem sozinhas.
+  const [abertas, setAbertas] = useState<Record<string, boolean>>({});
 
   const registroPorProduto = useMemo(() => {
     const mapa = new Map<string, EstoqueApi>();
@@ -310,6 +326,9 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
           const cor = corDaCategoria(grupo.id || "sem-categoria");
           const digitado = nivelCategoria[grupo.id] ?? { minimo: "", maximo: "" };
           const aplicando = aplicandoCategoria === grupo.id;
+          const chave = grupo.id || "sem-categoria";
+          const aberta = abertas[chave] ?? Boolean(busca.trim());
+          const faltando = grupo.todas.filter((linha) => !linha.registro).length;
 
           return (
             <div
@@ -318,17 +337,30 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
             >
               <div className={`h-1.5 w-full ${cor.dot}`} />
 
-              <div className={`flex flex-col gap-4 border-b ${cor.borda} ${cor.bg} px-4 py-4 lg:flex-row lg:items-end lg:justify-between`}>
-                <div className="min-w-0">
-                  <h3 className={`text-2xl font-black uppercase tracking-tight ${cor.cor}`}>
-                    {grupo.nome}
-                  </h3>
-                  <span className="text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub/70">
-                    {grupo.todas.length} produto{grupo.todas.length !== 1 ? "s" : ""}
+              <div className={`flex flex-col gap-4 ${aberta ? `border-b ${cor.borda}` : ""} ${cor.bg} px-4 py-4 lg:flex-row lg:items-end lg:justify-between`}>
+                <button
+                  type="button"
+                  aria-expanded={aberta}
+                  onClick={() =>
+                    setAbertas((atual) => ({ ...atual, [chave]: !aberta }))
+                  }
+                  className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
+                >
+                  <div className="min-w-0">
+                    <h3 className={`flex items-center gap-2 text-2xl font-black uppercase tracking-tight ${cor.cor}`}>
+                      {grupo.nome}
+                      {faltando > 0 && <Interrogacao />}
+                    </h3>
+                    <span className="text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub/70">
+                      {grupo.todas.length} produto{grupo.todas.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <span aria-hidden className="w-6 text-center text-2xl font-black leading-none text-theme-text-sub">
+                    {aberta ? "−" : "+"}
                   </span>
-                </div>
+                </button>
 
-                {grupo.id && (
+                {aberta && grupo.id && (
                   <div className="flex flex-wrap items-end gap-2">
                     <label className="w-24">
                       <span className="mb-1 block text-[10px] font-black uppercase tracking-[1px] text-theme-text-sub">
@@ -380,6 +412,7 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
                 )}
               </div>
 
+              {aberta && (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[520px] text-left">
                   <thead className="text-[11px] uppercase tracking-[1px] text-theme-text-sub">
@@ -402,8 +435,9 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
                       return (
                         <tr key={id} className="border-t border-theme-border/60">
                           <td className="px-4 py-3">
-                            <span className="font-bold text-theme-text-title">
+                            <span className="flex items-center gap-2 font-bold text-theme-text-title">
                               {linha.produto.nome_produto}
+                              {!linha.registro && <Interrogacao />}
                             </span>
                             {erro[id] && (
                               <p className="mt-1 text-xs font-bold text-red-500">
@@ -475,6 +509,7 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
                   </tbody>
                 </table>
               </div>
+              )}
             </div>
           );
         })}
