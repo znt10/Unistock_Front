@@ -28,7 +28,7 @@ export function ConfirmarPasso({
           <button
             type="button"
             onClick={onSim}
-            className="flex-1 rounded-xl bg-blue-600 px-4 py-3 font-black uppercase text-white hover:bg-blue-500"
+            className="flex-1 rounded-xl bg-orange-600 px-4 py-3 font-black uppercase text-white hover:bg-orange-500"
           >
             Sim
           </button>

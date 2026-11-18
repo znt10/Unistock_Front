@@ -71,16 +71,16 @@ function CardConteudo({ secao }: { secao: Secao }) {
   return (
     <>
       <div className="flex items-center gap-8">
-        <div className="shrink-0 rounded-[22px] border border-theme-border bg-theme-header p-5 text-blue-500 shadow-inner transition-all group-hover:scale-105 group-hover:border-blue-500/30">
+        <div className="shrink-0 rounded-[22px] border border-theme-border bg-theme-header p-5 text-orange-500 shadow-inner transition-all group-hover:scale-105 group-hover:border-orange-500/30">
           {secao.icon}
         </div>
 
         <div>
           <div className="mb-1 flex items-center gap-3">
-            <h3 className="text-xl font-black tracking-tight text-theme-text-title transition-colors group-hover:text-blue-500">
+            <h3 className="text-xl font-black tracking-tight text-theme-text-title transition-colors group-hover:text-orange-500">
               {secao.titulo}
             </h3>
-            <span className="rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-blue-500">
+            <span className="rounded-md border border-orange-500/20 bg-orange-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-orange-500">
               {secao.tag}
             </span>
           </div>
@@ -90,7 +90,7 @@ function CardConteudo({ secao }: { secao: Secao }) {
         </div>
       </div>
 
-      <div className="shrink-0 rounded-full border border-theme-border bg-theme-header p-3 text-theme-text-sub shadow-inner transition-all group-hover:translate-x-1 group-hover:border-blue-500/30 group-hover:text-blue-500">
+      <div className="shrink-0 rounded-full border border-theme-border bg-theme-header p-3 text-theme-text-sub shadow-inner transition-all group-hover:translate-x-1 group-hover:border-orange-500/30 group-hover:text-orange-500">
         <Icons.ChevronRight />
       </div>
     </>
@@ -139,7 +139,7 @@ export default function Configuracoes() {
     (secao) => !secao.adminOnly || podeGerenciarAcessos,
   );
   const cardClass =
-    "group flex w-full cursor-pointer flex-col items-start justify-between gap-5 rounded-[28px] border border-theme-border bg-theme-card p-5 text-left shadow-sm transition-all hover:border-blue-500/40 hover:bg-theme-hover active:scale-[0.985] sm:flex-row sm:items-center sm:p-7";
+    "group flex w-full cursor-pointer flex-col items-start justify-between gap-5 rounded-[28px] border border-theme-border bg-theme-card p-5 text-left shadow-sm transition-all hover:border-orange-500/40 hover:bg-theme-hover active:scale-[0.985] sm:flex-row sm:items-center sm:p-7";
 
   return (
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans antialiased transition-colors duration-300">
@@ -147,7 +147,7 @@ export default function Configuracoes() {
 
       <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="mb-14">
-          <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-blue-500">
+          <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-orange-500">
             Painel Administrativo
           </span>
           <h1 className="text-3xl font-bold tracking-tight text-theme-text-title">
@@ -162,9 +162,9 @@ export default function Configuracoes() {
           <input
             type="text"
             placeholder="O QUE VOCE ESTA PROCURANDO?"
-            className="w-full rounded-2xl border border-theme-border bg-theme-card py-5 pl-14 pr-6 text-[13px] font-black text-theme-text-title shadow-sm outline-none transition-all placeholder:text-theme-text-sub/50 placeholder:tracking-[2px] focus:border-blue-600"
+            className="w-full rounded-2xl border border-theme-border bg-theme-card py-5 pl-14 pr-6 text-[13px] font-black text-theme-text-title shadow-sm outline-none transition-all placeholder:text-theme-text-sub/50 placeholder:tracking-[2px] focus:border-orange-600"
           />
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-theme-text-sub transition-colors group-focus-within:text-blue-600">
+          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-theme-text-sub transition-colors group-focus-within:text-orange-600">
             <Icons.Search />
           </div>
         </div>

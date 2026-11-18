@@ -90,7 +90,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
         checked={Boolean(produto.vem_da_fabrica)}
         disabled={trocandoFabrica}
         onChange={(evento) => trocarFabrica(evento.target.checked)}
-        className="h-4 w-4 accent-blue-600"
+        className="h-4 w-4 accent-orange-600"
         aria-label={`${produto.nome_produto} vem da fábrica`}
       />
       <span className="sm:hidden">Vem da fábrica</span>
@@ -111,7 +111,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
   }
 
   const acento = editando
-    ? { boxShadow: "inset 3px 0 0 #3b82f6", background: "color-mix(in srgb, #3b82f6 6%, var(--card))" }
+    ? { boxShadow: "inset 3px 0 0 #f97316", background: "color-mix(in srgb, #f97316 6%, var(--card))" }
     : confirmandoDelete
     ? { boxShadow: "inset 3px 0 0 #ef4444", background: "color-mix(in srgb, #ef4444 5%, var(--card))" }
     : {};
@@ -129,7 +129,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             autoFocus
-            className="w-full rounded-lg border border-blue-500/40 bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="w-full rounded-lg border border-orange-500/40 bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
           />
         </td>
         <td className="px-5 py-4 text-sm font-semibold text-theme-text-sub">
@@ -147,7 +147,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
             value={estoqueMin}
             onChange={(e) => setEstoqueMin(e.target.value)}
             onWheel={(e) => e.currentTarget.blur()}
-            className="w-24 rounded-lg border border-blue-500/40 bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="w-24 rounded-lg border border-orange-500/40 bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
           />
         </td>
         <td className="px-5 py-4">
@@ -156,7 +156,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
               type="button"
               onClick={salvar}
               disabled={salvando}
-              className="rounded-lg bg-blue-600 p-2.5 text-white shadow-md shadow-blue-900/30 transition hover:bg-blue-500 active:scale-95 disabled:opacity-50"
+              className="rounded-lg bg-orange-600 p-2.5 text-white shadow-md shadow-orange-900/30 transition hover:bg-orange-500 active:scale-95 disabled:opacity-50"
               aria-label="Salvar"
             >
               <Check size={16} strokeWidth={2.5} />
@@ -235,7 +235,7 @@ function LinhaProduto({ produto }: { produto: Produto }) {
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="rounded-lg border border-theme-border bg-theme-header p-2.5 text-theme-text-sub/70 transition hover:border-blue-500/40 hover:text-blue-400 sm:opacity-0 sm:group-hover:opacity-100"
+            className="rounded-lg border border-theme-border bg-theme-header p-2.5 text-theme-text-sub/70 transition hover:border-orange-500/40 hover:text-orange-400 sm:opacity-0 sm:group-hover:opacity-100"
             aria-label={`Editar ${produto.nome_produto}`}
           >
             <Pencil size={16} strokeWidth={2.5} />
@@ -360,7 +360,7 @@ export default function CategoriaProdutos() {
             {/* Botão Voltar */}
             <Link
               href="/produtos"
-              className="mb-4 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
+              className="mb-4 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
             >
               <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
                 <ArrowLeft size={14} strokeWidth={2.5} />
@@ -399,7 +399,7 @@ export default function CategoriaProdutos() {
                 type="button"
                 onClick={() => marcarCategoria(!todosDaFabrica)}
                 disabled={marcandoCategoria}
-                className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-4 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500 active:scale-95 disabled:opacity-50 sm:w-auto sm:px-6 sm:text-sm sm:tracking-[2px]"
+                className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-4 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-orange-500/40 hover:text-orange-500 active:scale-95 disabled:opacity-50 sm:w-auto sm:px-6 sm:text-sm sm:tracking-[2px]"
               >
                 <span className="truncate">
                   {marcandoCategoria
@@ -412,7 +412,7 @@ export default function CategoriaProdutos() {
             )}
             <Link
               href="/produtos/novo"
-              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-4 text-xs font-black uppercase tracking-[1px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
+              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-orange-600 px-4 py-4 text-xs font-black uppercase tracking-[1px] text-white shadow-xl shadow-orange-900/20 transition hover:bg-orange-700 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
             >
               <span className="shrink-0"><Plus size={20} strokeWidth={3} /></span>
               <span className="truncate">Novo produto</span>
@@ -431,7 +431,7 @@ export default function CategoriaProdutos() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar produto..."
-              className="w-full rounded-xl border border-theme-border bg-theme-header py-4 pl-12 pr-12 text-base font-bold text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-xl border border-theme-border bg-theme-header py-4 pl-12 pr-12 text-base font-bold text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
             />
             {busca && (
               <button
@@ -468,7 +468,7 @@ export default function CategoriaProdutos() {
             </p>
             <Link
               href="/produtos/novo"
-              className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black uppercase tracking-[1px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95"
+              className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-orange-600 px-6 py-3 text-sm font-black uppercase tracking-[1px] text-white shadow-xl shadow-orange-900/20 transition hover:bg-orange-700 active:scale-95"
             >
               <Plus size={18} strokeWidth={3} />
               Cadastrar primeiro produto

@@ -38,7 +38,7 @@ export default function ConfirmarContaPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-theme-base p-6 transition-colors">
       <div className="w-full max-w-md rounded-[24px] border border-theme-border bg-theme-card p-8 text-center shadow-sm">
-        <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-blue-500">
+        <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-orange-500">
           UniStock
         </span>
 
@@ -48,7 +48,7 @@ export default function ConfirmarContaPage() {
               ? "bg-emerald-100 text-emerald-600"
               : status === "erro"
                 ? "bg-red-100 text-red-600"
-                : "bg-blue-100 text-blue-600"
+                : "bg-orange-100 text-orange-600"
           }`}
         >
           {status === "sucesso" ? "✓" : status === "erro" ? "✕" : "…"}
@@ -67,7 +67,7 @@ export default function ConfirmarContaPage() {
         {status !== "confirmando" && (
           <button
             onClick={() => router.push("/login")}
-            className="mt-8 w-full rounded-lg bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98]"
+            className="mt-8 w-full rounded-lg bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-orange-700 active:scale-[0.98]"
           >
             Ir para o login
           </button>

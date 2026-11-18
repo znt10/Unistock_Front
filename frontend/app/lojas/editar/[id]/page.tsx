@@ -171,11 +171,11 @@ export default function EditarLoja() {
       <Sidebar />
 
       <main className="relative min-w-0 flex-1 overflow-hidden p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-600/5 blur-[120px] rounded-full -mr-64 -mt-64 z-0 pointer-events-none" />
 
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="mb-12">
-            <Link href="/lojas" className="inline-flex items-center gap-2 text-theme-text-sub hover:text-blue-500 mb-6 transition-all group">
+            <Link href="/lojas" className="inline-flex items-center gap-2 text-theme-text-sub hover:text-orange-500 mb-6 transition-all group">
               <span className="p-1.5 bg-theme-header rounded-lg group-hover:bg-theme-hover transition-all border border-theme-border shadow-sm">
                 <Icons.ChevronLeft />
               </span>
@@ -222,7 +222,7 @@ export default function EditarLoja() {
                   Identificacao da Unidade
                 </label>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-orange-500 transition-colors">
                     <Icons.Store />
                   </div>
                   <input
@@ -232,7 +232,7 @@ export default function EditarLoja() {
                     value={nomeLoja}
                     onChange={(e) => setNomeLoja(e.target.value)}
                     placeholder="EX: UNIDADE CENTRAL PATOS"
-                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm tracking-tight"
+                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5 transition-all font-bold uppercase text-sm tracking-tight"
                   />
                 </div>
               </div>
@@ -243,7 +243,7 @@ export default function EditarLoja() {
                     Cidade
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-orange-500 transition-colors">
                       <Icons.Map />
                     </div>
                     <input
@@ -253,7 +253,7 @@ export default function EditarLoja() {
                       value={cidade}
                       onChange={(e) => setCidade(e.target.value)}
                       placeholder="CIDADE"
-                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm"
+                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5 transition-all font-bold uppercase text-sm"
                     />
                   </div>
                 </div>
@@ -269,7 +269,7 @@ export default function EditarLoja() {
                     value={endereco}
                     onChange={(e) => setEndereco(e.target.value)}
                     placeholder="RUA, NUMERO, BAIRRO"
-                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 px-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold uppercase text-sm"
+                    className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 px-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5 transition-all font-bold uppercase text-sm"
                   />
                 </div>
               </div>
@@ -280,7 +280,7 @@ export default function EditarLoja() {
                     E-mail
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-orange-500 transition-colors">
                       <Icons.Mail />
                     </div>
                     <input
@@ -290,7 +290,7 @@ export default function EditarLoja() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="contato@unidade.com"
-                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold text-sm"
+                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5 transition-all font-bold text-sm"
                     />
                   </div>
                 </div>
@@ -300,7 +300,7 @@ export default function EditarLoja() {
                     WhatsApp
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-blue-500 transition-colors">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center text-theme-text-sub/40 group-focus-within:text-orange-500 transition-colors">
                       <Icons.Phone />
                     </div>
                     <input
@@ -310,7 +310,7 @@ export default function EditarLoja() {
                       value={telefone}
                       onChange={(e) => setTelefone(e.target.value)}
                       placeholder="(83) 99999-8888"
-                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold text-sm"
+                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-14 pr-6 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5 transition-all font-bold text-sm"
                     />
                   </div>
                 </div>
@@ -345,12 +345,12 @@ export default function EditarLoja() {
                       value={senhaAcesso}
                       onChange={(e) => setSenhaAcesso(e.target.value)}
                       placeholder="Deixe em branco para usar o link por e-mail"
-                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-6 pr-24 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all font-bold text-sm"
+                      className="w-full bg-theme-header border border-theme-border rounded-2xl py-4 pl-6 pr-24 text-theme-text-title placeholder:text-theme-text-sub/20 focus:outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5 transition-all font-bold text-sm"
                     />
                     <button
                       type="button"
                       onClick={() => setMostrarSenha((v) => !v)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black uppercase text-blue-500"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black uppercase text-orange-500"
                     >
                       {mostrarSenha ? "Ocultar" : "Mostrar"}
                     </button>
@@ -370,8 +370,8 @@ export default function EditarLoja() {
                 <button
                   type="submit"
                   disabled={salvando}
-                  className={`py-4 rounded-2xl bg-blue-600 text-white font-black text-[12px] uppercase tracking-widest shadow-xl shadow-blue-900/20 transition-all active:scale-95 border-none ${
-                    salvando ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+                  className={`py-4 rounded-2xl bg-orange-600 text-white font-black text-[12px] uppercase tracking-widest shadow-xl shadow-orange-900/20 transition-all active:scale-95 border-none ${
+                    salvando ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-700"
                   }`}
                 >
                   {salvando ? "Salvando..." : "Salvar Alteracoes"}

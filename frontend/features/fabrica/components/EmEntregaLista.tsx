@@ -90,7 +90,7 @@ export default function EmEntregaLista({ lojaId }: { lojaId: string | null }) {
                       <td className="p-4 font-bold uppercase">
                         {pedido.itens?.[0]?.produto_nome ?? "—"}
                       </td>
-                      <td className="p-4 text-center font-mono text-lg font-black text-blue-500">
+                      <td className="p-4 text-center font-mono text-lg font-black text-orange-500">
                         {pedido.caixas_chegaram} de {pedido.caixas_total}
                       </td>
                       <td className="p-4 text-sm">
@@ -103,7 +103,7 @@ export default function EmEntregaLista({ lojaId }: { lojaId: string | null }) {
                           type="button"
                           onClick={() => reimprimir(pedido.id)}
                           disabled={completo || reimprimindo === pedido.id}
-                          className="rounded-xl border border-theme-border bg-theme-header px-3 py-2 text-[10px] font-black uppercase tracking-[1px] text-theme-text-title transition hover:border-blue-500/40 hover:text-blue-500 disabled:opacity-50"
+                          className="rounded-xl border border-theme-border bg-theme-header px-3 py-2 text-[10px] font-black uppercase tracking-[1px] text-theme-text-title transition hover:border-orange-500/40 hover:text-orange-500 disabled:opacity-50"
                         >
                           {reimprimindo === pedido.id
                             ? "Abrindo..."

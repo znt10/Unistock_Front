@@ -315,19 +315,19 @@ export default function NotificacoesPage() {
       <Sidebar />
 
       <main className="relative min-w-0 flex-1 p-5 pt-20 transition-all sm:p-6 lg:ml-64 lg:pt-6">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-64 bg-blue-500/5 blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-64 bg-orange-500/5 blur-[100px] pointer-events-none" />
 
         <div className="relative z-10 mx-auto mt-4 max-w-5xl lg:mt-10">
           {/* Header */}
           <header className="mb-8 flex flex-col gap-5 md:flex-row md:justify-between md:items-end">
             <div>
-              <span className="text-blue-500 text-[10px] font-black uppercase tracking-[3px] mb-2 block">
+              <span className="text-orange-500 text-[10px] font-black uppercase tracking-[3px] mb-2 block">
                 Central de Alertas
               </span>
               <h1 className="flex flex-wrap items-center gap-3 text-3xl font-black tracking-tighter text-theme-text-title uppercase sm:text-4xl">
                 Notificacoes
                 {totalNaoLidas > 0 && (
-                  <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-black text-white">
+                  <span className="rounded-full bg-orange-600 px-3 py-1 text-xs font-black text-white">
                     {totalNaoLidas}
                   </span>
                 )}
@@ -341,14 +341,14 @@ export default function NotificacoesPage() {
               {notificacoes.length > 0 && (
                 <button
                   onClick={marcarTodasLidas}
-                  className="rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub transition hover:border-blue-500/50 hover:text-blue-500"
+                  className="rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub transition hover:border-orange-500/50 hover:text-orange-500"
                 >
                   Marcar todas
                 </button>
               )}
               <Link
                 href="/configuracoes"
-                className="p-3 rounded-2xl bg-theme-card border border-theme-border text-theme-text-sub hover:text-blue-500 hover:border-blue-500/50 transition-all hover:rotate-90 duration-500"
+                className="p-3 rounded-2xl bg-theme-card border border-theme-border text-theme-text-sub hover:text-orange-500 hover:border-orange-500/50 transition-all hover:rotate-90 duration-500"
               >
                 <SettingsIcon />
               </Link>
@@ -433,12 +433,12 @@ export default function NotificacoesPage() {
                       }}
                       className={`group w-full flex items-center gap-3 rounded-2xl border px-5 py-5 text-left transition-all ${
                         ativa
-                          ? "border-blue-500/40 bg-blue-500/10 text-blue-400"
-                          : "border-theme-border bg-theme-card text-theme-text-sub hover:border-blue-500/20 hover:text-theme-text-title"
+                          ? "border-orange-500/40 bg-orange-500/10 text-orange-400"
+                          : "border-theme-border bg-theme-card text-theme-text-sub hover:border-orange-500/20 hover:text-theme-text-title"
                       }`}
                     >
                       <span
-                        className={`shrink-0 ${ativa ? "text-blue-400" : "text-theme-text-sub/40"}`}
+                        className={`shrink-0 ${ativa ? "text-orange-400" : "text-theme-text-sub/40"}`}
                       >
                         <StoreIcon />
                       </span>
@@ -449,8 +449,8 @@ export default function NotificacoesPage() {
                         <span
                           className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black ${
                             ativa
-                              ? "bg-blue-500 text-white"
-                              : "bg-blue-500/20 text-blue-400"
+                              ? "bg-orange-500 text-white"
+                              : "bg-orange-500/20 text-orange-400"
                           }`}
                         >
                           {grupo.naoLidas}

@@ -257,12 +257,12 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
   if (linhas.length === 0) return null;
 
   const campo =
-    "w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-center font-bold tabular-nums text-theme-text-title outline-none focus:border-blue-500";
+    "w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-center font-bold tabular-nums text-theme-text-title outline-none focus:border-orange-500";
 
   return (
     <section className="rounded-[28px] border border-theme-border bg-theme-card p-6 sm:p-8">
       <header className="mb-6 border-b border-theme-border pb-4">
-        <span className="text-[11px] font-black uppercase tracking-[3px] text-blue-500">
+        <span className="text-[11px] font-black uppercase tracking-[3px] text-orange-500">
           Níveis de estoque
         </span>
         <h2 className="mt-2 text-xl font-black text-theme-text-title">
@@ -282,13 +282,13 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
           onChange={(event) => setBusca(event.target.value)}
           placeholder="Buscar produto..."
           aria-label="Buscar produto"
-          className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500 sm:flex-1"
+          className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none focus:border-orange-500 sm:flex-1"
         />
         <select
           value={categoriaFiltro}
           onChange={(event) => setCategoriaFiltro(event.target.value)}
           aria-label="Filtrar por categoria"
-          className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none focus:border-blue-500 sm:w-56"
+          className="w-full rounded-lg border border-theme-border bg-theme-base px-3 py-2 text-sm font-bold text-theme-text-title outline-none focus:border-orange-500 sm:w-56"
         >
           <option value="">Todas as categorias</option>
           {categoriasComProduto.map((categoria) => (
@@ -372,7 +372,7 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
                       type="button"
                       onClick={() => aplicarNaCategoria(grupo)}
                       disabled={aplicando}
-                      className="rounded-lg bg-blue-600 px-4 py-2 text-[11px] font-black uppercase tracking-[1px] text-white transition hover:bg-blue-700 active:scale-95 disabled:opacity-50"
+                      className="rounded-lg bg-orange-600 px-4 py-2 text-[11px] font-black uppercase tracking-[1px] text-white transition hover:bg-orange-700 active:scale-95 disabled:opacity-50"
                     >
                       {aplicando ? "Aplicando..." : "Aplicar a todos"}
                     </button>

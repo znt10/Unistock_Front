@@ -410,7 +410,7 @@ function EstoqueGerencia() {
         <header className="sticky top-0 z-20 border-b border-theme-border bg-theme-base/95 px-5 py-4 backdrop-blur md:px-8">
           <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-blue-500">
+              <span className="mb-2 block text-xs font-black uppercase tracking-[3px] text-orange-500">
                 Controle por loja
               </span>
               <h1 className="break-words text-2xl font-black uppercase tracking-tight text-theme-text-title sm:text-3xl md:text-4xl">
@@ -428,7 +428,7 @@ function EstoqueGerencia() {
               <button
                 type="button"
                 onClick={() => setModalCategoriaAberto(true)}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500 active:scale-95 md:w-auto"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-3 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-orange-500/40 hover:text-orange-500 active:scale-95 md:w-auto"
               >
                 <Plus size={16} strokeWidth={3} />
                 Nova categoria
@@ -472,7 +472,7 @@ function EstoqueGerencia() {
                     label: "Itens em estoque",
                     valor: resumoEstoqueLoja.total,
                     icon: Boxes,
-                    className: "bg-blue-500/10 text-blue-400",
+                    className: "bg-orange-500/10 text-orange-400",
                   },
                   {
                     label: "Em dia",

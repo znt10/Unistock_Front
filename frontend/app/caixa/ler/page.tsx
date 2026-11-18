@@ -100,7 +100,7 @@ export default function LerCaixasPage() {
       <main className="min-w-0 flex-1 p-5 pt-20 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="mx-auto max-w-xl space-y-5">
           <header>
-            <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-blue-500">
+            <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-orange-500">
               Caixas da fábrica
             </span>
             <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">
@@ -141,7 +141,7 @@ export default function LerCaixasPage() {
                     <span className="font-black uppercase text-theme-text-title">
                       {pedido.produto_nome}
                     </span>
-                    <span className="font-mono font-black text-blue-500">
+                    <span className="font-mono font-black text-orange-500">
                       {pedido.caixas_chegaram} de {pedido.caixas_total}
                     </span>
                   </li>
@@ -201,7 +201,7 @@ export default function LerCaixasPage() {
               <button
                 type="button"
                 onClick={() => setTerminando(false)}
-                className="flex-1 rounded-xl bg-blue-600 px-4 py-3 font-black uppercase text-white hover:bg-blue-500"
+                className="flex-1 rounded-xl bg-orange-600 px-4 py-3 font-black uppercase text-white hover:bg-orange-500"
               >
                 Continuar lendo
               </button>

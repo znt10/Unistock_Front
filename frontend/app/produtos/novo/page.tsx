@@ -95,7 +95,7 @@ export default function NovoProduto() {
   };
 
   const inputClass =
-    "w-full rounded-2xl border border-theme-border bg-theme-header py-4 px-5 text-sm font-bold uppercase text-theme-text-title placeholder:text-theme-text-sub/25 transition-all focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/5";
+    "w-full rounded-2xl border border-theme-border bg-theme-header py-4 px-5 text-sm font-bold uppercase text-theme-text-title placeholder:text-theme-text-sub/25 transition-all focus:border-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-600/5";
   const labelClass =
     "ml-1 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub/50";
 
@@ -107,7 +107,7 @@ export default function NovoProduto() {
         <div className="mx-auto w-full max-w-2xl">
           <Link
             href="/produtos"
-            className="mb-8 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
+            className="mb-8 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
           >
             <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -137,7 +137,7 @@ export default function NovoProduto() {
                     Nome do produto
                   </label>
                   <div className="group relative">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-5 text-theme-text-sub/40 transition-colors group-focus-within:text-blue-500">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-5 text-theme-text-sub/40 transition-colors group-focus-within:text-orange-500">
                       <Package size={18} />
                     </span>
                     <input
@@ -215,7 +215,7 @@ export default function NovoProduto() {
                           onClick={() => setCategoria(c.id)}
                           className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-black uppercase tracking-[1px] transition ${
                             categoria === c.id
-                              ? "border-blue-600 bg-blue-600/10 text-blue-500"
+                              ? "border-orange-600 bg-orange-600/10 text-orange-500"
                               : "border-theme-border bg-theme-header text-theme-text-sub hover:text-theme-text-title"
                           }`}
                         >
@@ -227,7 +227,7 @@ export default function NovoProduto() {
                     <button
                       type="button"
                       onClick={() => setModalCategoriaAberto(true)}
-                      className="inline-flex items-center gap-2 rounded-xl border border-dashed border-theme-border bg-theme-header px-4 py-2.5 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500"
+                      className="inline-flex items-center gap-2 rounded-xl border border-dashed border-theme-border bg-theme-header px-4 py-2.5 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-orange-500/40 hover:text-orange-500"
                     >
                       <Plus size={14} strokeWidth={3} />
                       Nova categoria
@@ -264,7 +264,7 @@ export default function NovoProduto() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="rounded-2xl border-none bg-blue-600 py-4 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-900/20 transition-all hover:bg-blue-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-2xl border-none bg-orange-600 py-4 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-orange-900/20 transition-all hover:bg-orange-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {loading ? "Salvando..." : "Salvar produto"}
                   </button>

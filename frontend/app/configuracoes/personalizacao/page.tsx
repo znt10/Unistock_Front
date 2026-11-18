@@ -140,7 +140,7 @@ export default function PersonalizacaoPerfil() {
       <main className="min-w-0 flex-1 p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <Link
           href="/configuracoes"
-          className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
+          className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
         >
           <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
             <Icons.ChevronLeft />
@@ -150,7 +150,7 @@ export default function PersonalizacaoPerfil() {
 
         <div className="mb-14 flex flex-col items-start gap-6">
           <div>
-            <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
+            <span className="text-orange-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">
               Interface do Sistema
             </span>
             <h1 className="text-3xl font-bold tracking-tight text-theme-text-title">
@@ -176,8 +176,8 @@ export default function PersonalizacaoPerfil() {
                 onClick={() => setTheme(t)}
                 className={`p-6 rounded-2xl border-2 transition-all cursor-pointer shadow-sm flex flex-col items-center ${
                   resolvedTheme === t
-                    ? "bg-theme-card border-blue-500 scale-[1.02] ring-4 ring-blue-500/10"
-                    : "bg-theme-card border-theme-border hover:border-blue-500/50"
+                    ? "bg-theme-card border-orange-500 scale-[1.02] ring-4 ring-orange-500/10"
+                    : "bg-theme-card border-theme-border hover:border-orange-500/50"
                 }`}
               >
                 <div
@@ -190,7 +190,7 @@ export default function PersonalizacaoPerfil() {
                 <span
                   className={`text-sm font-black uppercase tracking-wider ${
                     resolvedTheme === t
-                      ? "text-blue-500"
+                      ? "text-orange-500"
                       : "text-theme-text-title"
                   }`}
                 >
@@ -206,15 +206,15 @@ export default function PersonalizacaoPerfil() {
           {opcoesPersonalizacao.map((item, index) => (
             <button
               key={index}
-              className="group flex w-full flex-col items-start justify-between gap-5 rounded-[24px] border border-theme-border bg-theme-card p-5 transition-all hover:border-blue-500/40 hover:bg-theme-hover shadow-sm active:scale-[0.99] sm:flex-row sm:items-center sm:p-6"
+              className="group flex w-full flex-col items-start justify-between gap-5 rounded-[24px] border border-theme-border bg-theme-card p-5 transition-all hover:border-orange-500/40 hover:bg-theme-hover shadow-sm active:scale-[0.99] sm:flex-row sm:items-center sm:p-6"
             >
               <div className="flex items-center gap-4 md:gap-7">
-                <div className="bg-theme-header p-4 rounded-[20px] text-blue-500 border border-theme-border group-hover:border-blue-500/30 transition-all">
+                <div className="bg-theme-header p-4 rounded-[20px] text-orange-500 border border-theme-border group-hover:border-orange-500/30 transition-all">
                   {item.icon}
                 </div>
 
                 <div className="text-left">
-                  <h3 className="text-[17px] md:text-[19px] font-black tracking-tight text-theme-text-title group-hover:text-blue-500">
+                  <h3 className="text-[17px] md:text-[19px] font-black tracking-tight text-theme-text-title group-hover:text-orange-500">
                     {item.titulo}
                   </h3>
                   <p className="text-xs md:text-sm font-medium mt-1 text-theme-text-sub">
@@ -223,7 +223,7 @@ export default function PersonalizacaoPerfil() {
                 </div>
               </div>
 
-              <div className="bg-theme-header p-2 rounded-full border border-theme-border text-blue-500/50 group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:translate-x-1 transition-all">
+              <div className="bg-theme-header p-2 rounded-full border border-theme-border text-orange-500/50 group-hover:text-orange-500 group-hover:border-orange-500/30 group-hover:translate-x-1 transition-all">
                 <Icons.ChevronRight />
               </div>
             </button>

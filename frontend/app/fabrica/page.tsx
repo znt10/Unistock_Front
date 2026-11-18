@@ -122,7 +122,7 @@ export default function FilaDaFabricaPage() {
       <main className="min-w-0 flex-1 p-5 pt-20 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="mx-auto max-w-6xl space-y-6">
           <header>
-            <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-blue-500">
+            <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-orange-500">
               Fábrica
             </span>
             <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">
@@ -227,7 +227,7 @@ export default function FilaDaFabricaPage() {
                           <td className="p-4 font-black uppercase text-theme-text-title">
                             {item?.produto_nome ?? "—"}
                           </td>
-                          <td className="p-4 text-center font-mono text-lg font-black text-blue-500">
+                          <td className="p-4 text-center font-mono text-lg font-black text-orange-500">
                             {item?.quantidade ?? "—"}
                           </td>
                           <td
@@ -253,7 +253,7 @@ export default function FilaDaFabricaPage() {
             type="button"
             onClick={imprimir}
             disabled={imprimindo || marcados.length === 0}
-            className="w-full rounded-2xl bg-blue-600 py-4 text-[12px] font-black uppercase tracking-widest text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-8"
+            className="w-full rounded-2xl bg-orange-600 py-4 text-[12px] font-black uppercase tracking-widest text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-8"
           >
             {imprimindo ? "Imprimindo..." : `Imprimir etiquetas (${marcados.length})`}
           </button>

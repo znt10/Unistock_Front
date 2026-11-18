@@ -44,7 +44,7 @@ export default function CaixaPage({ params }: { params: Promise<{ codigo: string
       <main className="min-w-0 flex-1 p-5 pt-20 sm:p-8 md:p-12 lg:ml-64 lg:pt-12">
         <div className="mx-auto max-w-xl space-y-5">
           <header>
-            <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-blue-500">
+            <span className="mb-3 block text-[11px] font-black uppercase tracking-[4px] text-orange-500">
               Caixa da fábrica
             </span>
             <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">
@@ -74,7 +74,7 @@ export default function CaixaPage({ params }: { params: Promise<{ codigo: string
                   type="button"
                   disabled={leitura.ocupado}
                   onClick={() => void leitura.ler(codigo)}
-                  className="w-full rounded-xl bg-blue-600 px-4 py-4 font-black uppercase text-white hover:bg-blue-500 disabled:opacity-50"
+                  className="w-full rounded-xl bg-orange-600 px-4 py-4 font-black uppercase text-white hover:bg-orange-500 disabled:opacity-50"
                 >
                   Marcar como {caixa.proximo}
                 </button>
@@ -90,7 +90,7 @@ export default function CaixaPage({ params }: { params: Promise<{ codigo: string
             onFechar={leitura.fecharFaixa}
           />
 
-          <Link href="/caixa/ler" className="block text-center font-black uppercase text-blue-500">
+          <Link href="/caixa/ler" className="block text-center font-black uppercase text-orange-500">
             Ler outras caixas
           </Link>
         </div>

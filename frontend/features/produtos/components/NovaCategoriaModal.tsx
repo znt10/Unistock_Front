@@ -67,7 +67,7 @@ export default function NovaCategoriaModal({ onClose, onCriada }: Props) {
       <div className="w-full max-w-sm rounded-2xl border border-theme-border bg-theme-card p-6 text-theme-text-title shadow-2xl">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
-            <span className="text-[11px] font-black uppercase tracking-[3px] text-blue-500">
+            <span className="text-[11px] font-black uppercase tracking-[3px] text-orange-500">
               Categorias
             </span>
             <h2 className="mt-2 text-xl font-black tracking-tight">
@@ -97,7 +97,7 @@ export default function NovaCategoriaModal({ onClose, onCriada }: Props) {
               onChange={(e) => setNome(e.target.value)}
               placeholder="EX: BEBIDAS"
               autoFocus
-              className="w-full rounded-2xl border border-theme-border bg-theme-header py-3.5 px-5 text-sm font-bold uppercase text-theme-text-title placeholder:text-theme-text-sub/25 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5"
+              className="w-full rounded-2xl border border-theme-border bg-theme-header py-3.5 px-5 text-sm font-bold uppercase text-theme-text-title placeholder:text-theme-text-sub/25 outline-none transition focus:border-orange-600 focus:ring-4 focus:ring-orange-600/5"
             />
           </div>
 
@@ -118,7 +118,7 @@ export default function NovaCategoriaModal({ onClose, onCriada }: Props) {
             <button
               type="submit"
               disabled={salvando}
-              className="rounded-2xl border-none bg-blue-600 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-2xl border-none bg-orange-600 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-xl shadow-orange-900/20 transition hover:bg-orange-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {salvando ? "Salvando..." : "Criar"}
             </button>

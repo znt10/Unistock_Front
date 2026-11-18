@@ -112,7 +112,7 @@ export default function ItemEstoque({
           <span className="flex flex-wrap items-center gap-2">
             {produto.nome}
             {recente && (
-              <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-black uppercase text-blue-700">
+              <span className="rounded bg-orange-50 px-1.5 py-0.5 text-[10px] font-black uppercase text-orange-700">
                 recente
               </span>
             )}
@@ -150,7 +150,7 @@ export default function ItemEstoque({
               if (e.key === "Enter") { salvarQtd(); e.currentTarget.blur(); }
               if (e.key === "Escape") { cancelarQtd(); e.currentTarget.blur(); }
             }}
-            className="h-10 w-24 rounded-lg border border-theme-border bg-theme-card px-3 text-center text-base font-black text-theme-text-title outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+            className="h-10 w-24 rounded-lg border border-theme-border bg-theme-card px-3 text-center text-base font-black text-theme-text-title outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30"
           />
           {valorAlterado && (
             <div className="flex gap-1">
@@ -178,11 +178,11 @@ export default function ItemEstoque({
       </td>
 
       <td className="px-5 py-4">
-        <div className="h-1.5 w-full rounded-full bg-blue-950/70">
+        <div className="h-1.5 w-full rounded-full bg-orange-950/70">
           <div
             className={`h-full rounded-full ${
               semEstoque
-                ? "bg-blue-900"
+                ? "bg-orange-900"
                 : estoqueBaixo
                   ? "bg-amber-400"
                   : "bg-emerald-400"
@@ -199,7 +199,7 @@ export default function ItemEstoque({
             onChange={(e) =>
               onUpdate({ estado: e.target.value as EstadoProduto })
             }
-            className="h-9 w-full rounded-lg border border-theme-border bg-theme-card px-3 text-xs font-black text-theme-text-title outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+            className="h-9 w-full rounded-lg border border-theme-border bg-theme-card px-3 text-xs font-black text-theme-text-title outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30"
           >
             {ESTADOS_PRODUTO.map((estado) => (
               <option key={estado} value={estado}>

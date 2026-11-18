@@ -129,7 +129,7 @@ export default function NovoPedidoPage() {
   };
 
   const inputClass =
-    "w-full rounded-2xl border border-theme-border bg-theme-header py-4 px-5 text-sm font-bold text-theme-text-title placeholder:text-theme-text-sub/25 transition-all focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/5";
+    "w-full rounded-2xl border border-theme-border bg-theme-header py-4 px-5 text-sm font-bold text-theme-text-title placeholder:text-theme-text-sub/25 transition-all focus:border-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-600/5";
   const labelClass =
     "ml-1 text-[11px] font-black uppercase tracking-[2px] text-theme-text-sub/50";
 
@@ -137,9 +137,13 @@ export default function NovoPedidoPage() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex min-w-0 flex-1 items-center justify-center p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-60 lg:min-h-screen lg:pt-12">
-        <div className="mx-auto w-full max-w-3xl">
+      {/* Abas no mesmo lugar do Meus pedidos (alto, à esquerda, mesma
+          margem): antes o formulário centralizado arrastava as abas junto. */}
+      <main className="flex min-w-0 flex-1 flex-col p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:min-h-screen lg:pt-12">
+        <div className="mx-auto w-full max-w-7xl">
           <AbasDoPedido ativa="novo" />
+        </div>
+        <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center">
 
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">
@@ -287,7 +291,7 @@ export default function NovoPedidoPage() {
                     type="button"
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="rounded-2xl border-none bg-blue-600 py-4 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-blue-900/20 transition-all hover:bg-blue-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-2xl border-none bg-orange-600 py-4 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-orange-900/20 transition-all hover:bg-orange-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {loading ? "Enviando..." : "Confirmar Pedido"}
                   </button>

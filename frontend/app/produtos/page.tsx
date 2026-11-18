@@ -59,7 +59,7 @@ export default function ProdutosPage() {
         {/* ── Cabeçalho ── */}
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <span className="mb-3 block text-xs font-black uppercase tracking-[3px] text-blue-500 sm:text-sm sm:tracking-[4px]">
+            <span className="mb-3 block text-xs font-black uppercase tracking-[3px] text-orange-500 sm:text-sm sm:tracking-[4px]">
               Gestão de Produtos
             </span>
             <h1 className="max-w-full wrap-break-word text-3xl font-black uppercase leading-tight text-theme-text-title sm:text-5xl sm:leading-none sm:tracking-tighter">
@@ -95,14 +95,14 @@ export default function ProdutosPage() {
             <button
               type="button"
               onClick={() => setModalCategoriaAberto(true)}
-              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-4 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-blue-500/40 hover:text-blue-500 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
+              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-theme-border bg-theme-card px-4 py-4 text-xs font-black uppercase tracking-[1px] text-theme-text-sub transition hover:border-orange-500/40 hover:text-orange-500 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
             >
               <span className="shrink-0"><IconePlus /></span>
               <span className="truncate">Nova categoria</span>
             </button>
             <Link
               href="/produtos/novo"
-              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-4 text-xs font-black uppercase tracking-[1px] text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-700 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
+              className="inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl bg-orange-600 px-4 py-4 text-xs font-black uppercase tracking-[1px] text-white shadow-xl shadow-orange-900/20 transition hover:bg-orange-700 active:scale-95 sm:w-auto sm:gap-3 sm:px-6 sm:text-sm sm:tracking-[2px]"
             >
               <span className="shrink-0"><IconePlus /></span>
               <span className="truncate">Novo produto</span>
@@ -121,7 +121,7 @@ export default function ProdutosPage() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Filtrar categoria..."
-              className="w-full rounded-xl border border-theme-border bg-theme-header py-4 pl-12 pr-4 text-base font-bold text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-xl border border-theme-border bg-theme-header py-4 pl-12 pr-4 text-base font-bold text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
             />
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function ProdutosPage() {
                 <Link
                   key={cat.id}
                   href={`/produtos/${cat.id}`}
-                  className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-theme-border bg-theme-card shadow-sm transition hover:border-blue-500/40 hover:shadow-md"
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-theme-border bg-theme-card shadow-sm transition hover:border-orange-500/40 hover:shadow-md"
                 >
                   {/* barra colorida no topo */}
                   <div className={`h-1 w-full ${cor.dot} opacity-70`} />
@@ -159,7 +159,7 @@ export default function ProdutosPage() {
                           {count === 1 ? "produto" : "produtos"}
                         </span>
                       </div>
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-theme-border bg-theme-header text-theme-text-sub transition group-hover:border-blue-500/40 group-hover:text-blue-500">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-theme-border bg-theme-header text-theme-text-sub transition group-hover:border-orange-500/40 group-hover:text-orange-500">
                         <IconeSeta />
                       </span>
                     </div>

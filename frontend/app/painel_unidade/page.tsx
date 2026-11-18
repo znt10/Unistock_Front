@@ -31,7 +31,7 @@ const Icons = {
       height="28"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#3b82f6"
+      stroke="#f97316"
       strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -204,7 +204,7 @@ function BotaoRelatorio() {
       >
         {isGerando ? (
           <>
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
             Gerando PDF...
           </>
         ) : (
@@ -241,7 +241,7 @@ function BotaoRelatorio() {
                   onClick={() => abrirRelatorio(p.valor)}
                   className="flex w-full items-center gap-3 px-3 py-3 text-left transition hover:bg-theme-hover"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
                     <Icone />
                   </span>
                   <span>
@@ -282,7 +282,7 @@ export default function GerenciaPedidos() {
         {/* ── Cabeçalho ── */}
         <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <span className="mb-1 block text-[10px] font-black uppercase tracking-[2px] text-blue-500">
+            <span className="mb-1 block text-[10px] font-black uppercase tracking-[2px] text-orange-500">
               Administração
             </span>
             <h1 className="text-3xl font-bold tracking-tight text-theme-text-title">
@@ -306,9 +306,9 @@ export default function GerenciaPedidos() {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Localizar unidade..."
-            className="w-full rounded-2xl border border-theme-border bg-theme-card py-4 pl-12 pr-4 text-sm text-theme-text-title outline-none transition-all placeholder:text-theme-text-sub/50 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5"
+            className="w-full rounded-2xl border border-theme-border bg-theme-card py-4 pl-12 pr-4 text-sm text-theme-text-title outline-none transition-all placeholder:text-theme-text-sub/50 focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/5"
           />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-text-sub transition-colors group-focus-within:text-blue-500">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-text-sub transition-colors group-focus-within:text-orange-500">
             <Icons.Search />
           </div>
         </div>
@@ -327,12 +327,12 @@ export default function GerenciaPedidos() {
             {lojasFiltradas.map((loja: Loja) => (
               <div
                 key={loja.id}
-                className="group relative overflow-hidden rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl transition-all hover:border-blue-500/30 sm:p-8"
+                className="group relative overflow-hidden rounded-[32px] border border-theme-border bg-theme-card p-5 shadow-2xl transition-all hover:border-orange-500/30 sm:p-8"
               >
                 {/* cabeçalho do card */}
                 <div className="relative z-10 mb-8 flex items-start justify-between">
                   <div className="flex min-w-0 items-center gap-4 sm:gap-5">
-                    <div className="rounded-2xl border border-blue-500/10 bg-blue-600/10 p-4 transition-transform group-hover:scale-110">
+                    <div className="rounded-2xl border border-orange-500/10 bg-orange-600/10 p-4 transition-transform group-hover:scale-110">
                       <Icons.Building />
                     </div>
                     <div>
@@ -360,7 +360,7 @@ export default function GerenciaPedidos() {
                     <Link
                       href={`/meuspedidos?loja=${loja.id}&data=${hojeISO()}`}
                       prefetch={false}
-                      className="rounded-2xl border border-theme-border bg-theme-header px-4 py-3 text-center text-[10px] font-black uppercase tracking-[1px] text-theme-text-title transition hover:border-blue-500/40 hover:text-blue-500"
+                      className="rounded-2xl border border-theme-border bg-theme-header px-4 py-3 text-center text-[10px] font-black uppercase tracking-[1px] text-theme-text-title transition hover:border-orange-500/40 hover:text-orange-500"
                     >
                       Pedidos de hoje
                     </Link>
@@ -375,7 +375,7 @@ export default function GerenciaPedidos() {
                 </div>
 
                 {/* detalhe decorativo */}
-                <div className="absolute -mr-16 -mt-16 right-0 top-0 h-48 w-48 rounded-full bg-blue-600/5 blur-3xl transition-colors group-hover:bg-blue-600/10" />
+                <div className="absolute -mr-16 -mt-16 right-0 top-0 h-48 w-48 rounded-full bg-orange-600/5 blur-3xl transition-colors group-hover:bg-orange-600/10" />
               </div>
             ))}
           </div>

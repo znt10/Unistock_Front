@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
       <main className="flex min-w-0 w-full items-center justify-center px-5 py-10 sm:px-8 lg:w-1/2">
         <div className="w-full max-w-md">
           <header className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600">
+            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-orange-600">
               <EnvelopeIcon className="h-7 w-7 text-white" />
             </div>
             <h2 className="text-2xl font-bold">Esqueci minha senha</h2>
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
                   placeholder="seu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-theme-border bg-theme-card py-3 pl-11 pr-4 text-theme-text-title outline-none transition placeholder:text-theme-text-sub focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-lg border border-theme-border bg-theme-card py-3 pl-11 pr-4 text-theme-text-title outline-none transition placeholder:text-theme-text-sub focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   required
                 />
               </div>
@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={enviando}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-orange-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {enviando ? "Enviando..." : "Enviar link"}
               <ArrowRightIcon className="h-5 w-5" />
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
 
             <Link
               href="/login"
-              className="mx-auto inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
+              className="mx-auto inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-orange-500 group"
             >
               <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
                 <ArrowLeftIcon className="h-3.5 w-3.5" />

@@ -16,7 +16,7 @@ module.exports = {
         'theme-text-title': 'rgb(var(--color-text-title) / <alpha-value>)',
         'theme-text-sub': 'rgb(var(--color-text-sub) / <alpha-value>)',
 
-        'action-primary': '#2563eb', // blue-600
+        'action-primary': '#ea580c', // orange-600 (logo)
         'status-success': '#4ade80', // green-400
       },
     },

@@ -98,7 +98,7 @@ export default function CadastroUsuarioForm({
           value={nome}
           onChange={(event) => setNome(event.target.value)}
           placeholder={texto.nomePlaceholder}
-          className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
           required
         />
       </div>
@@ -111,7 +111,7 @@ export default function CadastroUsuarioForm({
           id={`${tipo}-conta`}
           value={conta}
           onChange={(event) => setConta(event.target.value)}
-          className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
           required
         >
           <option value="">Selecione a empresa</option>
@@ -137,7 +137,7 @@ export default function CadastroUsuarioForm({
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder={texto.emailPlaceholder}
-            className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
             required
           />
         </div>
@@ -153,13 +153,13 @@ export default function CadastroUsuarioForm({
               value={senha}
               onChange={(event) => setSenha(event.target.value)}
               placeholder="Crie uma senha"
-              className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 pr-24 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-lg border border-theme-border bg-theme-base px-4 py-3 pr-24 text-theme-text-title outline-none transition placeholder:text-theme-text-sub/60 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
               required
             />
             <button
               type="button"
               onClick={() => setMostrarSenha((valor) => !valor)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black uppercase text-blue-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black uppercase text-orange-600"
             >
               {mostrarSenha ? "Ocultar" : "Mostrar"}
             </button>
@@ -197,7 +197,7 @@ export default function CadastroUsuarioForm({
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-700 active:scale-[0.98] disabled:opacity-60"
+          className="rounded-lg bg-orange-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-orange-700 active:scale-[0.98] disabled:opacity-60"
         >
           {loading ? texto.loading : submitLabel || texto.submit}
         </button>
