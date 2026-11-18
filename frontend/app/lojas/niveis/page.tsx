@@ -26,11 +26,13 @@ function Conteudo() {
     queryFn: getEstoques,
   });
 
-  // Quantos produtos cada loja ainda nao tem no estoque (o "?" do cartao),
+  // Quantos produtos de cada loja ainda estao sem minimo/maximo definidos (o "?" do cartao),
   // mesma conta que o editor faz por produto.
   const faltandoPorLoja = useMemo(() => {
+    // Produto com minimo/maximo ja definido pela gerencia, por loja.
     const temPorLoja = new Map<string, Set<string>>();
     for (const item of estoques) {
+      if (!item.niveis_definidos) continue;
       if (!temPorLoja.has(item.loja)) temPorLoja.set(item.loja, new Set());
       temPorLoja.get(item.loja)!.add(item.produto);
     }
@@ -94,8 +96,8 @@ function Conteudo() {
                     {item.nome_loja}
                     {(faltandoPorLoja.get(item.id) ?? 0) > 0 && (
                       <span
-                        title="Tem produto que ainda não está no estoque desta loja"
-                        aria-label="Tem produto que ainda não está no estoque desta loja"
+                        title="Tem produto com mínimo e máximo não definidos"
+                        aria-label="Tem produto com mínimo e máximo não definidos"
                         className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-400 text-sm font-black text-black"
                       >
                         ?

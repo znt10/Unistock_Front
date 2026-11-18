@@ -13,6 +13,8 @@ export type EstoqueApi = {
   quantidade_minima: number;
   quantidade_maxima: number;
   estado: "NORMAL" | "CONGELADO" | "RESFRIADO";
+  /** A gerencia ja salvou minimo/maximo desta linha. */
+  niveis_definidos?: boolean;
   atualizado_em?: string;
 };
 

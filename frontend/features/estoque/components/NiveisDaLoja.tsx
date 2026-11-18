@@ -28,12 +28,12 @@ type Props = {
  * precisa de niveis maiores; ao mesmo tempo nao pode acumular, porque estraga.
  * Ver os dois lado a lado, loja a loja, e o que deixa comparar de relance.
  */
-/** Produto (ou categoria com produto) que ainda nao esta no estoque da loja. */
+/** Minimo/maximo ainda nao definidos pela gerencia nesta loja. */
 function Interrogacao() {
   return (
     <span
-      title="Ainda não está no estoque desta loja"
-      aria-label="Ainda não está no estoque desta loja"
+      title="Mínimo e máximo ainda não definidos"
+      aria-label="Mínimo e máximo ainda não definidos"
       className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400 text-xs font-black text-black"
     >
       ?
@@ -328,7 +328,9 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
           const aplicando = aplicandoCategoria === grupo.id;
           const chave = grupo.id || "sem-categoria";
           const aberta = abertas[chave] ?? Boolean(busca.trim());
-          const faltando = grupo.todas.filter((linha) => !linha.registro).length;
+          const faltando = grupo.todas.filter(
+            (linha) => !linha.registro?.niveis_definidos,
+          ).length;
 
           return (
             <div
@@ -437,7 +439,7 @@ export default function NiveisDaLoja({ lojaId, nomeLoja }: Props) {
                           <td className="px-4 py-3">
                             <span className="flex items-center gap-2 font-bold text-theme-text-title">
                               {linha.produto.nome_produto}
-                              {!linha.registro && <Interrogacao />}
+                              {!linha.registro?.niveis_definidos && <Interrogacao />}
                             </span>
                             {erro[id] && (
                               <p className="mt-1 text-xs font-bold text-red-500">
