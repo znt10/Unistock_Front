@@ -248,7 +248,12 @@ export default function NotificacoesPage() {
     notificacoes.filter((n) => !n.lida && abaDoTipo(n.tipo) === aba).length;
   // Abre na primeira aba com não lidas (Pedidos antes de Estoque).
   const abaAtiva =
-    abaEscolhida ?? ABAS.find((a) => naoLidasDaAba(a.id) > 0)?.id ?? "pedidos";
+    abaEscolhida ??
+    ABAS.find((a) => naoLidasDaAba(a.id) > 0)?.id ??
+    // Tudo lido: abre numa aba que tem aviso. A loja só recebe estoque, e
+    // abrir em "Pedidos novos" vazia parecia que não havia nada.
+    ABAS.find((a) => notificacoes.some((n) => abaDoTipo(n.tipo) === a.id))?.id ??
+    "pedidos";
   const escolherAba = (aba: Aba) => {
     setAbaEscolhida(aba);
     setLojaAtiva(null);
@@ -422,7 +427,10 @@ export default function NotificacoesPage() {
                   return (
                     <button
                       key={grupo.loja_id ?? "__sem_loja__"}
-                      onClick={() => setLojaAtiva(grupo.loja_id)}
+                      onClick={() => {
+                        fixarAba();
+                        setLojaAtiva(grupo.loja_id);
+                      }}
                       className={`group w-full flex items-center gap-3 rounded-2xl border px-5 py-5 text-left transition-all ${
                         ativa
                           ? "border-blue-500/40 bg-blue-500/10 text-blue-400"

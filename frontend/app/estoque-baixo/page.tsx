@@ -131,7 +131,14 @@ export default function EstoqueBaixoPage() {
   // Por loja_id: sobrevive à atualização ao vivo. Sem escolha, o gerente
   // (várias lojas) vê tudo fechado e a loja (uma só) vê aberto.
   const [abertas, setAbertas] = useState<Record<string, boolean>>({});
-  const estaAberta = (lojaId: string) => abertas[lojaId] ?? grupos.length === 1;
+  // A loja que apareceu sozinha (e por isso aberta) continua aberta quando
+  // outra loja entra na lista pela atualização ao vivo.
+  const [lojaSozinha, setLojaSozinha] = useState<string | null>(null);
+  if (grupos.length === 1 && lojaSozinha !== grupos[0].loja_id) {
+    setLojaSozinha(grupos[0].loja_id);
+  }
+  const estaAberta = (lojaId: string) =>
+    abertas[lojaId] ?? (grupos.length === 1 || lojaId === lojaSozinha);
   const todasAbertas = grupos.every((g) => estaAberta(g.loja_id));
   const abrirOuFecharTodas = () =>
     setAbertas(
