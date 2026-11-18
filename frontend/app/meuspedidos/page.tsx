@@ -148,15 +148,19 @@ function MeusPedidosContent() {
 
         <div className="relative z-10 max-w-7xl mx-auto">
           <AbasDoPedido ativa="meus" />
-          <Link
-            href={isGerente ? "/painel_unidade" : "/novopedido"}
-            className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
-          >
-            <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
-              <Icons.ChevronLeft />
-            </span>
-            <span className="text-[11px] font-black uppercase tracking-[2px]">Voltar</span>
-          </Link>
+          {/* Para a loja as abas ja fazem o papel do Voltar; o gerente
+              continua com o atalho para o Painel unidade. */}
+          {isGerente && (
+            <Link
+              href="/painel_unidade"
+              className="mb-6 inline-flex items-center gap-2 text-theme-text-sub transition-all hover:text-blue-500 group"
+            >
+              <span className="flex items-center justify-center rounded-lg border border-theme-border bg-theme-header p-1.5 shadow-sm transition group-hover:bg-theme-hover">
+                <Icons.ChevronLeft />
+              </span>
+              <span className="text-[11px] font-black uppercase tracking-[2px]">Voltar</span>
+            </Link>
+          )}
 
           <header className="mb-10">
             <span className="text-blue-500 text-[11px] font-black uppercase tracking-[4px] mb-3 block">

@@ -137,9 +137,13 @@ export default function NovoPedidoPage() {
     <div className="flex min-h-screen overflow-x-hidden bg-theme-base font-sans text-theme-text-sub antialiased transition-colors duration-300">
       <Sidebar />
 
-      <main className="flex min-w-0 flex-1 items-center justify-center p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-60 lg:min-h-screen lg:pt-12">
-        <div className="mx-auto w-full max-w-3xl">
+      {/* Abas no mesmo lugar do Meus pedidos (alto, à esquerda, mesma
+          margem): antes o formulário centralizado arrastava as abas junto. */}
+      <main className="flex min-w-0 flex-1 flex-col p-5 pt-20 transition-all duration-300 sm:p-8 md:p-12 lg:ml-64 lg:min-h-screen lg:pt-12">
+        <div className="mx-auto w-full max-w-7xl">
           <AbasDoPedido ativa="novo" />
+        </div>
+        <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center">
 
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-black uppercase leading-none tracking-tighter text-theme-text-title sm:text-4xl">
