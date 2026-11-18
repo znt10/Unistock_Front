@@ -1,18 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#2563eb"/>
-  <path
-    d="M50 22.7 32 12.3 14 22.7v18.6l18 10.4 18-10.4V22.7Z"
-    fill="none"
-    stroke="#fff"
-    stroke-width="4"
-    stroke-linejoin="round"
-  />
-  <path
-    d="m14.8 23.2 17.2 9.9 17.2-9.9M32 52V33"
-    fill="none"
-    stroke="#fff"
-    stroke-width="4"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title">
+  <title id="title">Unistock (tamanho pequeno)</title>
+  <path fill="#E8590C" d="M88 16H168A8 8 0 0 1 176 24V104A8 8 0 0 1 168 112H88A8 8 0 0 1 80 104V24A8 8 0 0 1 88 16ZM112 48V80H144V48ZM24 144H104A8 8 0 0 1 112 152V232A8 8 0 0 1 104 240H24A8 8 0 0 1 16 232V152A8 8 0 0 1 24 144ZM48 176V208H80V176ZM152 144H232A8 8 0 0 1 240 152V232A8 8 0 0 1 232 240H152A8 8 0 0 1 144 232V152A8 8 0 0 1 152 144ZM176 176V208H208V176Z"/>
 </svg>
